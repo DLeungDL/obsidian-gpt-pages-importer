@@ -1,4 +1,6 @@
-import { convert, type Conversion } from './convert';
+import { convertVerified, type Conversion } from './convert';
+import { digest } from './hash';
+export { digest } from './hash';
 export interface Entry { destination: string; outputHash: string }
 export interface State { version: 1; entries: Record<string, Entry> }
 export interface Storage {
@@ -11,10 +13,6 @@ export interface Storage {
 export interface Plan {
   key: string; sourceId: string; destination: string; before: string | null;
   conversion: Conversion; outputHash: string; status: 'create' | 'update' | 'unchanged' | 'conflict';
-}
-export async function digest(text: string): Promise<string> {
-  const hash = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 export function vaultPath(path: string): string {
   const normalized = path.trim().replace(/\\/g, '/');
@@ -38,7 +36,7 @@ export async function planImport(storage: Storage, state: State, sourceId: strin
   const base = normalizedId.replace(/\.md$/i, '').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'page';
   const destination = state.entries[key]?.destination ?? `${vaultPath(folder)}/${base}-${key.slice(0, 16)}.md`;
   const before = await storage.read(destination);
-  const conversion = convert(source, trusted);
+  const conversion = await convertVerified(source, trusted);
   const outputHash = await digest(conversion.markdown);
   const previous = state.entries[key];
   // Equality does not establish ownership of an unrelated existing file.

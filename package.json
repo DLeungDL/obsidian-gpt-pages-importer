@@ -6,7 +6,8 @@
     "build": "npm run typecheck && node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check": "npm run build && npm test"
+    "check:public": "node scripts/check-public-fixtures.mjs",
+    "check": "npm run check:public && npm run build && npm test"
   },
   "dependencies": { "mdast-util-from-markdown": "2.1.0" },
   "devDependencies": {

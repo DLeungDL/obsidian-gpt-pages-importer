@@ -1,5 +1,6 @@
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import type { RootContent } from 'mdast';
+import { digest } from './hash';
 
 /** Pure conversion: never executes source or parses HTML into a live DOM. */
 export interface Warning { code: string; message: string; line?: number }
@@ -7,8 +8,51 @@ export interface Conversion { markdown: string; warnings: Warning[]; figures: nu
 interface Line { text: string; start: number; end: number }
 interface Fence { first: number; last: number; language: string; closed: boolean }
 interface Edit { start: number; end: number; text: string }
+interface Marker { line: number; id: string; version: string; ref?: string; sha256?: string }
+interface Token { text?: string; imageUrl?: string }
+interface Candidate { marker: Marker; referenceLine?: number; source: string }
+interface Prepared {
+  markdown: string; lines: Line[]; warnings: Warning[]; edits: Edit[];
+  protectedLines: Set<number>; referenceLines: Set<number>; pairedReferences: Set<number>;
+  figures: number; candidates: Candidate[];
+}
 
+/** Synchronous v1 API. Unverified v2 references are retained. */
 export function convert(markdown: string, trusted = false): Conversion {
+  const prepared = prepare(markdown, trusted);
+  for (const candidate of prepared.candidates) prepared.warnings.push({
+    code: 'verification-required', message: 'v2 HTML 尚未校驗；保留參照，請使用非同步匯入流程。', line: candidate.marker.line + 1
+  });
+  return finish(prepared);
+}
+
+/** Verify source bytes without executing or fetching them. */
+export async function convertVerified(markdown: string, trusted = false): Promise<Conversion> {
+  const prepared = prepare(markdown, trusted);
+  for (const candidate of prepared.candidates) {
+    let hash: string;
+    try { hash = await digest(candidate.source); }
+    catch {
+      prepared.warnings.push({ code: 'hash-unavailable', message: '無法校驗 v2 HTML；保留參照。', line: candidate.marker.line + 1 });
+      continue;
+    }
+    if (hash !== candidate.marker.sha256) {
+      prepared.warnings.push({ code: 'source-hash-mismatch', message: `${candidate.marker.id} 的 HTML SHA-256 不符；保留參照。`, line: candidate.marker.line + 1 });
+      continue;
+    }
+    paired(prepared, candidate.referenceLine);
+  }
+  return finish(prepared);
+}
+
+function paired(prepared: Prepared, referenceLine?: number): void {
+  prepared.figures++;
+  if (referenceLine === undefined) return;
+  prepared.edits.push({ start: prepared.lines[referenceLine]!.start, end: prepared.lines[referenceLine]!.end, text: '' });
+  prepared.pairedReferences.add(referenceLine);
+}
+
+function prepare(markdown: string, trusted: boolean): Prepared {
   const lines: Line[] = [];
   for (const match of markdown.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/g)) {
     if (!match[0]) continue;
@@ -18,8 +62,26 @@ export function convert(markdown: string, trusted = false): Conversion {
   const protectedLines = new Set<number>();
   const warnings: Warning[] = [];
   const edits: Edit[] = [];
+  const standalone = new Map<number, Token>();
+  const referenceLines = new Set<number>();
+  const imageCounts = new Map<string, number>();
+  const tree = fromMarkdown(markdown);
+  for (const node of tree.children) {
+    if (!node.position || node.position.start.line !== node.position.end.line) continue;
+    const first = node.position.start.line - 1;
+    if (node.type === 'html') standalone.set(first, { text: node.value });
+    if (node.type === 'paragraph' && node.children.length === 1) {
+      const child = node.children[0]!;
+      if (child.type === 'text') standalone.set(first, { text: child.value });
+      if (child.type === 'image') standalone.set(first, { imageUrl: child.url });
+    }
+  }
   const walk = (nodes: RootContent[], topLevel: boolean): void => {
     for (const node of nodes) {
+      if (node.type === 'image' && node.url.startsWith('visualize:')) {
+        imageCounts.set(node.url, (imageCounts.get(node.url) ?? 0) + 1);
+        if (node.position) referenceLines.add(node.position.start.line - 1);
+      }
       if ((node.type === 'code' || node.type === 'html') && node.position) {
         const first = node.position.start.line - 1;
         const last = Math.min(node.position.end.line - 1, lines.length - 1);
@@ -48,32 +110,51 @@ export function convert(markdown: string, trusted = false): Conversion {
       if ('children' in node) walk(node.children as RootContent[], false);
     }
   };
-  walk(fromMarkdown(markdown).children, true);
-  const markers: { line: number; id: string; version: string }[] = [];
+  walk(tree.children, true);
+  const markers: Marker[] = [];
   const counts = new Map<string, number>();
+  const bindingCounts = new Map<string, number>();
   lines.forEach((line, index) => {
     if (protectedLines.has(index)) return;
-    const marker = line.text.match(/^\s*<!-- gpt-pages:figure v=(\d+) id=([A-Za-z0-9_-]+) -->\s*$/);
+    // Interpret standalone tokens only; raw escaping and HTML bodies stay intact.
+    const text = standalone.get(index)?.text;
+    const identity = text?.match(/^\s*<!-- gpt-pages:figure v=\d+ id=([A-Za-z0-9_-]+)(?: [^\r\n]*)? -->\s*$/);
+    if (identity) counts.set(identity[1]!, (counts.get(identity[1]!) ?? 0) + 1);
+    const marker = text?.match(/^\s*<!-- gpt-pages:figure v=(\d+) id=([A-Za-z0-9_-]+)(?: ref=([A-Za-z0-9_-]{1,256}) sha256=([a-f0-9]{64}))? -->\s*$/);
     if (marker) {
       const id = marker[2]!;
-      markers.push({ line: index, version: marker[1]!, id });
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-    } else if (line.text.includes('gpt-pages:figure')) {
+      const ref = marker[3];
+      markers.push({ line: index, version: marker[1]!, id, ref, sha256: marker[4] });
+      if (marker[1] === '2' && ref) bindingCounts.set(ref, (bindingCounts.get(ref) ?? 0) + 1);
+    } else if (/gpt-pages\\?:figure/.test(line.text)) {
       warnings.push({ code: 'malformed-marker', message: '無法辨識 figure 標記，保留原文。', line: index + 1 });
     }
   });
-  let figures = 0;
-  const pairedReferences = new Set<number>();
+  const prepared: Prepared = { markdown, lines, warnings, edits, protectedLines, referenceLines, pairedReferences: new Set(), figures: 0, candidates: [] };
   const nextNonBlank = (index: number): number => {
     while (index < lines.length && !lines[index]!.text.trim()) index++;
     return index;
   };
   for (const marker of markers) {
     const warn = (code: string, message: string) => warnings.push({ code, message, line: marker.line + 1 });
-    if (marker.version !== '1') { warn('unknown-version', `未知格式版本 ${marker.version}，保留原文。`); continue; }
+    if (!['1', '2'].includes(marker.version)) { warn('unknown-version', `未知格式版本 ${marker.version}，保留原文。`); continue; }
     if (counts.get(marker.id) !== 1) { warn('duplicate-id', `重複 figure identifier：${marker.id}，不替換參照。`); continue; }
+    if (marker.version === '1' && marker.ref) { warn('malformed-marker', 'v1 不支援 ref／sha256 欄位，保留原文。'); continue; }
+    if (marker.version === '2') {
+      if (!marker.ref || !marker.sha256) { warn('missing-binding', 'v2 必須提供原生檔案 ID 與 SHA-256，保留參照。'); continue; }
+      if (bindingCounts.get(marker.ref) !== 1 || (imageCounts.get(`visualize:${marker.ref}`) ?? 0) > 1) {
+        warn('duplicate-reference', `原生檔案 ${marker.ref} 被重複使用，不替換參照。`); continue;
+      }
+    }
     const referenceLine = nextNonBlank(marker.line + 1);
-    const hasReference = lines[referenceLine]?.text.trim() === `visualize:${marker.id}`;
+    let hasReference = marker.version === '1' && lines[referenceLine]?.text.trim() === `visualize:${marker.id}`;
+    if (marker.version === '2') {
+      const imageUrl = standalone.get(referenceLine)?.imageUrl;
+      if (imageUrl !== undefined) {
+        if (imageUrl !== `visualize:${marker.ref}`) { warn('reference-mismatch', `${marker.id} 的原生檔案 ID 不符，保留參照。`); continue; }
+        hasReference = true;
+      }
+    }
     const fenceLine = hasReference ? nextNonBlank(referenceLine + 1) : referenceLine;
     const fence = fences.find(f => f.first === fenceLine);
     if (!fence || !['html', 'html-source'].includes(fence.language) || !fence.closed) {
@@ -83,23 +164,26 @@ export function convert(markdown: string, trusted = false): Conversion {
     if (!/^\s*<!doctype html\s*>/i.test(source) || !/<html(?:\s[^>]*)?>/i.test(source) || !/<\/html>\s*$/i.test(source)) {
       warn('incomplete-document', `${marker.id} 缺少完整 HTML 文件邊界，保留參照。`); continue;
     }
-    figures++;
-    if (hasReference) {
-      edits.push({ start: lines[referenceLine]!.start, end: lines[referenceLine]!.end, text: '' });
-      pairedReferences.add(referenceLine);
-    }
+    if (marker.version === '2') prepared.candidates.push({ marker, referenceLine: hasReference ? referenceLine : undefined, source });
+    else paired(prepared, hasReference ? referenceLine : undefined);
   }
+  warnings.push(trusted
+    ? { code: 'trusted-rendering', message: '輸出 html fence 可由 renderer 執行 scripts，也可能發出網路請求。' }
+    : { code: 'renderer-disabled', message: 'HTML 已保留為 html-source。呈現需 Polyglot Renderer 並明確信任 scripts；本次預覽不執行內容。' });
+  return prepared;
+}
+
+function finish(prepared: Prepared): Conversion {
+  const { markdown, lines, warnings, edits, protectedLines, referenceLines, pairedReferences, figures } = prepared;
   lines.forEach((line, index) => {
-    if (!protectedLines.has(index) && /visualize:/.test(line.text) && !pairedReferences.has(index)) {
+    if (!protectedLines.has(index) && (/visualize\\?:/.test(line.text) || referenceLines.has(index)) && !pairedReferences.has(index)) {
       warnings.push({ code: 'unpaired-reference', message: '未確認精確配對的 visualize: 參照已保留。', line: index + 1 });
     }
   });
   let output = markdown;
   for (const edit of edits.sort((a, b) => b.start - a.start)) output = output.slice(0, edit.start) + edit.text + output.slice(edit.end);
-  const assets = assetReferences(markdown);
+  const assets = assetReferences(output);
   if (assets.length) warnings.push({ code: 'asset-references', message: '內容包含資產參照；本外掛不下載資產。動態生成的 URL 無法靜態完整辨識。' });
-  if (!trusted) warnings.push({ code: 'renderer-disabled', message: 'HTML 已保留為 html-source。呈現需 Polyglot Renderer 並明確信任 scripts；本次預覽不執行內容。' });
-  else warnings.push({ code: 'trusted-rendering', message: '輸出 html fence 可由 renderer 執行 scripts，也可能發出網路請求。' });
   return { markdown: output, warnings, figures, assets };
 }
 
@@ -115,7 +199,7 @@ export function assetReferences(text: string): string[] {
   ];
   for (const pattern of patterns) for (const match of text.matchAll(pattern)) {
     const value = match[1] ?? match[0];
-    if (!value.startsWith('#') && !/^(?:data:|mailto:|visualize:)/i.test(value)) urls.add(value);
+    if (!value.startsWith('#') && !/^(?:data:|mailto:|visualize\\?:)/i.test(value)) urls.add(value);
   }
   return [...urls].sort();
 }
