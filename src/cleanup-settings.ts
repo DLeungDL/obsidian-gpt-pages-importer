@@ -29,7 +29,7 @@ export class CleanupSettingTab extends PluginSettingTab {
     container.empty();
     container.createEl('h2', { text: '指定資料夾自動清理' });
     container.createEl('p', { text: '直接修改資料夾內的 Markdown（含子資料夾）。儲存並啟用後會先清理現有檔案，之後自動處理新增、修改與移入的檔案。每次寫入前備份至 GPT Pages Backups/cleanup。' });
-    container.createEl('p', { text: '只移除成功配對的標記及原生圖片參照；預設保留 HTML 原始碼與 html／html-source 語言。備份及已追蹤的匯入目的筆記不處理。' });
+    container.createEl('p', { text: '只清理成功配對的標記及原生圖片參照；頁尾原始碼通過校驗後會移回正文圖表位置。預設保留 HTML 內容與 html／html-source 語言。備份及已追蹤的匯入目的筆記不處理。' });
     const draft = this.controller.getCleanupSettings();
     let trustedFolder = draft.renderHtml ? draft.folder : undefined;
     let setRendering = (_value: boolean) => {};

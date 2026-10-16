@@ -2,7 +2,7 @@
 
 將 ChatGPT Pages Markdown 匯入 Obsidian，保留完整 portable HTML source，並提供純文字變更預覽、資產報告、重複匯入與備份／衝突保護。也可指定 vault 內的資料夾，自動原地清理已配對的標記與圖片參照。Polyglot Renderer 為選用 companion plugin，不包含在本外掛中。
 
-**目前為 0.1.0 MVP，支援 v2 自動配對（automatic matching）。** 型別檢查、建置及 178 項自動測試通過；真正 Obsidian 1.14.4／Polyglot Renderer 1.3.0 的既有 v2 桌面驗證 15 項全部通過，包含兩圖配對、滑桿／重設、重匯、備份、衝突及摘要／ID 不符。
+**目前為 0.1.0 MVP，支援 v3 精簡標記（compact markers）、頁尾 HTML 原始碼與 v1／v2 相容。** 真正 Obsidian 1.14.4／Polyglot Renderer 1.3.0 的既有相鄰 v2 桌面驗證 15 項全部通過，包含兩圖配對、滑桿／重設、重匯、備份、衝突及摘要／ID 不符；頁尾與精簡標記另有自動回歸測試，實機範圍見相容性紀錄。
 
 v2 使用原生檔案 ID 與完整 HTML 的 SHA-256，校驗後自動移除配對標記（marker）與原生圖片參照，避免顯示跳脫標記及失效圖片文字，支援觀察到的 Pages 跳脫格式（escaping）。維護者的既有實際 v2 UI 匯入驗證為兩圖成功配對、15 項桌面檢查通過；公開儲存庫只保存自行編寫、使用虛構 ID 的 fixtures 與 [結果摘要](docs/pages-roundtrip.md)，原始匯出、截圖及來源識別資料保留於 Git 外。未綁定的 v1 原生參照仍保留並警告。UTF-8 BOM 重匯誤判衝突已修正，雜湊及備份保留 BOM／換行，本機增刪 BOM 仍視為修改；實測範圍見 [相容性紀錄](docs/compatibility.md)。
 
@@ -55,13 +55,13 @@ renderer 由使用者獨立安裝；本外掛不使用私有 API，也不自動�
 
 ## 格式、保留與降級
 
-[v2 配對契約](docs/format.md) 要求文件內唯一的 figure ID／原生檔案 ID、獨立且相鄰的 marker／image-style 參照／完整 HTML fence，以及精確 SHA-256。先以同一份 HTML 建立原生視覺化並取得檔案 ID，再生成 marker：
+[v3 配對契約](docs/format.md) 的正文只放 `<!-- gpt-pages:figure id=圖表ID -->` 與相鄰的原生圖片。完整 HTML 集中在文件底部，各份 fence 前放 `<!-- gpt-pages:source v=3 id=同一圖表ID ref=原生檔案ID sha256=64位摘要 -->`，標記與 fence 之間只留空白行。外掛依唯一 ID、精確圖片參照與 SHA-256 校驗後，把完整 fence 移回正文圖表位置並清理兩種標記及圖片參照；缺失、重複或歧義來源保留並警告。無須增加頁尾原始碼標題。原有 HTML 信任選項、備份與衝突保護均適用，不連線 Pages 取得內容。先以同一份 HTML 建立原生視覺化並取得檔案 ID，再生成正文與頁尾兩個 marker：
 
 ```sh
-node scripts/figure-marker.mjs example-chart NATIVE_FILE_ID source.html
+node scripts/figure-marker.mjs --v3 example-chart NATIVE_FILE_ID source.html
 ```
 
-Pages 不會自動添加這些欄位。只有校驗成功才移除配對標記與參照行；摘要不符、ID 重複、未知版本、缺失／不完整 source 均保留並警告。舊 v1 standalone 配對仍支援；沒有明確綁定的原生圖片不猜測配對。
+Pages 不會自動添加這些欄位。只有校驗成功才移除配對標記與參照行；摘要不符、ID 重複、未知版本、缺失／不完整 source 均保留並警告。舊 v1 standalone、v2 相鄰與頁尾配對仍支援，生成工具省略 `--v3` 仍輸出原有 v2 marker；沒有明確綁定的原生圖片不猜測配對。
 
 透過 CommonMark 語法樹辨識 marker／URI，只移除成功配對的 metadata，保留章節標題與一般圖說，不全域移除反斜線。中文、UTF-8、公式、HTML entities 與 HTML/CSS/JS code body bytes 保留。摘要涵蓋換行與 BOM，成功配對不代表安全或自動信任。預設修改 HTML fence 語言 token 是為停用 renderer 自動執行。升級後以同一來源名稱重匯，舊筆記會先備份再清理標記；若有本機修改則停止覆寫。
 
@@ -79,6 +79,6 @@ Pages 不會自動添加這些欄位。只有校驗成功才移除配對標記�
 - [靜態範例](examples/static.md)、[互動範例](examples/interactive.md)：自行編寫的通用內容，不是私人資料或實際 Pages 匯出證據。
 - `tests/fixtures/`：輸入與獨立預期輸出；v2 escaped fixture 使用通用測試 ID，依觀察到的 UI 格式編寫，並非新下載檔。
 - [公開生成規範](skills/generate-portable-page/SKILL.md)：後續 Page 同時保留原生視覺化與完整 portable HTML 的要求。
-- `src/convert.ts`：純轉換、非同步 v2 校驗及資產候選掃描；`src/hash.ts`：UTF-8 摘要；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/cleanup.ts`：原地清理、備份與事件佇列；`src/cleanup-settings.ts`：監看設定；`src/main.ts`：Obsidian 命令／modal／事件；`src/preview.ts`：不執行內容的預覽。
+- `src/convert.ts`：純轉換、非同步 v2／v3 校驗及資產候選掃描；`src/hash.ts`：UTF-8 摘要；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/cleanup.ts`：原地清理、備份與事件佇列；`src/cleanup-settings.ts`：監看設定；`src/main.ts`：Obsidian 命令／modal／事件；`src/preview.ts`：不執行內容的預覽。
 
 本外掛不包含 Pages 雲端同步或雙向同步、renderer 重作、任意 HTML 安全執行保證或所有 Pages 視覺化的相容性保證。其他匯出版本與平台仍需依相容性文件補測。
