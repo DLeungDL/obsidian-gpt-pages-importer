@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>互動加權總和 · Weighted sum</title>
+<style>
+:root { color-scheme: light; --ink: #172033; --paper: #ffffff; --line: #cbd5e1; --blue: #2563eb; --teal: #0f766e; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: var(--paper, #fff); color: var(--ink, #172033); font: 16px/1.5 system-ui, "Microsoft JhengHei", "Noto Sans TC", sans-serif; }
+#weighted-sum { max-width: 720px; margin: auto; }
+h1 { font-size: 24px; margin: 0 0 8px; }
+p { margin: 8px 0 16px; }
+.controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.control { border: 1px solid var(--line, #cbd5e1); border-radius: 8px; padding: 12px; }
+label { display: block; font-weight: 600; }
+input, button { font: inherit; }
+input[type="range"] { width: 100%; min-height: 32px; }
+input[type="number"] { width: 100%; padding: 6px; background: #fff; color: #172033; border: 1px solid #94a3b8; border-radius: 4px; }
+.summary { margin-top: 16px; padding: 12px; background: #f1f5f9; border-radius: 8px; }
+#score { font-size: 32px; font-weight: 700; }
+#equation { overflow-wrap: anywhere; }
+button { margin-top: 12px; padding: 8px 16px; border: 1px solid #94a3b8; border-radius: 6px; background: #fff; color: #172033; cursor: pointer; }
+input:focus-visible, button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+svg { display: block; width: 100%; height: auto; margin-top: 16px; }
+svg text { font: 14px system-ui, "Microsoft JhengHei", sans-serif; fill: #172033; }
+@media (max-width: 480px) { .controls { grid-template-columns: 1fr; } h1 { font-size: 21px; } }
+</style>
+</head>
+<body>
+<main id="weighted-sum">
+  <h1>互動加權總和（Weighted sum）</h1>
+  <p>固定輸入 x = (2, 3)。改變權重，觀察每個貢獻與總和：s = 2w₁ + 3w₂。</p>
+  <section class="controls" aria-label="權重控制（Weight controls）">
+    <div class="control">
+      <label for="w1">權重 w₁：<output id="v1" for="w1">2</output></label>
+      <input id="w1" type="range" min="-5" max="5" step="0.1" value="2">
+      <label for="n1">精確數值 w₁</label><input id="n1" type="number" min="-5" max="5" step="0.1" value="2">
+    </div>
+    <div class="control">
+      <label for="w2">權重 w₂：<output id="v2" for="w2">1</output></label>
+      <input id="w2" type="range" min="-5" max="5" step="0.1" value="1">
+      <label for="n2">精確數值 w₂</label><input id="n2" type="number" min="-5" max="5" step="0.1" value="1">
+    </div>
+  </section>
+  <div class="summary" role="status" aria-live="polite" aria-atomic="true">
+    <span>總和（Score）：</span><output id="score">7</output>
+    <div id="equation">2 × 2 + 1 × 3 = 7</div>
+  </div>
+  <button id="reset" type="button">重設（Reset）</button>
+  <svg id="bars" viewBox="0 0 600 180" role="img" aria-label="兩項貢獻分別為 4 與 3">
+    <title>兩項貢獻（Contributions）</title>
+    <line x1="300" y1="20" x2="300" y2="150" stroke="#94a3b8" />
+    <text x="30" y="173">−15</text><text x="300" y="173" text-anchor="middle">0</text><text x="570" y="173" text-anchor="end">15</text>
+    <text id="label1" x="30" y="35">2w₁ = 4</text><rect id="bar1" x="300" y="45" width="72" height="24" rx="3" fill="#2563eb" /><circle id="zero1" cx="300" cy="57" r="3" fill="#2563eb" hidden />
+    <text id="label2" x="30" y="100">3w₂ = 3</text><rect id="bar2" x="300" y="110" width="54" height="24" rx="3" fill="#0f766e" /><circle id="zero2" cx="300" cy="122" r="3" fill="#0f766e" hidden />
+  </svg>
+  <p>長條以零點分隔正、負貢獻；圓點代表零。此示例只示範加權總和。</p>
+</main>
+<script>
+(() => {
+  'use strict';
+  const root = document.getElementById('weighted-sum');
+  const data = { x: [2, 3], initial: [2, 1], min: -5, max: 5 };
+  const weights = data.initial.slice();
+  const find = id => root.querySelector('#' + id);
+  const ranges = [find('w1'), find('w2')], numbers = [find('n1'), find('n2')];
+  const round = value => Math.round(value * 10) / 10;
+  const format = value => String(Object.is(value, -0) ? 0 : round(value));
+  const term = value => value < 0 ? '(' + format(value) + ')' : format(value);
+  function render(editing = null) {
+    const contributions = weights.map((w, i) => round(w * data.x[i]));
+    const sum = round(contributions.reduce((a, b) => a + b, 0));
+    weights.forEach((w, i) => {
+      const suffix = i + 1;
+      ranges[i].value = format(w);
+      if (numbers[i] !== editing) numbers[i].value = format(w);
+      find('v' + suffix).textContent = format(w);
+      find('label' + suffix).textContent = data.x[i] + 'w' + (i === 0 ? '₁' : '₂') + ' = ' + format(contributions[i]);
+      const bar = find('bar' + suffix), edge = 300 + contributions[i] * 18;
+      bar.setAttribute('x', String(Math.min(300, edge)));
+      bar.setAttribute('width', String(Math.abs(contributions[i] * 18)));
+      find('zero' + suffix).style.display = contributions[i] === 0 ? '' : 'none';
+      find('zero' + suffix).removeAttribute('hidden');
+    });
+    find('score').textContent = format(sum);
+    find('equation').textContent = term(weights[0]) + ' × 2 + ' + term(weights[1]) + ' × 3 = ' + format(sum);
+    find('bars').setAttribute('aria-label', '兩項貢獻分別為 ' + format(contributions[0]) + ' 與 ' + format(contributions[1]) + '，總和 ' + format(sum));
+  }
+  function update(i, input) {
+    if (!Number.isFinite(input.valueAsNumber)) return;
+    weights[i] = round(Math.max(data.min, Math.min(data.max, input.valueAsNumber)));
+    render(input);
+  }
+  [ranges, numbers].forEach(group => group.forEach((input, i) => {
+    input.addEventListener('input', () => update(i, input));
+    input.addEventListener('change', () => { update(i, input); render(); });
+  }));
+  find('reset').addEventListener('click', () => { weights.splice(0, 2, ...data.initial); render(); });
+  render();
+})();
+</script>
+</body>
+</html>
