@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">GPT Pages Importer — Your Pages, in Obsidian.</title>
+  <desc id="description">An illustration of a Page chart becoming a portable HTML visualization in an Obsidian note, with verified pairing, backups and explicit trust.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1200" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111327"/>
+      <stop offset="1" stop-color="#0B1623"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#7C3AED" stop-opacity=".23"/>
+      <stop offset="1" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="48" y1="0" x2="1152" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <linearGradient id="chart" x1="0" y1="0" x2="0" y2="100">
+      <stop stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#CBD5E1" stroke-opacity=".035"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#020617" flood-opacity=".5"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="440" rx="24" fill="url(#background)"/>
+  <rect width="1200" height="440" rx="24" fill="url(#grid)"/>
+  <ellipse cx="824" cy="154" rx="364" ry="310" fill="url(#glow)"/>
+  <path d="M48 439H1152" stroke="url(#accent)" stroke-opacity=".55" stroke-width="2"/>
+
+  <g font-family="Segoe UI, Inter, Arial, sans-serif">
+    <g transform="translate(52 44)">
+      <rect width="34" height="38" rx="8" fill="#8B5CF6" fill-opacity=".17" stroke="#A78BFA" stroke-opacity=".6"/>
+      <path d="M11 10H21L25 14V28H11V10Z" stroke="#C4B5FD" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M21 10V15H25M15 20H21M15 24H21" stroke="#C4B5FD" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="48" y="24" fill="#D8DCEE" font-size="15" font-weight="600" letter-spacing="1.4">GPT PAGES IMPORTER</text>
+    </g>
+
+    <text x="52" y="167" fill="#F8FAFC" font-size="62" font-weight="700" letter-spacing="-2">Your Pages,</text>
+    <text x="52" y="237" fill="#C4B5FD" font-size="62" font-weight="700" letter-spacing="-2">in Obsidian.</text>
+    <text x="55" y="286" fill="#AEBAD1" font-size="19">Portable HTML. Verified pairs. Clear control.</text>
+
+    <g transform="translate(54 334)" font-size="12" font-weight="600">
+      <rect width="102" height="31" rx="15.5" fill="#8B5CF6" fill-opacity=".13" stroke="#8B5CF6" stroke-opacity=".4"/>
+      <circle cx="16" cy="15.5" r="3" fill="#A78BFA"/>
+      <text x="26" y="20" fill="#DDD6FE">v3 pairing</text>
+      <rect x="114" width="126" height="31" rx="15.5" fill="#14B8A6" fill-opacity=".08" stroke="#14B8A6" stroke-opacity=".3"/>
+      <path d="M128 15L131 18L136 12" stroke="#5EEAD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="144" y="20" fill="#CCFBF1">Backups first</text>
+      <rect x="252" width="126" height="31" rx="15.5" fill="#1E293B" stroke="#475569" stroke-opacity=".6"/>
+      <path d="M267 10L272 12V16C272 19 269 21 267 22C265 21 262 19 262 16V12L267 10Z" stroke="#94A3B8" stroke-width="1.2"/>
+      <text x="282" y="20" fill="#CBD5E1">Explicit trust</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="680" y="54" width="226" height="267" rx="16" fill="#171E32" stroke="#3A3D5D"/>
+      <path d="M680 100H906" stroke="#30364F"/>
+      <circle cx="701" cy="77" r="3" fill="#A78BFA"/>
+      <text x="714" y="82" fill="#DDD6FE" font-size="11" font-weight="600" letter-spacing="1.7">PAGES</text>
+      <rect x="702" y="121" width="132" height="8" rx="4" fill="#A9B5CF" fill-opacity=".8"/>
+      <rect x="702" y="140" width="174" height="5" rx="2.5" fill="#526079"/>
+      <rect x="702" y="152" width="148" height="5" rx="2.5" fill="#526079"/>
+      <path d="M704 183H880M704 212H880M704 241H880" stroke="#2C3950"/>
+      <rect x="714" y="218" width="25" height="43" rx="4" fill="#7C3AED"/>
+      <rect x="754" y="197" width="25" height="64" rx="4" fill="#8B5CF6"/>
+      <rect x="794" y="213" width="25" height="48" rx="4" fill="#A78BFA"/>
+      <rect x="834" y="177" width="25" height="84" rx="4" fill="#C4B5FD"/>
+      <rect x="702" y="282" width="155" height="20" rx="5" fill="#0F172A"/>
+      <text x="711" y="296" fill="#A5B4CF" font-family="Consolas, monospace" font-size="10">&lt;figure id="chart"&gt;</text>
+    </g>
+
+    <path d="M803 337V367H866" stroke="#5EEAD4" stroke-opacity=".7" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6"/>
+    <path d="M860 362L867 367L860 372" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="684" y="371" fill="#7E93B2" font-size="10" font-weight="600" letter-spacing="1.3">MARKDOWN</text>
+
+    <g filter="url(#shadow)">
+      <rect x="880" y="122" width="266" height="272" rx="16" fill="#132536" stroke="#33716F"/>
+      <path d="M880 168H1146" stroke="#294457"/>
+      <rect x="900" y="140" width="14" height="14" rx="4" fill="#A78BFA" fill-opacity=".23"/>
+      <path d="M904 147L907 143L910 147L907 152L904 147Z" fill="#C4B5FD"/>
+      <text x="925" y="151" fill="#D4E7F1" font-size="11" font-weight="600" letter-spacing="1.5">OBSIDIAN NOTE</text>
+      <rect x="902" y="188" width="151" height="8" rx="4" fill="#D1DFEC"/>
+      <rect x="902" y="207" width="213" height="5" rx="2.5" fill="#59738A"/>
+      <rect x="902" y="219" width="169" height="5" rx="2.5" fill="#59738A"/>
+      <rect x="902" y="242" width="222" height="100" rx="9" fill="#0C1B2A" stroke="#294457"/>
+      <path d="M917 317H1109M917 290H1109M917 263H1109" stroke="#1D3445"/>
+      <path d="M919 316L948 302L977 309L1006 282L1035 291L1064 265L1099 273" stroke="#5EEAD4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M919 316L948 302L977 309L1006 282L1035 291L1064 265L1099 273V328H919Z" fill="#14B8A6" fill-opacity=".09"/>
+      <circle cx="1064" cy="265" r="4" fill="#5EEAD4" stroke="#0C1B2A" stroke-width="2"/>
+      <path d="M906 365L910 369L917 361" stroke="#5EEAD4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="925" y="370" fill="#8BD6CF" font-size="11">Paired. Portable. Yours.</text>
+    </g>
+    <rect x="834" y="98" width="91" height="26" rx="13" fill="#2A2045" stroke="#7C5DB1"/>
+    <text x="847" y="115" fill="#DDD6FE" font-size="10" font-weight="600" letter-spacing=".6">SHA-256</text>
+  </g>
+</svg>
