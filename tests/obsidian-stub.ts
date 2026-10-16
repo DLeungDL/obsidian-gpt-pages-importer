@@ -97,9 +97,26 @@ export class Modal {
   close() { this.onClose(); this.contentEl.remove(); Modal.opened = Modal.opened.filter(modal => modal !== this); }
 }
 class Control {
-  constructor(public element: HTMLInputElement | HTMLButtonElement) {}
-  setValue(value: string | boolean) { if (this.element instanceof HTMLInputElement) { if (typeof value === 'boolean') this.element.checked = value; else this.element.value = value; } return this; }
-  onChange(fn: (value: string | boolean) => void) { this.element.addEventListener('change', () => fn(this.element instanceof HTMLInputElement && this.element.type === 'checkbox' ? this.element.checked : (this.element as HTMLInputElement).value)); return this; }
+  private changeCallback?: (value: string | boolean) => void;
+  private toggleValue = false;
+  constructor(public element: HTMLInputElement | HTMLButtonElement) {
+    this.element.addEventListener('change', () => {
+      if (this.element instanceof HTMLInputElement && this.element.type === 'checkbox') this.setValue(this.element.checked);
+      else this.changeCallback?.((this.element as HTMLInputElement).value);
+    });
+  }
+  setValue(value: string | boolean) {
+    if (this.element instanceof HTMLInputElement) {
+      if (typeof value === 'boolean') {
+        const changed = this.toggleValue !== value;
+        this.toggleValue = value; this.element.checked = value;
+        // Obsidian ToggleComponent.setValue also invokes onChange for programmatic changes.
+        if (changed) this.changeCallback?.(value);
+      } else this.element.value = value;
+    }
+    return this;
+  }
+  onChange(fn: (value: string | boolean) => void) { this.changeCallback = fn; return this; }
   setButtonText(text: string) { this.element.textContent = text; return this; }
   setCta() { return this; }
   setDisabled(value: boolean) { this.element.disabled = value; return this; }

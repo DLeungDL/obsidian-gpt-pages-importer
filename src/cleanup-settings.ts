@@ -42,8 +42,14 @@ export class CleanupSettingTab extends PluginSettingTab {
     const status = container.createEl('p', { text: this.controller.cleanupStatus });
     status.setAttribute('role', 'status');
     new Setting(container).setName('清理後啟用 HTML 渲染').setDesc('預設關閉。確認信任此資料夾內容後，才將所有 html-source 區塊轉為 html；需自行啟用 Polyglot Renderer。更換資料夾須重新確認信任。').addToggle(toggle => {
-      setRendering = value => toggle.setValue(value);
+      let updatingRendering = false;
+      setRendering = value => {
+        updatingRendering = true;
+        try { toggle.setValue(value); }
+        finally { updatingRendering = false; }
+      };
       toggle.setValue(!!draft.renderHtml).onChange(enabled => {
+        if (updatingRendering) return;
         draft.renderHtml = false; trustedFolder = undefined; setRendering(false);
         if (!enabled) { trustDialog?.close(); return; }
         let folder: string;

@@ -236,6 +236,23 @@ it('does not enable rendering before confirmation and save; then cleans and rend
   expect(backups(plugin)[0]![1]).toBe(source);
   expect(plugin.cleanupStatus).not.toContain('需檢查');
 });
+it('closes the trust dialog after one confirmation without opening another during toggle synchronization', async () => {
+  const plugin = await setup(); const controls = settingsControls(plugin);
+  setFolder(controls.folder, 'Inbox'); toggle(controls.enabled, true); toggle(controls.rendering, true);
+  expect(Modal.opened).toHaveLength(1);
+  confirmTrust();
+  expect(Modal.opened).toHaveLength(0);
+  expect(controls.rendering.checked).toBe(true);
+  expect(plugin.getCleanupSettings().renderHtml).toBe(false);
+  toggle(controls.rendering, false);
+  expect(Modal.opened).toHaveLength(0);
+  toggle(controls.rendering, true);
+  expect(Modal.opened).toHaveLength(1);
+  confirmTrust();
+  expect(Modal.opened).toHaveLength(0);
+  controls.save.click();
+  await vi.waitFor(() => expect(plugin.getCleanupSettings().renderHtml).toBe(true));
+});
 it('clears trust when changing the folder and requires confirming the new folder', async () => {
   const plugin = await setup(); await plugin.app.vault.createFolder('Other');
   await plugin.configureCleanup({ enabled: true, folder: 'Inbox', renderHtml: true }, 'Inbox');
