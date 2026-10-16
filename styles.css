@@ -8,3 +8,24 @@
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
 }
+.gpt-pages-drop-zone {
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-block: 0.75rem;
+}
+.gpt-pages-selected-file {
+  overflow-wrap: anywhere;
+}
+.gpt-pages-preview-actions {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--background-primary);
+}
+.gpt-pages-preview-details {
+  margin-block: 0.75rem;
+}
+.gpt-pages-preview-details summary {
+  cursor: pointer;
+}

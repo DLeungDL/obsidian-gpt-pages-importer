@@ -1,25 +1,78 @@
 /** Public-API host double, not evidence of real Obsidian compatibility. */
-export class TFile { constructor(public path: string) {} }
-export class TFolder { constructor(public path: string) {} }
+export class TAbstractFile { constructor(public path: string) {} }
+export class TFile extends TAbstractFile {
+  stat: { size: number };
+  constructor(path: string, size = 0) { super(path); this.stat = { size }; }
+  get name() { return this.path.split('/').at(-1)!; }
+}
+export class TFolder extends TAbstractFile {}
 export class TestVault {
   files = new Map<string, string>();
   folders = new Set<string>();
-  getAbstractFileByPath(path: string) { return this.files.has(path) ? new TFile(path) : this.folders.has(path) ? new TFolder(path) : null; }
+  handlers = new Map<string, ((file: TAbstractFile, oldPath?: string) => void)[]>();
+  on(name: string, callback: (file: TAbstractFile, oldPath?: string) => void) { const handlers = this.handlers.get(name) ?? []; handlers.push(callback); this.handlers.set(name, handlers); return {}; }
+  emit(name: string, file: TAbstractFile, oldPath?: string) { for (const handler of this.handlers.get(name) ?? []) handler(file, oldPath); }
+  getFiles() { return [...this.files].map(([path, text]) => new TFile(path, new TextEncoder().encode(text).length)); }
+  getAbstractFileByPath(path: string) { return this.files.has(path) ? new TFile(path, new TextEncoder().encode(this.files.get(path)!).length) : this.folders.has(path) ? new TFolder(path) : null; }
   // Real Vault.read strips the opening BOM; readBinary and process preserve it.
   async read(file: TFile) { return new TextDecoder().decode(await this.readBinary(file)); }
   async readBinary(file: TFile) { return new TextEncoder().encode(this.files.get(file.path)!).buffer; }
   async createFolder(path: string) { this.folders.add(path); }
-  async create(path: string, content: string) { if (this.getAbstractFileByPath(path)) throw new Error('exists'); this.files.set(path, content); return new TFile(path); }
-  async process(file: TFile, fn: (text: string) => string) { const next = fn(this.files.get(file.path)!); this.files.set(file.path, next); return next; }
+  async create(path: string, content: string) { if (this.getAbstractFileByPath(path)) throw new Error('exists'); this.files.set(path, content); const file = new TFile(path, new TextEncoder().encode(content).length); this.emit('create', file); return file; }
+  async modify(file: TFile, content: string) { this.files.set(file.path, content); this.emit('modify', file); }
+  async rename(file: TFile, path: string) { const oldPath = file.path; const content = this.files.get(oldPath)!; this.files.delete(oldPath); this.files.set(path, content); file.path = path; this.emit('rename', file, oldPath); }
+  async process(file: TFile, fn: (text: string) => string) { const next = fn(this.files.get(file.path)!); this.files.set(file.path, next); this.emit('modify', file); return next; }
 }
-export class TestApp { vault = new TestVault(); }
+class MenuItem {
+  title = '';
+  callback = () => {};
+  setTitle(title: string) { this.title = title; return this; }
+  setIcon(_icon: string) { return this; }
+  onClick(callback: () => void) { this.callback = callback; return this; }
+}
+export class Menu {
+  items: MenuItem[] = [];
+  addItem(callback: (item: MenuItem) => void) { const item = new MenuItem(); callback(item); this.items.push(item); return this; }
+}
+export class TestWorkspace {
+  private activeFile: TFile | null = null;
+  leaf = { openFile: async (file: TFile) => { this.activeFile = file; } };
+  getLeaf(_newLeaf?: boolean) { return this.leaf; }
+  getActiveFile() { return this.activeFile; }
+  onLayoutReady(callback: () => void) { callback(); }
+  fileMenuHandlers: ((menu: Menu, file: TFile | TFolder) => void)[] = [];
+  on(_name: 'file-menu', callback: (menu: Menu, file: TFile | TFolder) => void) { this.fileMenuHandlers.push(callback); return {}; }
+}
+export class TestApp { vault = new TestVault(); workspace = new TestWorkspace(); }
 export class Plugin {
   app = new TestApp();
-  commands: { id: string; callback: () => void }[] = [];
+  commands: { id: string; callback: () => void; checkCallback?: (checking: boolean) => boolean | void }[] = [];
+  ribbonIcons: HTMLElement[] = [];
+  settingTabs: PluginSettingTab[] = [];
   data: unknown = null;
   async loadData() { return this.data; }
   async saveData(data: unknown) { this.data = data; }
-  addCommand(command: { id: string; callback: () => void }) { this.commands.push(command); }
+  addCommand(command: { id: string; callback?: () => void; checkCallback?: (checking: boolean) => boolean | void }) { this.commands.push({ ...command, callback: command.callback ?? (() => command.checkCallback?.(false)) }); }
+  addRibbonIcon(_icon: string, title: string, callback: () => void) { const element = document.createElement('button'); element.title = title; element.addEventListener('click', callback); this.ribbonIcons.push(element); return element; }
+  registerEvent(_event: unknown) {}
+  addSettingTab(tab: PluginSettingTab) { this.settingTabs.push(tab); }
+}
+function hostElement(): HTMLElement {
+  const element = document.createElement('div');
+  element.createEl = (tag, opts) => {
+    const child = document.createElement(tag);
+    if (typeof opts === 'string') child.className = opts;
+    else if (typeof opts?.text === 'string') child.textContent = opts.text;
+    else if (opts?.text) child.append(opts.text);
+    element.append(child); return child as never;
+  };
+  element.empty = () => element.replaceChildren();
+  return element;
+}
+export class PluginSettingTab {
+  containerEl = hostElement();
+  constructor(public app: TestApp, public plugin: Plugin) {}
+  display() {}
 }
 export class Notice {
   static messages: string[] = [];

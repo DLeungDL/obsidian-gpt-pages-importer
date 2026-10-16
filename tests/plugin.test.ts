@@ -38,6 +38,70 @@ async function importSource(plugin: HostPlugin, source: string) {
   await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
   return [...plugin.app.vault.files.keys()][0]!;
 }
+it.each(['create', 'update', 'unchanged'] as const)('opens the cleaned destination after %s while preserving the original export', async status => {
+  const plugin = new GPTPagesImporter({} as never, {} as never) as unknown as HostPlugin;
+  await plugin.onload();
+  const original = await plugin.app.vault.create('original-export.md', input);
+  if (status !== 'create') await importSource(plugin, input);
+  await plugin.app.workspace.getLeaf(false).openFile(original);
+  const before = new Map(plugin.app.vault.files);
+  const persist = vi.spyOn(plugin, 'saveData');
+  const open = vi.spyOn(plugin.app.workspace, 'getLeaf');
+  const addition = status === 'update' ? '\n來源更新\n' : '';
+  const modal = await preview(plugin, false, input + addition);
+  expect(open).not.toHaveBeenCalled();
+  expect(plugin.app.workspace.getActiveFile()?.path).toBe(original.path);
+  clickButton(modal.contentEl, status === 'unchanged' ? '完成（無變更）' : '確認寫入');
+  await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
+  const destination = Object.values((plugin.data as State).entries)[0]!.destination;
+  expect(open).toHaveBeenCalledExactlyOnceWith(false);
+  expect(plugin.app.workspace.getActiveFile()?.path).toBe(destination);
+  expect(destination).toMatch(/^GPT Pages\//);
+  expect(plugin.app.vault.files.get(destination)).toBe(expected + addition);
+  expect(plugin.app.vault.files.get(original.path)).toBe(input);
+  if (status === 'unchanged') {
+    expect(plugin.app.vault.files).toEqual(before);
+    expect(persist).not.toHaveBeenCalled();
+  }
+  if (status === 'update') {
+    const backups = [...plugin.app.vault.files.entries()].filter(([name]) => name.startsWith('GPT Pages Backups/'));
+    expect(backups.map(([, text]) => text)).toEqual([expected]);
+  }
+});
+it.each(['write', 'persist'] as const)('keeps the original export open when %s fails', async failure => {
+  const plugin = new GPTPagesImporter({} as never, {} as never) as unknown as HostPlugin;
+  await plugin.onload();
+  const original = await plugin.app.vault.create('original-export.md', input);
+  await plugin.app.workspace.getLeaf(false).openFile(original);
+  const open = vi.spyOn(plugin.app.workspace, 'getLeaf');
+  const modal = await preview(plugin);
+  if (failure === 'write') vi.spyOn(plugin.app.vault, 'create').mockRejectedValueOnce(new Error('寫入失敗'));
+  else vi.spyOn(plugin, 'saveData').mockRejectedValueOnce(new Error('儲存失敗'));
+  clickButton(modal.contentEl, '確認寫入');
+  await vi.waitFor(() => expect(modal.contentEl.textContent).toContain(failure === 'write' ? '寫入失敗' : '匯入紀錄儲存失敗'));
+  expect(open).not.toHaveBeenCalled();
+  expect(plugin.app.workspace.getActiveFile()?.path).toBe(original.path);
+  expect(plugin.app.vault.files.get(original.path)).toBe(input);
+  expect(plugin.data).toBeNull();
+});
+it('reports navigation failure separately and can reopen the saved destination on an unchanged import', async () => {
+  const plugin = new GPTPagesImporter({} as never, {} as never) as unknown as HostPlugin;
+  await plugin.onload();
+  vi.spyOn(plugin.app.workspace.leaf, 'openFile').mockRejectedValueOnce(new Error('窗格無法開啟'));
+  const modal = await preview(plugin);
+  clickButton(modal.contentEl, '確認寫入');
+  await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
+  const entry = Object.values((plugin.data as State).entries)[0]!;
+  expect(plugin.app.vault.files.get(entry.destination)).toBe(expected);
+  expect(entry.outputHash).toBe(await digest(expected));
+  expect(Notice.messages).toContain(`匯入已完成，但無法開啟目的筆記：${entry.destination}。窗格無法開啟`);
+  const again = await preview(plugin);
+  expect(again.contentEl.textContent).toContain('內容相同，不寫入');
+  clickButton(again.contentEl, '完成（無變更）');
+  await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
+  expect(plugin.app.workspace.getActiveFile()?.path).toBe(entry.destination);
+  expect(plugin.app.vault.files.size).toBe(1);
+});
 it.each([
   ['LF', '\uFEFF# 中文 🗂️\n'],
   ['CRLF', '\uFEFF# 中文 🗂️\r\n'],
@@ -88,7 +152,7 @@ it.each([
   plugin.app.vault.files.set(path, edited);
   const modal = await preview(plugin, false, source);
   expect(modal.contentEl.textContent).toContain('停止寫入');
-  expect([...modal.contentEl.querySelectorAll('button')].map(button => button.textContent)).toEqual(['取消']);
+  expect([...modal.contentEl.querySelectorAll('button')].map(button => button.textContent)).toEqual(['返回設定', '取消']);
   expect(plugin.app.vault.files.get(path)).toBe(edited); expect(plugin.app.vault.files.size).toBe(1);
 });
 it.each([
@@ -114,24 +178,30 @@ it.each([
 it('runs command, previews safely, imports, repeats without duplication and blocks local edits', async () => {
   const plugin = new GPTPagesImporter({} as never, {} as never) as unknown as HostPlugin;
   await plugin.onload(); expect(plugin.commands[0]!.id).toBe('import-pages-markdown');
+  const open = vi.spyOn(plugin.app.workspace, 'getLeaf');
   const first = await preview(plugin);
+  expect(open).not.toHaveBeenCalled();
   expect(first.contentEl.querySelector('script,iframe,img')).toBeNull();
   expect(first.contentEl.textContent).toContain('html-source');
   clickButton(first.contentEl, '確認寫入');
   await vi.waitFor(() => expect(plugin.app.vault.files.size).toBe(1));
   await vi.waitFor(() => expect(Modal.opened.length).toBe(0));
+  expect(open).toHaveBeenCalledTimes(1);
   const path = [...plugin.app.vault.files.keys()][0]!;
   expect(plugin.app.vault.files.get(path)).toBe(expected);
   const second = await preview(plugin);
   expect(second.contentEl.textContent).toContain('內容相同，不寫入');
   clickButton(second.contentEl, '完成（無變更）');
   await vi.waitFor(() => expect(Modal.opened.length).toBe(0));
+  expect(open).toHaveBeenCalledTimes(2);
   expect(plugin.app.vault.files.size).toBe(1);
   plugin.app.vault.files.set(path, '使用者修改');
   const third = await preview(plugin);
   expect(third.contentEl.textContent).toContain('停止寫入');
-  expect([...third.contentEl.querySelectorAll('button')].map(button => button.textContent)).toEqual(['取消']);
+  expect([...third.contentEl.querySelectorAll('button')].map(button => button.textContent)).toEqual(['返回設定', '取消']);
   expect(plugin.app.vault.files.get(path)).toBe('使用者修改');
+  clickButton(third.contentEl, '取消');
+  expect(open).toHaveBeenCalledTimes(2);
 });
 it('only emits executable html when trust was explicitly selected', async () => {
   const plugin = new GPTPagesImporter({} as never, {} as never) as unknown as HostPlugin;

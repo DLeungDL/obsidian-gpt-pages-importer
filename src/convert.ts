@@ -28,7 +28,15 @@ export function convert(markdown: string, trusted = false): Conversion {
 
 /** Verify source bytes without executing or fetching them. */
 export async function convertVerified(markdown: string, trusted = false): Promise<Conversion> {
-  const prepared = prepare(markdown, trusted);
+  return verify(prepare(markdown, trusted));
+}
+
+/** In-place cleanup preserves fence languages unless rendering is explicitly trusted. */
+export async function cleanVerified(markdown: string, renderHtml = false): Promise<Conversion> {
+  return verify(prepare(markdown, renderHtml ? true : null));
+}
+
+async function verify(prepared: Prepared): Promise<Conversion> {
   for (const candidate of prepared.candidates) {
     let hash: string;
     try { hash = await digest(candidate.source); }
@@ -56,7 +64,7 @@ function paired(prepared: Prepared, marker: Marker, referenceLine?: number): voi
   prepared.pairedReferences.add(referenceLine);
 }
 
-function prepare(markdown: string, trusted: boolean): Prepared {
+function prepare(markdown: string, trusted: boolean | null): Prepared {
   const lines: Line[] = [];
   for (const match of markdown.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/g)) {
     if (!match[0]) continue;
@@ -105,10 +113,10 @@ function prepare(markdown: string, trusted: boolean): Prepared {
         const closed = last > first && closing.test(lines[last]!.text);
         if (topLevel) fences.push({ first, last, language, closed });
         if (['html', 'html-source'].includes(language)) {
-          const desired = trusted ? 'html' : 'html-source';
+          const desired = trusted === null ? opener[4]! : trusted ? 'html' : 'html-source';
           const tokenStart = offset + opener[1]!.length + delimiter.length + opener[3]!.length;
           if (opener[4] !== desired) edits.push({ start: tokenStart, end: tokenStart + opener[4]!.length, text: desired });
-          if (topLevel && !closed) warnings.push({ code: 'unclosed-fence', message: 'HTML fence 未關閉，保留內容並停用預設執行。', line: first + 1 });
+          if (topLevel && !closed) warnings.push({ code: 'unclosed-fence', message: trusted === null ? 'HTML fence 未關閉，保留原文。' : 'HTML fence 未關閉，保留內容並停用預設執行。', line: first + 1 });
         }
       }
       if ('children' in node) walk(node.children as RootContent[], false);
@@ -171,7 +179,7 @@ function prepare(markdown: string, trusted: boolean): Prepared {
     if (marker.version === '2') prepared.candidates.push({ marker, referenceLine: hasReference ? referenceLine : undefined, source });
     else paired(prepared, marker, hasReference ? referenceLine : undefined);
   }
-  warnings.push(trusted
+  if (trusted !== null) warnings.push(trusted
     ? { code: 'trusted-rendering', message: '輸出 html fence 可由 renderer 執行 scripts，也可能發出網路請求。' }
     : { code: 'renderer-disabled', message: 'HTML 已保留為 html-source。呈現需 Polyglot Renderer 並明確信任 scripts；本次預覽不執行內容。' });
   return prepared;

@@ -31,7 +31,7 @@ new Script(await readFile('dist/gpt-pages-importer/main.js', 'utf8')).runInNewCo
   module,
   require(name) {
     if (name !== 'obsidian') throw new Error(`Unexpected runtime dependency: ${name}`);
-    return { Plugin: class {}, Modal: class {} };
+    return { Plugin: class {}, Modal: class {}, PluginSettingTab: class {} };
   }
 });
 if (typeof module.exports.default !== 'function') throw new Error('Plugin export missing');
