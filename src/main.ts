@@ -8,7 +8,9 @@ class VaultStorage implements Storage {
     const file = this.vault.getAbstractFileByPath(path);
     if (file === null) return null;
     if (!(file instanceof TFile)) throw new Error(`目的地不是檔案：${path}`);
-    return this.vault.read(file);
+    // Vault.read strips the opening BOM, but hashes and backups need exact UTF-8.
+    const bytes = await this.vault.readBinary(file);
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
   }
   async exists(path: string): Promise<boolean> { return this.vault.getAbstractFileByPath(path) !== null; }
   private async folders(path: string): Promise<void> {

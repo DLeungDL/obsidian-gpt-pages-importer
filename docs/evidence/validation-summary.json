@@ -12,10 +12,13 @@
   },
   "automatic_validation": {
     "command": "npm run check",
-    "vitest_tests": 86,
+    "validation_date_hong_kong": "2026-10-17",
+    "vitest_tests": 96,
     "test_files": 6,
-    "build_node": "24.19.0",
-    "npm": "11.9.0"
+    "build_node": "24.15.0",
+    "npm": "11.12.1",
+    "bom_regression_cases_added": 10,
+    "new_cases_failing_before_fix": 8
   },
   "desktop_environment": {
     "os": "Debian GNU/Linux 13.6 x86_64",
@@ -52,10 +55,92 @@
       "paired_figures": 2
     }
   },
+  "windows_desktop_validation": {
+    "validation_date_hong_kong": "2026-10-17",
+    "source_commit": "bd5e0a7",
+    "fixture_provenance": "Repository-authored public v2 fixture with fictional IDs, not a new Pages UI export",
+    "environment": {
+      "os": "Windows 11 Home x64 10.0.22631",
+      "obsidian": "1.14.4",
+      "installer": "1.6.7",
+      "electron": "30.1.2",
+      "chromium": "124.0.6367.243",
+      "node": "20.14.0",
+      "polyglot_renderer": "1.3.0",
+      "build_node": "24.15.0",
+      "npm": "11.12.1"
+    },
+    "method": "Official Obsidian developer CLI driving real import-command modals, File and Vault APIs, plus Windows native file picker and mouse interaction; no stub or jsdom",
+    "core_checks": {
+      "passed": 14,
+      "failed": 1,
+      "failure": "Unmodified UTF-8 BOM file falsely reports a conflict on re-import; original file preserved"
+    },
+    "supplementary_checks": {
+      "passed": 5,
+      "checks": [
+        "Native Windows file picker, two verified figures and exact output bytes",
+        "Default html-source reading view has two source blocks and no iframe",
+        "Static chart labels and proportions render correctly",
+        "Slider changes from 50 to 85 and updates numeric output and bar",
+        "Reset returns slider and output to 50"
+      ]
+    },
+    "renderer_fixture": "Separately prepared html-fence note derived from independent expected output; importer trust-checkbox flow not exercised",
+    "original_artifacts_published": false
+  },
   "known_limitations": [
-    "BOM re-import issue remains unfixed",
+    "BOM fix verified in the specified Windows runtime; other runtimes including Linux have not rerun the fix",
     "Single authored self-contained Page; other exporter versions/content not verified",
-    "No Windows, macOS, mobile, physical GPU or outer Electron sandbox verification",
+    "Windows validation covers the specified public fixture and runtime only; no full application restart or importer trust-checkbox flow tested",
+    "No macOS, mobile, physical Linux GPU or outer Electron sandbox verification",
     "Original artifacts are private; this public summary is not a complete independently auditable desktop evidence bundle"
-  ]
+  ],
+  "windows_bom_fix_validation": {
+    "validation_date_hong_kong": "2026-10-17",
+    "source_base_commit": "bd5e0a7",
+    "source_changes": "Uncommitted working-tree BOM fix and regression tests",
+    "built_and_installed_main_js_sha256": "6f6072abfb36c17df0d223f7f26ca632d0337001e33d2a0d5e2800497c3a210a",
+    "environment": "Same Windows environment as windows_desktop_validation",
+    "method": "Real Obsidian import-command modals, File and Vault APIs, exact disk bytes; no stub or jsdom",
+    "core_checks": {
+      "passed": 15,
+      "failed": 0,
+      "includes": "Previously failing identical BOM re-import"
+    },
+    "additional_bom_checks": {
+      "passed": 12,
+      "failed": 0,
+      "checks": [
+        "Previously imported BOM note re-imports unchanged without state migration or disk write",
+        "BOM and CRLF first import and identical re-import preserve bytes",
+        "BOM and CRLF update creates exact backup and records matching output hash",
+        "Source adds BOM: backed-up update and unchanged re-import",
+        "Source removes BOM: backed-up update and unchanged re-import",
+        "Local removal of BOM blocks overwrite",
+        "Local addition of BOM blocks overwrite",
+        "Removal of BOM after preview stops before backup",
+        "Addition of BOM after preview stops before backup",
+        "Removal of BOM injected after backup is rejected by real atomic Vault.process",
+        "Addition of BOM injected after backup is rejected by real atomic Vault.process",
+        "Two opening BOMs remain exact on re-import"
+      ]
+    },
+    "vault_reload_check": {
+      "passed": 1,
+      "failed": 0,
+      "check": "Persisted BOM and CRLF state re-imports unchanged after reloading test vault"
+    },
+    "total": {
+      "passed": 28,
+      "failed": 0
+    },
+    "harness_retries": "Background UI exceeded initial 5-second wait; retained attempt receipts, extended wait and retried affected cases with distinct source names",
+    "limitations": [
+      "No full application exit and restart",
+      "Linux fix not retested",
+      "Renderer mouse checks and importer trust-checkbox flow not rerun"
+    ],
+    "original_artifacts_published": false
+  }
 }

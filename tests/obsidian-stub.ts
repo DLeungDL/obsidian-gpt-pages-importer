@@ -5,7 +5,9 @@ export class TestVault {
   files = new Map<string, string>();
   folders = new Set<string>();
   getAbstractFileByPath(path: string) { return this.files.has(path) ? new TFile(path) : this.folders.has(path) ? new TFolder(path) : null; }
-  async read(file: TFile) { return this.files.get(file.path)!; }
+  // Real Vault.read strips the opening BOM; readBinary and process preserve it.
+  async read(file: TFile) { return new TextDecoder().decode(await this.readBinary(file)); }
+  async readBinary(file: TFile) { return new TextEncoder().encode(this.files.get(file.path)!).buffer; }
   async createFolder(path: string) { this.folders.add(path); }
   async create(path: string, content: string) { if (this.getAbstractFileByPath(path)) throw new Error('exists'); this.files.set(path, content); return new TFile(path); }
   async process(file: TFile, fn: (text: string) => string) { const next = fn(this.files.get(file.path)!); this.files.set(file.path, next); return next; }

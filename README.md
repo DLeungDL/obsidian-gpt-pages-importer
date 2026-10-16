@@ -2,9 +2,9 @@
 
 手動將 ChatGPT Pages Markdown 匯入 Obsidian，保留完整 portable HTML source，並提供純文字變更預覽、資產報告、重複匯入與備份／衝突保護。Polyglot Renderer 為選用 companion plugin，不包含在本外掛中。
 
-**目前為 0.1.0 MVP，支援 v2 自動配對（automatic matching）。** 型別檢查、建置及 86 項自動測試通過；真正 Obsidian 1.14.4／Polyglot Renderer 1.3.0 的 v2 桌面驗證 15 項全部通過，包含兩圖配對、滑桿／重設、重匯、備份、衝突及摘要／ID 不符。
+**目前為 0.1.0 MVP，支援 v2 自動配對（automatic matching）。** 型別檢查、建置及 96 項自動測試通過；真正 Obsidian 1.14.4／Polyglot Renderer 1.3.0 的 v2 桌面驗證 15 項全部通過，包含兩圖配對、滑桿／重設、重匯、備份、衝突及摘要／ID 不符。
 
-v2 使用原生檔案 ID 與完整 HTML 的 SHA-256，校驗後才移除參照，支援觀察到的 Pages 跳脫格式（escaping）。維護者的實際 v2 UI 匯入驗證為兩圖成功配對、15 項桌面檢查通過；公開儲存庫只保存自行編寫、使用虛構 ID 的 fixtures 與 [結果摘要](docs/pages-roundtrip.md)，原始匯出、截圖及來源識別資料保留於 Git 外。未綁定的 v1 原生參照仍保留並警告。UTF-8 BOM 重匯誤判衝突尚未修正；其他平台範圍見 [相容性紀錄](docs/compatibility.md)。
+v2 使用原生檔案 ID 與完整 HTML 的 SHA-256，校驗後才移除參照，支援觀察到的 Pages 跳脫格式（escaping）。維護者的實際 v2 UI 匯入驗證為兩圖成功配對、15 項桌面檢查通過；公開儲存庫只保存自行編寫、使用虛構 ID 的 fixtures 與 [結果摘要](docs/pages-roundtrip.md)，原始匯出、截圖及來源識別資料保留於 Git 外。未綁定的 v1 原生參照仍保留並警告。UTF-8 BOM 重匯誤判衝突已修正，雜湊及備份保留 BOM／換行，本機增刪 BOM 仍視為修改；實測範圍見 [相容性紀錄](docs/compatibility.md)。
 
 ## 建置、測試與安裝
 
