@@ -2,7 +2,6 @@
 
 這是自行編寫的測試內容，不是實際 Pages 匯出。數學公式：$E = mc^2$。
 
-<!-- gpt-pages:figure v=1 id=static-bars -->
 ```html-source
 <!doctype html>
 <html lang="zh-Hant">

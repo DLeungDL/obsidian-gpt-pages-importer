@@ -40,13 +40,17 @@ export async function convertVerified(markdown: string, trusted = false): Promis
       prepared.warnings.push({ code: 'source-hash-mismatch', message: `${candidate.marker.id} 的 HTML SHA-256 不符；保留參照。`, line: candidate.marker.line + 1 });
       continue;
     }
-    paired(prepared, candidate.referenceLine);
+    paired(prepared, candidate.marker, candidate.referenceLine);
   }
   return finish(prepared);
 }
 
-function paired(prepared: Prepared, referenceLine?: number): void {
+function paired(prepared: Prepared, marker: Marker, referenceLine?: number): void {
   prepared.figures++;
+  const line = prepared.lines[marker.line]!;
+  // Opening BOMs belong to the file, not the verified metadata being removed.
+  const bom = marker.line === 0 ? line.text.match(/^\uFEFF+/)?.[0] ?? '' : '';
+  prepared.edits.push({ start: line.start, end: line.end, text: bom });
   if (referenceLine === undefined) return;
   prepared.edits.push({ start: prepared.lines[referenceLine]!.start, end: prepared.lines[referenceLine]!.end, text: '' });
   prepared.pairedReferences.add(referenceLine);
@@ -165,7 +169,7 @@ function prepare(markdown: string, trusted: boolean): Prepared {
       warn('incomplete-document', `${marker.id} 缺少完整 HTML 文件邊界，保留參照。`); continue;
     }
     if (marker.version === '2') prepared.candidates.push({ marker, referenceLine: hasReference ? referenceLine : undefined, source });
-    else paired(prepared, hasReference ? referenceLine : undefined);
+    else paired(prepared, marker, hasReference ? referenceLine : undefined);
   }
   warnings.push(trusted
     ? { code: 'trusted-rendering', message: '輸出 html fence 可由 renderer 執行 scripts，也可能發出網路請求。' }

@@ -7,18 +7,28 @@
     "provenance": "Project-authored content with fictional identifiers, not actual UI downloads",
     "sha256": {
       "tests/fixtures/v2-escaped.input.md": "724eda59d23a6dc1b55029bedcef6b9d24bdaf616416aea05f036147f5816d3a",
-      "tests/fixtures/v2-escaped.expected.md": "862ab170aa30dd27766712a8ade458c54a16e900836228815c81606535fef4ea"
+      "tests/fixtures/v2-escaped.expected.md": "ffdbae85a2c075386f4d8243861cf1bac2c72456f50e26eccef3107343bab0ce"
     }
   },
   "automatic_validation": {
     "command": "npm run check",
     "validation_date_hong_kong": "2026-10-17",
-    "vitest_tests": 96,
+    "vitest_tests": 108,
     "test_files": 6,
     "build_node": "24.15.0",
     "npm": "11.12.1",
     "bom_regression_cases_added": 10,
-    "new_cases_failing_before_fix": 8
+    "new_cases_failing_before_fix": 8,
+    "marker_cleanup_regression": {
+      "cases_added": 12,
+      "checks": [
+        "Verified legacy marker removal, with hash mismatch retaining metadata",
+        "Opening BOM and exact LF/CRLF source bytes when removing first-line markers",
+        "Section headings, ordinary captions and marker-like text in HTML retained",
+        "Tracked legacy import upgrades with exact backup and unchanged re-import",
+        "Locally edited legacy import remains a conflict"
+      ]
+    }
   },
   "desktop_environment": {
     "os": "Debian GNU/Linux 13.6 x86_64",
@@ -91,8 +101,8 @@
   },
   "known_limitations": [
     "BOM fix verified in the specified Windows runtime; other runtimes including Linux have not rerun the fix",
-    "Single authored self-contained Page; other exporter versions/content not verified",
-    "Windows validation covers the specified public fixture and runtime only; no full application restart or importer trust-checkbox flow tested",
+    "Fresh Pages UI roundtrip coverage remains limited to the original authored Page; rainwater cleanup uses saved Page API readback",
+    "Original Windows baseline did not cover the importer trust checkbox; later cleanup validation covers it only with the saved rainwater Page source. No full application restart tested",
     "No macOS, mobile, physical Linux GPU or outer Electron sandbox verification",
     "Original artifacts are private; this public summary is not a complete independently auditable desktop evidence bundle"
   ],
@@ -140,6 +150,38 @@
       "No full application exit and restart",
       "Linux fix not retested",
       "Renderer mouse checks and importer trust-checkbox flow not rerun"
+    ],
+    "original_artifacts_published": false
+  },
+  "windows_marker_cleanup_validation": {
+    "validation_date_hong_kong": "2026-10-17",
+    "source_base_commit": "a56bbe84f4bc3b78dd4e73db36fa1968327f6329",
+    "source_changes": "Working-tree marker cleanup and regression tests",
+    "built_and_installed_main_js_sha256": "33b49be1037e4db7cb3a7537adaa00f14ab13adbb45fc3b2615857c2a527c0f1",
+    "environment": "Same Windows environment as windows_desktop_validation",
+    "method": "Real import-command modals, File and Vault APIs, disk bytes, renderer DOM and native window screenshots; no stub or jsdom",
+    "passed": 8,
+    "failed": 0,
+    "checks": [
+      "Runtime, plugin loaded and installed bundle hash",
+      "Two verified public-fixture markers and native images removed; safe preview matches independent expected output",
+      "Exact cleaned disk bytes and recorded output hash",
+      "Identical re-import causes no write or new backup",
+      "Hash mismatch preserves invalid metadata while valid neighbor is cleaned",
+      "Native ID mismatch preserves marker and image reference",
+      "Opening BOM before first marker remains exact and re-imports unchanged",
+      "Rainwater Page readback uses trust checkbox, preserves both HTML sources and headings, and displays two visible figure iframes without metadata or broken native images"
+    ],
+    "rainwater_source_provenance": "Previously saved Page API readback, not a fresh Pages UI export",
+    "visible_renderer_iframes": 2,
+    "harness_corrections": [
+      "Initial runtime diagnostic required a module unavailable in CLI context; no product tests ran in that attempt",
+      "Final rendering check excludes a hidden cached iframe and verifies two visible frames with distinct static and interactive source documents"
+    ],
+    "limitations": [
+      "No new Pages UI export roundtrip",
+      "Slider and reset not operated in this cleanup validation",
+      "No full application exit and restart or other runtime verification"
     ],
     "original_artifacts_published": false
   }

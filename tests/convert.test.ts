@@ -8,26 +8,34 @@ describe('source-preserving conversion', () => {
   for (const name of ['static', 'interactive', 'missing-source']) it(`matches independent ${name} fixture`, () => {
     expect(convert(fixture(`${name}.input.md`)).markdown).toBe(fixture(`${name}.expected.md`));
   });
-  it('removes only exact paired references', () => {
+  it('removes only exact paired markers and references', () => {
     const output = convert(paired());
     expect(output.figures).toBe(1);
     expect(output.markdown).not.toContain('visualize:a');
+    expect(output.markdown).not.toContain('gpt-pages:figure');
     expect(output.markdown).toContain(document);
   });
   it('is idempotent when imported output is converted again', () => {
     const first = convert(paired());
     expect(convert(first.markdown).markdown).toBe(first.markdown);
-    expect(convert(first.markdown).figures).toBe(1);
+    expect(convert(first.markdown).figures).toBe(0);
   });
   it('retains CRLF, BOM, escaped HTML, formulas, Unicode and literal backslashes', () => {
     const body = document.replace('</body>', '&lt;p&gt; \\n \\t \\alpha \\path\\file 中文 🐱</body>');
     const input = '\uFEFF# 中文\n$\\alpha + \\frac{1}{2}$\n' + paired('a', '1', body);
     const crlf = input.replaceAll('\n', '\r\n');
-    expect(convert(crlf).markdown).toBe(crlf.replace('visualize:a\r\n', '').replace('```html\r\n', '```html-source\r\n'));
+    expect(convert(crlf).markdown).toBe(crlf.replace('<!-- gpt-pages:figure v=1 id=a -->\r\nvisualize:a\r\n', '').replace('```html\r\n', '```html-source\r\n'));
   });
   it('does not decode unverified escaping outside source either', () => {
     const input = '\\# 標題\\n &lt;div&gt; \\*literal\\* $\\beta$';
     expect(convert(input).markdown).toBe(input);
+  });
+  it.each([
+    { newline: '\n', bom: '\uFEFF' },
+    { newline: '\r\n', bom: '\uFEFF' }
+  ])('preserves opening BOMs when removing a v1 marker ($newline, $bom)', ({ newline, bom }) => {
+    const input = bom + paired().replaceAll('\n', newline);
+    expect(convert(input).markdown).toBe(bom + '```html-source' + newline + document.replaceAll('\n', newline) + '```' + newline);
   });
   it('keeps markers and references inside code fences untouched', () => {
     const input = '````markdown\n' + paired() + '````\n';
@@ -50,6 +58,7 @@ describe('source-preserving conversion', () => {
     const output = convert(input);
     expect(output.warnings.some(w => w.code === code)).toBe(true);
     expect(output.markdown).toContain('visualize:');
+    expect(output.markdown).toContain('gpt-pages:figure');
     expect(output.figures).toBe(0);
   });
   it('refuses a distant source beyond intervening prose', () => {

@@ -33,13 +33,15 @@ node scripts/figure-marker.mjs example-chart NATIVE_FILE_ID source.html
 
 ## 配對條件與失敗處理
 
-使用 CommonMark 語法樹辨識獨立 marker 與 image-style `visualize:` 參照，因此可處理上述 escaping；輸出仍保留原始 marker bytes，不全域移除反斜線。跳脫的 marker 可能在 Obsidian 顯示為文字。inline、引用、清單或範例 code block 不配對。
+使用 CommonMark 語法樹辨識獨立 marker 與 image-style `visualize:` 參照，因此可處理上述 escaping。成功配對後自動移除 marker 與原生圖片參照，避免跳脫標記及失效圖片的替代文字出現在 Obsidian；保留章節標題、一般圖說及完整 HTML。inline、引用、清單或範例 code block 不配對，也不全域移除反斜線。
 
-只有版本、唯一 figure ID、唯一原生參照、精確 URI、相鄰完整 fence 與 SHA-256 全部通過時，才移除該參照的原始整行。其他段落介入、ID／摘要不符、重複識別碼、未知版本、缺少欄位、缺 source 或校驗不可用時保留參照並警告；同文件其他有效配對可照常處理。
+只有版本、唯一 figure ID、唯一原生參照、精確 URI、相鄰完整 fence 與 SHA-256 全部通過時，才移除 marker 與參照各自的原始整行。若 marker 位於檔案開頭，仍保留開頭的 UTF-8 BOM。其他段落介入、ID／摘要不符、重複識別碼、未知版本、缺少欄位、缺 source 或校驗不可用時保留標記與參照並警告；同文件其他有效配對可照常處理。
 
 接續的 fence 必須為完整、已關閉的 `html`／`html-source`；支援 CommonMark backtick 和 tilde fences。內容需以 HTML doctype 開始、含 `<html>` 並以 `</html>` 結束。這只是文件邊界檢查，不驗證 HTML/CSS/JS 語意。
 
-轉換後可由 marker 直接接完整 fence，維持冪等性（idempotence）；仍校驗保留的 v2 摘要。Importer 使用非同步 `convertVerified()`。既有同步 `convert()` 保留 v1 行為，對未校驗的 v2 保留參照並回報 `verification-required`。
+轉換後只留下 HTML fence 與原有正文，再次轉換不會改變輸出，維持冪等性（idempotence）。已清理的輸出沒有配對 metadata，再轉換時不重新計算 figure 數或校驗摘要；每次從原始匯出重新匯入時仍會校驗原始 v2 metadata。舊版輸出若只保留 marker 與相鄰完整 fence，仍須通過摘要校驗才移除 marker。使用同一來源識別名稱重匯可更新未經本機修改的舊筆記，並先完整備份；本機修改仍停止覆寫。
+
+Importer 使用非同步 `convertVerified()`。既有同步 `convert()` 對成功的 v1 配對同樣移除 marker 與 standalone 參照；對未校驗的 v2 保留標記、參照並回報 `verification-required`。
 
 ## v1 相容
 

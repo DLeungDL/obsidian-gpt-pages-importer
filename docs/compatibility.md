@@ -4,10 +4,11 @@
 
 Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 與 [manifest](https://github.com/Nimaapr/polyglot-renderer/blob/main/manifest.json) 指定 `html` fence、inline rendering 及最低 Obsidian 1.5.0。本外掛只產生公開支援的 fence，不使用 renderer 私有 API 或打包 renderer。公開 iframe 設定為 `allow-scripts`，opaque origin 不代表網路隔離。
 
-2026-10-17 最新檢查環境為 Node.js 24.15.0／npm 11.12.1、Obsidian SDK 型別 1.13.1。`npm run check` 執行公開資料檢查、TypeScript、esbuild 建置、無 DOM 的打包 smoke check 及 96 項 Vitest 測試；完整依賴見 package-lock.json。
+2026-10-17 最新檢查環境為 Node.js 24.15.0／npm 11.12.1、Obsidian SDK 型別 1.13.1。`npm run check` 執行公開資料檢查、TypeScript、esbuild 建置、無 DOM 的打包 smoke check 及 108 項 Vitest 測試；完整依賴見 package-lock.json。
 
 - 獨立輸入／預期 fixtures：CommonMark fences、跳脫參照、中文／emoji／公式／反斜線、CRLF／BOM 與 source bytes。
 - v2 摘要、ID／URI／文件邊界、重複宣告、部分成功、校驗失敗保留、冪等性及同步 v1 相容。
+- 成功配對後移除 marker 與原生圖片參照，保留正文／HTML bytes／開頭 BOM；舊版保留 marker 的筆記重匯先備份，仍阻止覆寫本機編輯。此次新增 12 項回歸測試（regression tests）。
 - 匯入生命週期：建立、重匯、備份、本機修改、競態、備份及紀錄儲存失敗。
 - Obsidian API 模擬、UTF-8／路徑／大小拒絕與純文字預覽不執行內容。
 - BOM 修復新增 10 項回歸測試：LF／CRLF／雙 BOM、讀回既有紀錄、來源增刪 BOM 的備份／摘要、本機增刪 BOM 衝突及備份後原子寫入競態。測試替身現在反映真正 `Vault.read()` 移除 BOM 的差異；修復前新增案例有 8 項失敗，修復後全部通過。
@@ -77,6 +78,25 @@ Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 
 
 共 28 項實機檢查全部通過，使用真正匯入 modal、File API、Vault API 與磁碟 bytes，未使用 stub 或 jsdom。初次腳本在背景等待 UI 超過 5 秒逾時，已保留回條並延長等待、使用獨立來源名稱重跑受影響項目；最終 27 項流程檢查及 1 項重新載入檢查均通過。公開摘要不包含原始操作回條。此次沒有重跑前述 renderer 滑鼠補充項目，也未測完整程式關閉再啟動或 Linux 修復版本。
 
+### Windows 配對標記清理驗證
+
+2026-10-17，以 `a56bbe8` 為基底的標記清理修改在相同獨立測試 vault 建置、安裝並重新載入。建置與安裝的 `main.js` SHA-256 均為 `33b49be1037e4db7cb3a7537adaa00f14ab13adbb45fc3b2615857c2a527c0f1`。以下 8 項實機檢查全部通過：
+
+| 驗收項目 | 結果 |
+| --- | --- |
+| 實際 runtime、外掛載入與安裝產物 hash | 通過 |
+| 公開 v2 fixture 的兩組 marker／原生圖片參照清理、純文字預覽與獨立預期輸出 | 通過 |
+| 寫入內容逐 byte 相同，紀錄 outputHash 正確 | 通過 |
+| 相同來源重匯不寫入、不新增備份 | 通過 |
+| 摘要不符保留該組 metadata，其他有效配對仍清理 | 通過 |
+| 原生 ID 不符保留標記與圖片參照 | 通過 |
+| 檔案開頭即為 marker 時保留 BOM，重匯無變更 | 通過 |
+| 雨水範例勾選信任後匯入，兩個可見 renderer iframe、完整 HTML bytes、章節標題保留且無可見標記／失效圖片 | 通過 |
+
+雨水範例使用先前保存的 Page API 讀回內容，**不是此次重新取得的 Pages UI 匯出**。實際畫面另確認長條圖及互動圖初始的 240 公升、每日 30 公升、可用 8 天及七日後剩水 30 公升；本次沒有操作滑桿／重設。原始來源、驗證腳本與回條保留於 Git 外。
+
+初次腳本的 runtime 診斷使用了 CLI 環境無法載入的模組，產品測試尚未執行；修正後完成前 7 項。最後呈現檢查曾把 Obsidian 快取的隱藏 iframe 計入總數；最終改以兩個可見 iframe 並分別核對靜態／互動來源，結果為 8 項通過。未改動 renderer。
+
 ## 尚未實測
 
 | 項目 | 範圍 |
@@ -96,4 +116,4 @@ Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 
 5. 僅對已檢查的自有內容明確信任，確認閱讀／Live Preview 的靜態圖、slider、reset、中文及資產／網路行為。
 6. 測摘要／ID 不符、重複 ID、缺 source、escaping 與 assets；結果發布成摘要及虛構 fixtures，執行 `npm run check:public`。不要提交原始回條或截圖。
 
-真正 v1／v2 UI、Linux 匯入及上述 Windows 公開 fixture 範圍已測，BOM 修復已在 Windows 重測；其他平台與上列未實測範圍仍有缺口，不能將完整相容性驗收標為完成。
+真正 v1／v2 UI、Linux 匯入及上述 Windows 公開 fixture 範圍已測，BOM 修復與配對標記清理已在 Windows 重測；其他平台與上列未實測範圍仍有缺口，不能將完整相容性驗收標為完成。

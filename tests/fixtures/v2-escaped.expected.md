@@ -6,7 +6,6 @@
 
 資料：週一 4、週二 7。兩個長條需保留標籤與比例。
 
-\<!-- gpt-pages\:figure v=2 id=static-bars ref=fixture-static-file sha256=219170d40a4fbe7310adf5f8ab145eb9d8d31021d43d11588ac4484e88d83af5 -->
 
 
 ```html-source
@@ -22,7 +21,6 @@
 
 滑桿（slider）初始值為 50；調整後數值與長條同步更新，按重設（reset）回到 50。
 
-\<!-- gpt-pages\:figure v=2 id=interactive-slider ref=fixture-interactive-file sha256=ba413284097910a0f06629a55e43455777139f41b44cb6fc0d7c0ccc4688ad25 -->
 
 
 ```html-source

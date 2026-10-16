@@ -2,7 +2,6 @@
 
 這是自行編寫的測試內容。需要信任內容並使用 renderer 才會執行互動。
 
-<!-- gpt-pages:figure v=1 id=interactive-slider -->
 ```html-source
 <!doctype html>
 <html lang="zh-Hant">
