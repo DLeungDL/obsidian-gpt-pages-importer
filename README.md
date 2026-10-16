@@ -2,7 +2,9 @@
 
 手動將 ChatGPT Pages Markdown 匯入 Obsidian，保留完整 portable HTML source，並提供純文字變更預覽、資產報告、重複匯入與備份／衝突保護。Polyglot Renderer 為選用 companion plugin，不包含在本外掛中。
 
-**目前為 0.1.0 MVP。** 建置、自行編寫的通用 fixtures 與自動測試可驗證；實際 Pages 匯出格式、Obsidian／Polyglot Renderer 實機與 mobile 相容性尚未驗證。詳見 [相容性紀錄](docs/compatibility.md)，不能宣稱所有 Pages 視覺化皆可無損匯入。
+**目前為 0.1.0 MVP，支援 v2 自動配對（automatic matching）。** 型別檢查、建置及 86 項自動測試通過；真正 Obsidian 1.14.4／Polyglot Renderer 1.3.0 的 v2 桌面驗證 15 項全部通過，包含兩圖配對、滑桿／重設、重匯、備份、衝突及摘要／ID 不符。
+
+v2 使用原生檔案 ID 與完整 HTML 的 SHA-256，校驗後才移除參照，支援觀察到的 Pages 跳脫格式（escaping）。維護者的實際 v2 UI 匯入驗證為兩圖成功配對、15 項桌面檢查通過；公開儲存庫只保存自行編寫、使用虛構 ID 的 fixtures 與 [結果摘要](docs/pages-roundtrip.md)，原始匯出、截圖及來源識別資料保留於 Git 外。未綁定的 v1 原生參照仍保留並警告。UTF-8 BOM 重匯誤判衝突尚未修正；其他平台範圍見 [相容性紀錄](docs/compatibility.md)。
 
 ## 建置、測試與安裝
 
@@ -13,7 +15,7 @@ npm ci
 npm run check
 ```
 
-`check` 執行 TypeScript 檢查、esbuild 建置與 Vitest 測試。安裝產物在 `dist/gpt-pages-importer/`，包含 `main.js`、`manifest.json`、`styles.css` 與第三方授權 notices。將整個目錄複製到測試 vault 的 `.obsidian/plugins/`，在 Community plugins 啟用 **GPT Pages Importer**。最低 API 目標為 Obsidian 1.5.0；實機測試尚未完成。CI 也會上傳建置產物。
+`check` 執行公開資料檢查、TypeScript 檢查、esbuild 建置與 Vitest 測試。安裝產物在 `dist/gpt-pages-importer/`，包含 `main.js`、`manifest.json`、`styles.css` 與第三方授權 notices。將整個目錄複製到測試 vault 的 `.obsidian/plugins/`，在 Community plugins 啟用 **GPT Pages Importer**。最低 API 目標為 Obsidian 1.5.0；桌面執行環境（runtime）已測 1.14.4，最低版本尚未實測。CI 也會上傳建置產物。
 
 ## 手動匯出／匯入
 
@@ -35,9 +37,15 @@ renderer 由使用者獨立安裝；本外掛不使用私有 API，也不自動�
 
 ## 格式、保留與降級
 
-[暫定 v1 契約](docs/format.md) 定義唯一 figure ID、相鄰 marker／`visualize:`／完整 HTML fence。只有確認的精確配對才移除參照；未知版本、重複 ID、缺失／不完整 source 與不明參照均保留並警告。其他實際匯出格式目前不猜測支援。
+[v2 配對契約](docs/format.md) 要求文件內唯一的 figure ID／原生檔案 ID、獨立且相鄰的 marker／image-style 參照／完整 HTML fence，以及精確 SHA-256。先以同一份 HTML 建立原生視覺化並取得檔案 ID，再生成 marker：
 
-不解碼未驗證 escaping，不全域移除反斜線。中文、UTF-8、公式、HTML entities 與 fenced HTML/CSS/JS code body bytes 保留。預設修改 HTML fence 語言 token 是為停用 renderer 自動執行。
+```sh
+node scripts/figure-marker.mjs example-chart NATIVE_FILE_ID source.html
+```
+
+Pages 不會自動添加這些欄位。只有校驗成功才移除該參照行；摘要不符、ID 重複、未知版本、缺失／不完整 source 均保留並警告。舊 v1 standalone 配對仍支援；沒有明確綁定的原生圖片不猜測配對。
+
+透過 CommonMark 語法樹辨識 marker／URI，保留原始文字，不全域移除反斜線；跳脫的 marker 可能仍顯示為文字。中文、UTF-8、公式、HTML entities 與 HTML/CSS/JS code body bytes 保留。摘要涵蓋換行與 BOM，成功配對不代表安全或自動信任。預設修改 HTML fence 語言 token 是為停用 renderer 自動執行。
 
 ## 重匯、備份與還原
 
@@ -51,8 +59,8 @@ renderer 由使用者獨立安裝；本外掛不使用私有 API，也不自動�
 ## 範例與開發資料
 
 - [靜態範例](examples/static.md)、[互動範例](examples/interactive.md)：自行編寫的通用內容，不是私人資料或實際 Pages 匯出證據。
-- `tests/fixtures/`：輸入與獨立預期輸出，涵蓋正常及缺失 source。
+- `tests/fixtures/`：輸入與獨立預期輸出；v2 escaped fixture 使用通用測試 ID，依觀察到的 UI 格式編寫，並非新下載檔。
 - [公開生成規範](skills/generate-portable-page/SKILL.md)：後續 Page 同時保留原生視覺化與完整 portable HTML 的要求。
-- `src/convert.ts`：純轉換及資產候選掃描；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/main.ts`：Obsidian 命令／modal；`src/preview.ts`：不執行內容的預覽。
+- `src/convert.ts`：純轉換、非同步 v2 校驗及資產候選掃描；`src/hash.ts`：UTF-8 摘要；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/main.ts`：Obsidian 命令／modal；`src/preview.ts`：不執行內容的預覽。
 
-v1 不包含即時／雙向同步、renderer 重作、任意 HTML 安全執行保證或所有 Pages 視覺化的相容性保證。真實端到端驗收仍需依相容性文件補測。
+本外掛不包含即時／雙向同步、renderer 重作、任意 HTML 安全執行保證或所有 Pages 視覺化的相容性保證。其他匯出版本與平台仍需依相容性文件補測。

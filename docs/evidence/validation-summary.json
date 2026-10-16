@@ -1,0 +1,61 @@
+{
+  "kind": "Maintainer-reported validation summary; no original export or source identifiers",
+  "validation_date_hong_kong": "2026-10-14",
+  "public_cleanup_date_hong_kong": "2026-10-15",
+  "original_artifacts_published": false,
+  "public_fixtures": {
+    "provenance": "Project-authored content with fictional identifiers, not actual UI downloads",
+    "sha256": {
+      "tests/fixtures/v2-escaped.input.md": "724eda59d23a6dc1b55029bedcef6b9d24bdaf616416aea05f036147f5816d3a",
+      "tests/fixtures/v2-escaped.expected.md": "862ab170aa30dd27766712a8ade458c54a16e900836228815c81606535fef4ea"
+    }
+  },
+  "automatic_validation": {
+    "command": "npm run check",
+    "vitest_tests": 86,
+    "test_files": 6,
+    "build_node": "24.19.0",
+    "npm": "11.9.0"
+  },
+  "desktop_environment": {
+    "os": "Debian GNU/Linux 13.6 x86_64",
+    "display": "Xorg virtual display",
+    "obsidian": "1.14.4",
+    "polyglot_renderer": "1.3.0",
+    "electron": "43.7.7",
+    "chromium": "150.0.7871.250",
+    "node": "24.21.0",
+    "launch_flags": [
+      "--no-sandbox",
+      "--disable-gpu"
+    ],
+    "method": "Real Electron UI, Vault API and renderer iframe; no stub or jsdom"
+  },
+  "desktop_results": {
+    "baseline_mvp": {
+      "passed": 19,
+      "failed": 1,
+      "failure": "BOM re-import falsely reports conflict"
+    },
+    "baseline_v1_ui": {
+      "passed": 13,
+      "unsupported": 1
+    },
+    "v2_synthetic_binding_copy": {
+      "passed": 15
+    },
+    "v2_saved_service_source": {
+      "passed": 4
+    },
+    "actual_v2_ui": {
+      "passed": 15,
+      "paired_figures": 2
+    }
+  },
+  "known_limitations": [
+    "BOM re-import issue remains unfixed",
+    "Single authored self-contained Page; other exporter versions/content not verified",
+    "No Windows, macOS, mobile, physical GPU or outer Electron sandbox verification",
+    "Original artifacts are private; this public summary is not a complete independently auditable desktop evidence bundle"
+  ]
+}
