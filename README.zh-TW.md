@@ -101,11 +101,19 @@ npm run check
 
 在 **設定 → Community plugins** 啟用 **GPT Pages Importer**。更新檔案後，重新載入外掛。
 
-### 4 · 匯出並匯入第一份筆記
+### 4 · 從 Pages 下載 Markdown
 
-1. 將使用技能準備好的 Page 下載為 Markdown，確認圖表標記及各圖完整的 `html` 程式碼區塊已包含在頁尾。若缺少來源，請讓 AI 代理使用技能補齊 Page，再重新匯出。
-2. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入檔案。
-3. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
+1. 開啟使用技能準備好的 Page，點選左上角的頁面標題選單。
+2. 按下圖紅色箭頭指向的 **下載（Download）**，將 Page 儲存為 Markdown（`.md`）檔案。
+
+![Pages 頁面標題選單，紅色箭頭指向「下載」](docs/assets/pages-download-zh-TW.png)
+
+確認下載的 Markdown 包含圖表標記（markers），且各圖完整的 `html` 程式碼區塊已包含在頁尾。若缺少來源，請讓 AI 代理使用技能補齊 Page，再重新匯出。
+
+### 5 · 匯入第一份筆記
+
+1. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入下載的檔案。
+2. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
 
 後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.zh-TW.md)。
 

@@ -97,7 +97,12 @@ Copy `dist/gpt-pages-importer/` into your vault's `.obsidian/plugins/` directory
 
 ### 3 · Export the prepared Page
 
-Download the skill-prepared Page as Markdown. Confirm that the export includes the figure markers and each visualization's complete fenced `html` source in the footer. If any source is missing, ask the agent to correct the Page using the skill, then export again.
+1. Open the skill-prepared Page and click the page title menu in the upper-left corner.
+2. Select **Download**, marked by the red arrow below, to save the Page as a Markdown (`.md`) file.
+
+![The Pages title menu with a red arrow pointing to Download](docs/assets/pages-download-en.png)
+
+Confirm that the downloaded Markdown includes the figure markers and each visualization's complete fenced `html` source in the footer. If any source is missing, ask the agent to correct the Page using the skill, then export again.
 
 ### 4 · Import your first note
 
