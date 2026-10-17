@@ -52,6 +52,40 @@ async function confirm(modal: Modal) {
   await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
 }
 
+it.each(['未安裝', '未啟用', '已啟用', '無法確認'])('shows renderer status %s without granting trust or blocking imports', async status => {
+  const plugin = await setup();
+  if (status === '無法確認') vi.spyOn(plugin.app.vault.adapter, 'exists').mockRejectedValue(new Error('Unavailable'));
+  else if (status !== '未安裝') {
+    plugin.app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/manifest.json', '{"id":"polyglot-renderer"}');
+    plugin.app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/main.js', '// Not executed');
+    plugin.app.vault.configFiles.set('.obsidian/community-plugins.json', status === '已啟用' ? '["polyglot-renderer"]' : '[]');
+  }
+  plugin.commands[0]!.callback();
+  const form = Modal.opened[0]!;
+  await vi.waitFor(() => expect(form.contentEl.querySelector('.gpt-pages-renderer-status [role=status]')!.textContent).toContain(status));
+  expect(form.contentEl.querySelector<HTMLInputElement>('input[type=checkbox]')!.checked).toBe(false);
+  choose(form, file());
+  await confirm(await preview(form));
+  expect([...plugin.app.vault.files.values()]).toEqual([expected]);
+});
+
+it('refreshes renderer status after enabling it without changing import trust', async () => {
+  const plugin = await setup(); plugin.commands[0]!.callback();
+  const form = Modal.opened[0]!;
+  const status = form.contentEl.querySelector('.gpt-pages-renderer-status [role=status]')!;
+  await vi.waitFor(() => expect(status.textContent).toContain('未安裝'));
+  plugin.app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/manifest.json', '{"id":"polyglot-renderer"}');
+  plugin.app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/main.js', '// Not executed');
+  plugin.app.vault.configFiles.set('.obsidian/community-plugins.json', '["polyglot-renderer"]');
+  choose(form, file());
+  const trust = form.contentEl.querySelector<HTMLInputElement>('input[type=checkbox]')!;
+  trust.checked = true; trust.dispatchEvent(new Event('change'));
+  button(form, '重新檢查 renderer').click();
+  await vi.waitFor(() => expect(status.textContent).toContain('已啟用'));
+  expect(trust.checked).toBe(true);
+  expect(Modal.opened).toEqual([form]);
+});
+
 it('imports the active export without choosing a file, preserving BOM and CRLF', async () => {
   const plugin = await setup();
   const command = plugin.commands.find(item => item.id === 'import-current-note')!;

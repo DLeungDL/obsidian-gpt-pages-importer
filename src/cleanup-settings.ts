@@ -1,5 +1,6 @@
 import { Modal, PluginSettingTab, Setting, type App, type Plugin, type SettingDefinitionItem, type SettingDefinitionRender } from 'obsidian';
 import { cleanupFolder, type CleanupSettings } from './cleanup';
+import { addRendererStatus } from './renderer-status';
 
 export interface CleanupController {
   getCleanupSettings(): CleanupSettings;
@@ -67,6 +68,7 @@ export class CleanupSettingTab extends PluginSettingTab {
         desc: '預設關閉。確認信任此資料夾內容後，才將所有 html-source 區塊轉為 html；需自行啟用 Polyglot Renderer。更換資料夾須重新確認信任。',
         aliases: ['HTML', 'renderer', 'trust', '信任'],
         render: setting => {
+          addRendererStatus(setting, this.app);
           setting.addToggle(toggle => {
             let updatingRendering = false;
             setRendering = value => {

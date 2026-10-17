@@ -5,6 +5,38 @@ import { Modal, Setting, TestApp } from './obsidian-stub';
 
 beforeEach(() => { document.body.replaceChildren(); Modal.opened = []; });
 
+it.each(['legacy', 'declarative'])('shows and refreshes renderer status in %s cleanup settings without granting folder trust', async mode => {
+  const configure = vi.fn(async () => {});
+  const app = new TestApp();
+  const tab = new CleanupSettingTab(app as never, {} as never, {
+    getCleanupSettings: () => ({ enabled: false, folder: 'Inbox', renderHtml: false }),
+    configureCleanup: configure, scanCleanup: vi.fn(), cleanupStatus: '尚未啟用'
+  });
+  if (mode === 'legacy') tab.display();
+  else {
+    const group = tab.getSettingDefinitions()[0]!;
+    if (!('items' in group)) throw new Error('Missing settings group');
+    for (const item of group.items ?? []) {
+      if ('render' in item && item.render) item.render(new Setting(tab.containerEl) as never, {} as never);
+    }
+  }
+  const status = tab.containerEl.querySelector('.gpt-pages-renderer-status [role=status]')!;
+  await vi.waitFor(() => expect(status.textContent).toContain('未安裝'));
+  app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/manifest.json', '{"id":"polyglot-renderer"}');
+  app.vault.configFiles.set('.obsidian/plugins/polyglot-renderer/main.js', '// Not executed');
+  const refresh = [...tab.containerEl.querySelectorAll('button')].find(button => button.textContent === '重新檢查 renderer')!;
+  refresh.click();
+  await vi.waitFor(() => expect(status.textContent).toContain('未啟用'));
+  app.vault.configFiles.set('.obsidian/community-plugins.json', '["polyglot-renderer"]');
+  refresh.click();
+  await vi.waitFor(() => expect(status.textContent).toContain('已啟用'));
+  expect([...tab.containerEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]')].every(toggle => !toggle.checked)).toBe(true);
+  expect(configure).not.toHaveBeenCalled();
+  expect(Modal.opened).toHaveLength(0);
+  [...tab.containerEl.querySelectorAll('button')].find(button => button.textContent === '儲存設定')!.click();
+  await vi.waitFor(() => expect(configure).toHaveBeenCalledWith({ enabled: false, folder: 'Inbox', renderHtml: false }, undefined));
+});
+
 it('exposes searchable modern settings backed by the same explicit trust and save flow', async () => {
   const configure = vi.fn(async () => {});
   const controller: CleanupController = {
