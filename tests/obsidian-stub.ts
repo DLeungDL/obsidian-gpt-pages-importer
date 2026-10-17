@@ -9,6 +9,16 @@ export class TFolder extends TAbstractFile {
   constructor(path: string, public children: TAbstractFile[] = []) { super(path); }
 }
 export class TestVault {
+  configDir = '.obsidian';
+  configFiles = new Map<string, string>();
+  adapter = {
+    exists: async (path: string) => this.configFiles.has(path),
+    read: async (path: string) => {
+      const content = this.configFiles.get(path);
+      if (content === undefined) throw new Error('Missing configuration file');
+      return content;
+    }
+  };
   files = new Map<string, string>();
   folders = new Set<string>();
   handlers = new Map<string, ((file: TAbstractFile, oldPath?: string) => void)[]>();
@@ -61,6 +71,7 @@ export class TestWorkspace {
   on(_name: 'file-menu', callback: (menu: Menu, file: TFile | TFolder) => void) { this.fileMenuHandlers.push(callback); return {}; }
 }
 export class TestApp { vault = new TestVault(); workspace = new TestWorkspace(); }
+export function normalizePath(path: string) { return path.replace(/\\/g, '/').replace(/\/{2,}/g, '/').replace(/^\/|\/$/g, ''); }
 export class Plugin {
   app = new TestApp();
   commands: { id: string; callback: () => void; checkCallback?: (checking: boolean) => boolean | void }[] = [];
@@ -141,11 +152,12 @@ class Control {
 }
 export class Setting {
   element = document.createElement('div');
+  descEl = hostElement();
   get controlEl() { return this.element; }
-  constructor(container: HTMLElement) { container.append(this.element); }
+  constructor(container: HTMLElement) { this.element.append(this.descEl); container.append(this.element); }
   setName(text: string) { const label = document.createElement('label'); label.textContent = text; this.element.append(label); return this; }
   setHeading() { this.element.classList.add('setting-item-heading'); return this; }
-  setDesc(text: string) { const p = document.createElement('p'); p.textContent = text; this.element.append(p); return this; }
+  setDesc(text: string) { this.descEl.textContent = text; return this; }
   private control(type: 'text' | 'checkbox' | 'button', fn: (control: Control) => void) {
     const element = document.createElement(type === 'button' ? 'button' : 'input'); element.type = type;
     this.element.append(element); fn(new Control(element)); return this;

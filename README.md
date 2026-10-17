@@ -145,6 +145,8 @@ The importer reads HTML from the exported Markdown. It removes a figure's marker
 
 Manual imports keep HTML in `html-source` fences by default. For interactive rendering, inspect the source, explicitly trust it, and use the separately installed [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer) to render `html` fences.
 
+The import dialog and the cleanup HTML rendering option show whether Polyglot Renderer is not installed, disabled or enabled. Use **重新檢查 renderer** ("Recheck renderer") after installing or changing its enablement. Detection reads this vault's installation files and saved enabled-plugin list; it does not verify successful loading or renderer settings. Unreadable or incomplete configuration shows "Unable to determine". Status checks never grant trust, install or enable plugins, or block importing and cleanup.
+
 - Manual import trust covers **all HTML blocks in the document**.
 - Folder trust covers **all current and future HTML blocks in the folder and its subfolders**, including unpaired blocks.
 - Automatic cleanup preserves existing fence languages by default. Disabling rendering stops future conversions; it does not revert existing `html` blocks.

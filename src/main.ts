@@ -3,6 +3,7 @@ import { applyImport, assetReport, planImport, readState, type Plan, type State,
 import { renderPreview } from './preview';
 import { cleanupCandidate, cleanupFolder, CleanupQueue, cleanFile, readCleanupSettings, type CleanupSettings } from './cleanup';
 import { CleanupSettingTab } from './cleanup-settings';
+import { addRendererStatus } from './renderer-status';
 
 class VaultStorage implements Storage {
   constructor(private vault: Vault, private maxBytes?: number, private allowed?: () => boolean) {}
@@ -125,10 +126,11 @@ class ImportModal extends Modal {
       text.setValue(this.sourceId).onChange(value => { this.sourceId = value; this.customSource = !!value.trim() && value !== this.selected?.name; });
     });
     new Setting(advanced).setName('新來源的目的目錄').setDesc('預設 GPT Pages。已匯入來源沿用原目的地。').addText(text => text.setValue(this.folder).onChange(value => { this.folder = value; }));
-    new Setting(this.contentEl).setName('我信任這份內容，允許 renderer 執行 HTML／JavaScript').setDesc('預設關閉。開啟後輸出 html fence；Polyglot Renderer 可能自動執行 scripts 及外部網路請求。sandbox 不保證網路隔離。重新匯入已啟用的內容時，請先關閉 renderer，以免讀取模式立即執行。').addToggle(toggle => {
+    const rendering = new Setting(this.contentEl).setName('我信任這份內容，允許 renderer 執行 HTML／JavaScript').setDesc('預設關閉。開啟後輸出 html fence；Polyglot Renderer 可能自動執行 scripts 及外部網路請求。sandbox 不保證網路隔離。重新匯入已啟用的內容時，請先關閉 renderer，以免讀取模式立即執行。').addToggle(toggle => {
       setTrusted = value => { toggle.setValue(value); };
       toggle.setValue(this.trusted).onChange(value => { this.trusted = value; });
     });
+    addRendererStatus(rendering, this.app);
     new Setting(this.contentEl).addButton(button => {
       setPreviewEnabled = enabled => { button.setDisabled(busy || !enabled); };
       button.setButtonText('預覽').setCta().onClick(async () => {

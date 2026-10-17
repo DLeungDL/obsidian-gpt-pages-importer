@@ -17,6 +17,9 @@
 .gpt-pages-selected-file {
   overflow-wrap: anywhere;
 }
+.gpt-pages-renderer-status {
+  margin-block-start: 0.5rem;
+}
 .gpt-pages-preview-actions {
   position: sticky;
   top: 0;
