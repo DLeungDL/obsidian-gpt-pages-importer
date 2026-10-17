@@ -1,4 +1,10 @@
 interface:
   display_name: "GPT Pages Export to Obsidian"
-  short_description: "Generate clean Pages with paired HTML for Markdown export"
-  default_prompt: "Use $gpt-pages-obsidian-visualizations to generate a standard GPT Page with native visualizations, compatible pairing markers, and complete HTML sources at the bottom for Markdown export."
+  short_description: "Create portable Pages with the required Pages plugin"
+  default_prompt: "Use $gpt-pages-obsidian-visualizations with @Pages to create or update a Page using Pages tools, with native visualizations, compatible pairing markers and complete HTML sources in the footer for Markdown export."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "codex_apps"
+      description: "Required Pages plugin (pages@openai-curated-remote), providing ChatGPT Space Page editing and native visualization tools."

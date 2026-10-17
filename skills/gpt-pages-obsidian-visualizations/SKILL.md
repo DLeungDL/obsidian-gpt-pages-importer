@@ -1,11 +1,19 @@
 ---
 name: gpt-pages-obsidian-visualizations
-description: "Generate standard GPT Pages for Markdown export to Obsidian: native visualizations in the body, paired complete HTML sources at the bottom, compatible markers, byte-preserving verification, and explicit rendering trust. Use when creating or updating portable Page visualizations or reusable export layouts; not for live sync or general Obsidian configuration."
+description: "Generate standard GPT Pages for Markdown export to Obsidian using the required Pages plugin: native visualizations in the body, paired complete HTML sources at the bottom, compatible markers, byte-preserving verification, and explicit rendering trust. Use when creating or updating portable Page visualizations or reusable export layouts; not for live sync or general Obsidian configuration."
 ---
 
 # GPT Pages to Obsidian: Standard Export Template
 
 Keep readable, interactive native visualizations in the GPT Page body and complete HTML sources at the bottom for manual Markdown export to Obsidian. The importer uses pairing markers to move HTML back to each chart position and remove verified markers and native image references.
+
+## Required dependency: Pages
+
+The [Pages plugin](https://chatgpt.com/plugins/plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c?open_in_app) (`pages@openai-curated-remote`, invoked as `@Pages`) is required for creating or updating a Page with this skill. It provides the ChatGPT Space app's Page and native visualization tools.
+
+- Confirm that Pages is enabled and connected, and discover its actual tools before starting Page operations. Use Pages tools to read, create and edit Pages, and its native visualization tool to create or replace charts. Typical tool names include `read_page`, `create_page`, `edit_page`, `patch_page` and `create_page_visualization`; namespace prefixes may vary by host.
+- If the required Pages tools are unavailable, disconnected or lack access to the target Page, stop the dependent Page operation and explain what is missing. Do not substitute a local HTML/Markdown file, a chat draft, another provider or a fabricated native reference and report the Page as created or updated. Installing the skill or declaring its tool dependency does not itself connect Pages.
+- Confirm successful Page operations through tool receipts and Page readback. Local source preparation and verification can proceed independently, but do not count as a completed Page operation.
 
 ## Core invariants
 
@@ -19,11 +27,11 @@ Keep readable, interactive native visualizations in the GPT Page body and comple
 
 ## Create or update a Page
 
-1. Identify the requested Page, visualizations and output scope. Read the latest Page before designing suitable charts and interactions. Do not treat a past example's chart count, subject, private IDs or local paths as fixed requirements.
+1. Confirm the required Pages tools, then identify the requested Page, visualizations and output scope. Read an existing Page with Pages before designing suitable charts and interactions. For a new Page, use Pages' creation tool and read the result before inserting native visualizations. Do not treat a past example's chart count, subject, private IDs or local paths as fixed requirements.
 2. Read [references/export-format.md](references/export-format.md) and use [assets/page-export-template.md](assets/page-export-template.md) as the layout blueprint. Choose chart count and interactions for the subject. [assets/weighted-sum.html](assets/weighted-sum.html) is an optional interactive starting point without private content. Replace every template placeholder before writing to the Page.
-3. Keep existing native charts whose source and references still match, or create/update them with the available tools. Assign each figure a short ID unique within the document and obtain its file ID from the actual native reference. Choose v3 or v2 according to the target plugin's support, then generate the figure marker and source block with the helper below. Put the figure marker immediately before its native chart. Put the same-ID source marker and complete `html` fence after all body content. Pair by ID, not title or order; do not substitute raw HTML for fences.
-4. Read the latest Page again before writing. Use guarded, local insertions or replacements with unique anchors and old-content or version preconditions. If an anchor is ambiguous or content has changed, re-read and rebuild the local edit. Do not rewrite the whole Page or automatically remove tests or references. If tools cannot perform safe local edits, provide an insertable fragment and explain the limitation.
-5. Read back the result and check unique IDs, native references, SHA-256, HTML bytes, complete fences and figure/source counts. Confirm that no extra source-section headings or unreplaced placeholders were added. Check localized titles, formulas and ARIA text. `????` or replacement characters may indicate encoding damage; do not assume a font issue. Inspect UTF-8 bytes or Unicode code points when needed.
+3. Keep existing native charts whose source and references still match, or create/update them with Pages' native visualization tool. Assign each figure a short ID unique within the document and obtain its file ID from the actual native reference. Choose v3 or v2 according to the target plugin's support, then generate the figure marker and source block with the helper below. Put the figure marker immediately before its native chart. Put the same-ID source marker and complete `html` fence after all body content. Pair by ID, not title or order; do not substitute raw HTML for fences.
+4. Read the latest Page again with Pages before writing. Use Pages' editing tools for guarded, local insertions or replacements with unique anchors and old-content or version preconditions. If an anchor is ambiguous or content has changed, re-read and rebuild the local edit. Do not rewrite the whole Page or automatically remove tests or references. If Pages tools cannot perform a safe local edit, stop that edit and explain the limitation; a draft is not a completed Page update.
+5. Read back the result with Pages and check unique IDs, native references, SHA-256, HTML bytes, complete fences and figure/source counts. Confirm that no extra source-section headings or unreplaced placeholders were added. Check localized titles, formulas and ARIA text. `????` or replacement characters may indicate encoding damage; do not assume a font issue. Inspect UTF-8 bytes or Unicode code points when needed.
 6. Verify Markdown actually downloaded from the Page. Self-assembled Markdown is not download evidence. If no downloaded file is available, state that the export layer remains untested.
 
 ## Export and Obsidian

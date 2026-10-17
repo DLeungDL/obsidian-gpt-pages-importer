@@ -49,12 +49,14 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 ### 1 · 在 AI 代理中使用生成技能
 
-**匯出前，先使用技能準備 Page。** 請使用能存取 Pages 與原生視覺化工具的 AI 代理（AI agent），將完整的 [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) 資料夾加入代理的技能庫，包含 scripts、references 與 assets。如果代理透過檔案讀取指引，請指定其中的 [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md)，並保留其連結的資源供代理使用。
+**前置需求（prerequisite）：在 AI 代理（AI agent）中啟用並連接 [Pages 外掛](https://chatgpt.com/plugins/plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c?open_in_app)，再選取 `@Pages`。** 代理必須能使用 Pages 的讀寫及原生視覺化工具。此技能要求建立或更新 Page 時使用 Pages 工具；若工具不可用或無法存取目標 Page，請先完成連接或取得存取權，再繼續操作。
+
+將完整的 [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) 資料夾加入代理的技能庫，包含 scripts、references 與 assets。如果代理透過檔案讀取指引，請指定其中的 [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md)，並保留其連結的資源供代理使用。匯出前，先搭配 Pages 使用技能準備 Page。
 
 可直接使用以下提示詞（prompt）：
 
 ```text
-使用 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。正文保留原生視覺化，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼，並加入所需的配對標記。
+使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。正文保留原生視覺化，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼，並加入所需的配對標記。
 ```
 
 技能會準備原生圖表、簡短圖表 ID，以及含對應參照（reference）與 SHA-256 校驗資訊的頁尾 HTML。這是本流程必要的製作步驟：一般 Page 匯出可能只有原生圖片參照，未包含可攜式 HTML，外掛無法還原缺少的來源。技能在 AI 代理中使用，GPT Pages Importer 則在 Obsidian 中處理產生的 Markdown。

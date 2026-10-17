@@ -49,12 +49,14 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 ### 1 · Use the authoring skill in your AI agent
 
-**Prepare the Page with the skill before exporting.** Use an AI agent with access to Pages and native visualization tools. Add the complete [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) folder to your agent's skill library, including its scripts, references and assets. If your agent loads instructions from files, point it to the folder's [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md) and keep the linked resources available.
+**Prerequisite: enable and connect the [Pages plugin](https://chatgpt.com/plugins/plugin_connector_1p_4a72ddeef4c481918f92d8e8df18fb2c?open_in_app) in your AI agent, then select `@Pages`.** The agent needs Pages' read/write and native visualization tools. This skill requires Pages tools for creating or updating a Page; if they are unavailable or cannot access the target Page, resolve that dependency before continuing.
+
+Add the complete [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) folder to your agent's skill library, including its scripts, references and assets. If your agent loads instructions from files, point it to the folder's [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md) and keep the linked resources available. Use the skill with Pages to prepare the Page before exporting.
 
 Ask the agent:
 
 ```text
-Use $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Keep native visualizations in the body and matching complete, self-contained HTML sources in the footer, with the required pairing markers.
+Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Keep native visualizations in the body and matching complete, self-contained HTML sources in the footer, with the required pairing markers.
 ```
 
 The skill prepares native charts, short figure IDs and footer HTML with matching references and SHA-256 checksums. This is the required authoring step in this workflow: a normal Page export may contain only native image references, which do not carry portable HTML. The importer cannot reconstruct missing sources. The skill runs in your AI agent; GPT Pages Importer handles the resulting Markdown in Obsidian.
