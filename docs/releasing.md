@@ -1,6 +1,6 @@
 # Release process
 
-Release tags must exactly match the version in `manifest.json`, without a `v` prefix. Keep `package.json`, the lockfile root, `versions.json` and README source-version badges aligned. The next prepared patch is `0.1.3`; creating its tag publishes it.
+Release tags must exactly match the version in `manifest.json`, without a `v` prefix. Keep `package.json`, the lockfile root, `versions.json` and README source-version badges aligned. Create the matching tag only after validating the committed release source; pushing it starts publication.
 
 ## Preflight
 
