@@ -1,0 +1,191 @@
+<p align="center">
+  <img src="docs/assets/repository-banner.svg" alt="GPT Pages Importer：將 Pages 視覺化與完整 HTML 帶到 Obsidian 的流程示意" width="100%">
+</p>
+
+<h1 align="center">GPT Pages Importer for Obsidian</h1>
+
+<p align="center"><a href="README.md">English</a> · <strong>繁體中文</strong></p>
+
+<p align="center">
+  把 Pages 的圖表與互動，帶進你的 Obsidian 筆記。<br>
+  完整 HTML・精準配對・自動清理・備份保護
+</p>
+
+<p align="center">
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.1-8b5cf6?style=flat-square" alt="Version 0.1.1"></a>
+  <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
+  <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
+</p>
+
+<p align="center">
+  <a href="#quick-start">快速開始</a> ·
+  <a href="docs/usage.md">使用指南</a> ·
+  <a href="docs/format.md">配對格式</a> ·
+  <a href="skills/gpt-pages-obsidian-visualizations/SKILL.md">Page 生成技能</a>
+</p>
+
+---
+
+Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
+
+> **目前為 0.1.1 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 為什麼使用它？
+
+| | 能帶走的內容與工作流程 |
+| :--- | :--- |
+| **圖表保留（Portable visuals）** | 保存完整 HTML、CSS、JavaScript 與資料，讓互動圖有可攜的原始碼。 |
+| **精簡配對（Compact pairing）** | v3 正文只留短 ID，參照與 SHA-256 集中頁尾；驗證後把 HTML 移回各圖位置。 |
+| **資料夾清理（Folder cleanup）** | 監看指定資料夾及所有子資料夾，可一次放入多個 Markdown，自動原地處理。 |
+| **寫入保護（Protected writes）** | 純文字預覽、修改前備份、重複匯入不重寫，本機修改有衝突保護。 |
+| **明確信任（Explicit trust）** | 手動匯入預設保存為 `html-source`；經確認後才產生供 renderer 執行的 `html`。 |
+| **生成技能（Authoring skill）** | 附 Page 版型、自包含互動範例、標記生成器與匯出原碼驗證工具。 |
+
+<a id="quick-start"></a>
+
+## 快速開始（Quick start）
+
+### 1 · 取得外掛
+
+開啟 [Obsidian 社群外掛頁面](https://community.obsidian.md/plugins/gpt-pages-importer)，按 **Add to Obsidian**，在 Obsidian 內安裝並啟用 **GPT Pages Importer**。
+
+如需手動安裝：
+
+從 [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest) 下載並解壓縮 `gpt-pages-importer-0.1.1.zip`。壓縮檔包含 `gpt-pages-importer/` 資料夾，可直接依下一步安裝。
+
+也可個別下載 `main.js`、`manifest.json` 與 `styles.css`，放入同一個 `gpt-pages-importer/` 資料夾。
+
+<details>
+<summary>自行建置（Build from source）</summary>
+
+需要 **Node.js 24** 與 npm：
+
+```sh
+git clone https://github.com/DLeungDL/obsidian-gpt-pages-importer.git
+cd obsidian-gpt-pages-importer
+npm ci
+npm run check
+```
+
+也可在成功的 [GitHub Actions 工作流程](https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml) 下載 `gpt-pages-importer` 建置產物（artifact）。
+
+</details>
+
+### 2 · 安裝到 Obsidian
+
+將下載解壓縮的 `gpt-pages-importer/`（自行建置則為 `dist/gpt-pages-importer/`）整個資料夾複製到：
+
+```text
+你的 vault/
+└── .obsidian/
+    └── plugins/
+        └── gpt-pages-importer/
+            ├── main.js
+            ├── manifest.json
+            ├── styles.css
+            └── …授權檔與第三方授權 notices
+```
+
+在 **設定 → Community plugins** 啟用 **GPT Pages Importer**。更新檔案後，重新載入外掛。
+
+### 3 · 匯入第一份筆記
+
+1. 從 Pages 下載 Markdown；視覺化的完整 HTML 需一併保存在文件中，可用附帶的 [Page 生成技能](skills/gpt-pages-obsidian-visualizations/SKILL.md) 準備。
+2. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入檔案。
+3. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
+
+後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.md)。
+
+## 選擇你的工作方式
+
+| | 手動匯入（Import） | 資料夾自動清理（Automatic cleanup） |
+| :--- | :--- | :--- |
+| **適合情境** | 預覽後建立或更新目的筆記 | 將一批匯出檔直接放入指定資料夾 |
+| **處理位置** | 預設建立於 `GPT Pages/` | 直接修改原檔，保留路徑與檔名 |
+| **重複處理** | 內容相同不寫入；本機修改停止覆寫 | 已清理內容不重寫，不新增備份 |
+| **HTML 語言** | 預設 `html-source`，信任後可輸出 `html` | 預設保留原語言，可另確認資料夾渲染信任 |
+| **備份** | 更新既有目的筆記前備份 | 每次原地修改前備份 |
+
+設定自動清理時，填入一個監看資料夾（watched folder），即可涵蓋所有子資料夾。儲存並啟用後，會掃描既有文件，並處理之後新增、修改與移入的 Markdown。詳見[設定與信任流程](docs/usage.md#指定資料夾自動清理)。
+
+## 從 Page 到筆記
+
+```mermaid
+flowchart LR
+    A["Pages<br/>原生視覺化 + 短圖表 ID"] --> B["Markdown 匯出<br/>正文標記 + 頁尾完整 HTML"]
+    B --> C["驗證配對<br/>ID · reference · SHA-256"]
+    C --> D["Obsidian<br/>HTML 回到圖表位置"]
+```
+
+外掛從匯出檔讀取 HTML。只有唯一 ID、精確原生參照（reference）、完整來源與 SHA-256 全部通過，才清除該組標記及圖片參照；配對不明確時保留原文並警告。v1／v2 舊格式仍相容。
+
+[閱讀 v3 配對契約 →](docs/format.md)
+
+## 閱讀、渲染與信任
+
+手動匯入預設將原始碼保留為 `html-source`。需要互動時，先檢查內容、明確信任，再配合獨立安裝的 [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer) 呈現 `html`。
+
+- 手動匯入的信任適用於**整份文件的 HTML 區塊**。
+- 資料夾信任適用於該資料夾及子資料夾中，**現有與日後的所有 HTML 區塊**。
+- 自動清理預設保留既有語言；關閉渲染選項不會還原已是 `html` 的區塊。
+- 寫入前先備份；JavaScript 可能執行並發出網路請求。SHA-256 配對成功不代表程式碼安全。
+
+[查看渲染選項、備份與還原 →](docs/usage.md)
+
+## 隱私與存取（Privacy and access）
+
+此外掛免費使用，不要求帳號、付款或 API 金鑰，不收集遙測資料（telemetry），也不自行發送網路請求。手動匯入會透過檔案選擇器讀取你選擇的 vault 外 Markdown；寫入僅限目前 vault 內的目的筆記、備份與外掛設定。自動清理只處理你指定的 vault 資料夾及子資料夾。
+
+HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／JavaScript 若包含外部圖片、字型、函式庫或請求，可能由 renderer 存取相應遠端服務。請在啟用信任前檢查完整內容。
+
+## 文件與資源
+
+| 想完成的事 | 從這裡開始 |
+| :--- | :--- |
+| 安裝、匯入、設定監看資料夾、重匯與還原 | [完整使用指南](docs/usage.md) |
+| 編寫或檢查 v3／v2／v1 配對格式 | [格式契約](docs/format.md) |
+| 生成可匯出至 Obsidian 的 Page | [完整技能與工具](skills/gpt-pages-obsidian-visualizations/SKILL.md) |
+| 核對原生圖與 Markdown 匯出的實測範圍 | [相容性紀錄](docs/compatibility.md) · [往返驗證摘要](docs/pages-roundtrip.md) |
+| 試讀通用、自行編寫的資料 | [靜態範例](examples/static.md) · [互動範例](examples/interactive.md) |
+
+<a id="development"></a>
+
+## 開發與驗證（Development）
+
+```sh
+npm run typecheck   # TypeScript
+npm run build       # 打包與載入檢查
+npm test            # Vitest 回歸測試
+npm run check       # 公開資料檢查 + 建置 + 測試
+```
+
+技能的 Python 驗證器另有標準函式庫測試：
+
+```sh
+python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
+```
+
+轉換邏輯位於 [src/convert.ts](src/convert.ts)，匯入與衝突保護位於 [src/importer.ts](src/importer.ts)，自動清理位於 [src/cleanup.ts](src/cleanup.ts)。公開測試只使用虛構識別碼；私人 Page、原始匯出與截圖保留在 Git 外。
+
+<details>
+<summary><strong>常見問題（FAQ）</strong></summary>
+
+### 為什麼只有原生圖片參照，沒有可攜的互動圖？
+
+`visualize:` 參照本身不包含完整 HTML。請使用[生成技能](skills/gpt-pages-obsidian-visualizations/SKILL.md)，在 Page 頁尾加入與原生圖配對的完整來源，再匯出 Markdown。
+
+### 可以一次處理多份文件嗎？
+
+可以把多個 Markdown 放進監看資料夾或其子資料夾，由自動清理處理；手動匯入視窗每次選取一個檔案。
+
+### 會自動連線 Pages 下載或同步嗎？
+
+匯入與清理都使用你提供的 Markdown，不連線 Pages 下載附件，也不提供雲端或雙向同步。
+
+</details>
+
+## 授權（License）
+
+本專案採 [MIT 授權](LICENSE)，包含外掛原始碼、文件與附帶的 Page 生成技能。打包依賴保留各自授權，完整聲明（third-party notices）隨發行檔提供，並嵌入 `main.js`。

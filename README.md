@@ -1,12 +1,14 @@
 <p align="center">
-  <img src="docs/assets/repository-banner.svg" alt="GPT Pages Importer：將 Pages 視覺化與完整 HTML 帶到 Obsidian 的流程示意" width="100%">
+  <img src="docs/assets/repository-banner.svg" alt="GPT Pages Importer: bring Pages visualizations and complete HTML into Obsidian" width="100%">
 </p>
 
 <h1 align="center">GPT Pages Importer for Obsidian</h1>
 
+<p align="center"><strong>English</strong> · <a href="README.zh-TW.md">繁體中文</a></p>
+
 <p align="center">
-  把 Pages 的圖表與互動，帶進你的 Obsidian 筆記。<br>
-  完整 HTML・精準配對・自動清理・備份保護
+  Bring your Pages charts and interactions into Obsidian.<br>
+  Complete HTML · Verified pairing · Automatic cleanup · Backup protection
 </p>
 
 <p align="center">
@@ -18,65 +20,56 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start">快速開始</a> ·
-  <a href="docs/usage.md">使用指南</a> ·
-  <a href="docs/format.md">配對格式</a> ·
-  <a href="skills/gpt-pages-obsidian-visualizations/SKILL.md">Page 生成技能</a>
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#import-or-automatic-cleanup">Workflows</a> ·
+  <a href="#rendering-and-trust">Rendering and trust</a> ·
+  <a href="skills/gpt-pages-obsidian-visualizations/SKILL.md">Page authoring skill</a>
 </p>
 
 ---
 
-## English overview
+Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-GPT Pages Importer brings Markdown exported from ChatGPT Pages into Obsidian, including complete, portable HTML visualizations. Keep native charts in the Page body and their matching HTML sources in a footer. The importer verifies each figure's unique ID, exact asset reference and SHA-256 before moving its HTML back to the original chart position and removing the matched marker and native image reference. Ambiguous pairings stay unchanged and produce warnings. Compact v3 markers and older v1/v2 formats are supported.
+> **Current release: 0.1.1 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) (Traditional Chinese) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
 
-### Install and use
+## Why use it?
 
-1. Download `gpt-pages-importer-0.1.1.zip` from [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest). Extract its `gpt-pages-importer` folder into your vault's `.obsidian/plugins/` directory and enable **GPT Pages Importer** in Community plugins.
-2. Export a Page as Markdown, including its complete HTML sources. The bundled [authoring skill](skills/gpt-pages-obsidian-visualizations/SKILL.md) helps prepare compatible Pages; an image reference alone does not contain the HTML.
-3. Run the import command, choose or drop a Markdown file, inspect the text-only preview and confirm. The destination note opens automatically. Keep the same source name when importing that Page again.
-
-Imports back up existing notes before replacement and stop when local edits or concurrent changes conflict. Alternatively, configure one watched vault folder and its subfolders to automatically clean existing, added, modified or moved Markdown files in place. Each modification creates a backup; unchanged files are not rewritten.
-
-### Rendering, privacy and support
-
-Manual imports default to non-executable `html-source` fences. Rendering requires explicit trust and the separately installed [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer). Folder rendering trust covers all current and future HTML blocks in that folder and its subfolders. Trusted JavaScript may execute and make network requests; a matching checksum does not establish safety. Turning off rendering stops future conversions but does not revert existing `html` fences.
-
-The importer is free, MIT-licensed and requires no account, payment or API key. It collects no telemetry, sends no network requests, downloads no Page assets and provides no cloud sync. It reads the external Markdown file selected by the user and writes destination notes, backups and settings within the current vault. Automatic cleanup is restricted to the configured vault folder and its subfolders. The optional renderer may contact external services referenced by trusted HTML. Report bugs through [GitHub Issues](https://github.com/DLeungDL/obsidian-gpt-pages-importer/issues). See the [compatibility record](docs/compatibility.md) for the actual scope of device testing.
-
-The following sections provide the detailed Traditional Chinese guide.
-
----
-
-Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
-
-> **目前為 0.1.1 MVP。** 採手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
-
-## 為什麼使用它？
-
-| | 能帶走的內容與工作流程 |
+| | Features |
 | :--- | :--- |
-| **圖表保留（Portable visuals）** | 保存完整 HTML、CSS、JavaScript 與資料，讓互動圖有可攜的原始碼。 |
-| **精簡配對（Compact pairing）** | v3 正文只留短 ID，參照與 SHA-256 集中頁尾；驗證後把 HTML 移回各圖位置。 |
-| **資料夾清理（Folder cleanup）** | 監看指定資料夾及所有子資料夾，可一次放入多個 Markdown，自動原地處理。 |
-| **寫入保護（Protected writes）** | 純文字預覽、修改前備份、重複匯入不重寫，本機修改有衝突保護。 |
-| **明確信任（Explicit trust）** | 手動匯入預設保存為 `html-source`；經確認後才產生供 renderer 執行的 `html`。 |
-| **生成技能（Authoring skill）** | 附 Page 版型、自包含互動範例、標記生成器與匯出原碼驗證工具。 |
+| **Portable visuals** | Preserve complete HTML, CSS, JavaScript and data so interactive charts have portable source code. |
+| **Compact pairing** | v3 uses short IDs in the body and keeps references and SHA-256 in the footer. Verified HTML returns to its chart position. |
+| **Folder cleanup** | Watch one folder and all its subfolders. Add multiple Markdown exports for automatic cleanup in place. |
+| **Protected writes** | Preview as plain text, back up before changes, skip identical imports and stop when local edits conflict. |
+| **Explicit trust** | Manual imports default to `html-source`. Executable `html` requires explicit confirmation. |
+| **Authoring skill** | Includes a Page template, a self-contained interactive example, marker generators and an export-source verifier. |
 
 <a id="quick-start"></a>
 
-## 快速開始（Quick start）
+## Quick start
 
-### 1 · 取得外掛
+### 1 · Install the plugin
 
-從 [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest) 下載並解壓縮 `gpt-pages-importer-0.1.1.zip`。壓縮檔包含 `gpt-pages-importer/` 資料夾，可直接依下一步安裝。
+Open the [Obsidian Community listing](https://community.obsidian.md/plugins/gpt-pages-importer), select **Add to Obsidian**, and install and enable **GPT Pages Importer** in Obsidian.
 
-也可個別下載 `main.js`、`manifest.json` 與 `styles.css`，放入同一個 `gpt-pages-importer/` 資料夾。
+For manual installation, download and extract `gpt-pages-importer-0.1.1.zip` from [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest). Copy the extracted `gpt-pages-importer/` folder into:
+
+```text
+your vault/
+└── .obsidian/
+    └── plugins/
+        └── gpt-pages-importer/
+            ├── main.js
+            ├── manifest.json
+            ├── styles.css
+            └── …license and third-party notices
+```
+
+You can also download `main.js`, `manifest.json` and `styles.css` individually into the same plugin folder. Enable the plugin under **Settings → Community plugins**. Reload it after replacing files for a manual update.
 
 <details>
-<summary>自行建置（Build from source）</summary>
+<summary>Build from source</summary>
 
-需要 **Node.js 24** 與 npm：
+Requires **Node.js 24** and npm:
 
 ```sh
 git clone https://github.com/DLeungDL/obsidian-gpt-pages-importer.git
@@ -85,123 +78,117 @@ npm ci
 npm run check
 ```
 
-也可在成功的 [GitHub Actions 工作流程](https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml) 下載 `gpt-pages-importer` 建置產物（artifact）。
+Copy `dist/gpt-pages-importer/` into your vault's `.obsidian/plugins/` directory. You can also download the `gpt-pages-importer` build artifact from a successful [GitHub Actions run](https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml).
 
 </details>
 
-### 2 · 安裝到 Obsidian
+### 2 · Prepare a Page export
 
-將下載解壓縮的 `gpt-pages-importer/`（自行建置則為 `dist/gpt-pages-importer/`）整個資料夾複製到：
+Download Markdown from Pages with each visualization's complete HTML source included in the document. The bundled [Page authoring skill](skills/gpt-pages-obsidian-visualizations/SKILL.md) helps create compatible Pages. A native image reference alone does not contain the HTML source.
 
-```text
-你的 vault/
-└── .obsidian/
-    └── plugins/
-        └── gpt-pages-importer/
-            ├── main.js
-            ├── manifest.json
-            ├── styles.css
-            └── …授權檔與第三方授權 notices
-```
+### 3 · Import your first note
 
-在 **設定 → Community plugins** 啟用 **GPT Pages Importer**。更新檔案後，重新載入外掛。
+1. Run **GPT Pages Importer: 匯入 Pages Markdown** ("Import Pages Markdown"), then select or drop a file.
+2. Review the destination, verified figure count and warnings in the text-only preview.
+3. Confirm the import. The destination note opens automatically.
 
-### 3 · 匯入第一份筆記
+When importing the same Page again, reuse its source name. The default destination for a new source is `GPT Pages/`; later imports reuse the saved destination. See the [detailed usage guide](docs/usage.md) (Traditional Chinese) for other entry points, re-imports and recovery.
 
-1. 從 Pages 下載 Markdown；視覺化的完整 HTML 需一併保存在文件中，可用附帶的 [Page 生成技能](skills/gpt-pages-obsidian-visualizations/SKILL.md) 準備。
-2. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入檔案。
-3. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
+## Import or automatic cleanup
 
-後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.md)。
-
-## 選擇你的工作方式
-
-| | 手動匯入（Import） | 資料夾自動清理（Automatic cleanup） |
+| | Manual import | Automatic folder cleanup |
 | :--- | :--- | :--- |
-| **適合情境** | 預覽後建立或更新目的筆記 | 將一批匯出檔直接放入指定資料夾 |
-| **處理位置** | 預設建立於 `GPT Pages/` | 直接修改原檔，保留路徑與檔名 |
-| **重複處理** | 內容相同不寫入；本機修改停止覆寫 | 已清理內容不重寫，不新增備份 |
-| **HTML 語言** | 預設 `html-source`，信任後可輸出 `html` | 預設保留原語言，可另確認資料夾渲染信任 |
-| **備份** | 更新既有目的筆記前備份 | 每次原地修改前備份 |
+| **Best for** | Previewing before creating or updating a destination note | Dropping a batch of exports into a watched folder |
+| **Location** | Creates a destination under `GPT Pages/` by default | Modifies the original file, preserving its path and name |
+| **Repeat processing** | Skips identical content and stops on conflicting local edits | Skips unchanged content without creating another backup |
+| **HTML fences** | Defaults to `html-source`; trusted imports can use `html` | Preserves existing fence languages by default; folder rendering trust is optional |
+| **Backups** | Before replacing an existing destination | Before each modification in place |
 
-設定自動清理時，填入一個監看資料夾（watched folder），即可涵蓋所有子資料夾。儲存並啟用後，會掃描既有文件，並處理之後新增、修改與移入的 Markdown。詳見[設定與信任流程](docs/usage.md#指定資料夾自動清理)。
+In the plugin settings, enter an existing vault folder under **自動清理資料夾** ("Automatic cleanup folder"). Turn on **啟用自動清理** ("Enable automatic cleanup") and select **儲存設定** ("Save settings"). Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
 
-## 從 Page 到筆記
+Cleanup removes only verified figure markers and native image references. A verified footer source moves to its original figure position. Backups and destination notes tracked by the manual importer are excluded. Cleanup backups are stored under `GPT Pages Backups/cleanup`. See the [settings and trust guide](docs/usage.md#指定資料夾自動清理) (Traditional Chinese) for details.
+
+## From Page to note
 
 ```mermaid
 flowchart LR
-    A["Pages<br/>原生視覺化 + 短圖表 ID"] --> B["Markdown 匯出<br/>正文標記 + 頁尾完整 HTML"]
-    B --> C["驗證配對<br/>ID · reference · SHA-256"]
-    C --> D["Obsidian<br/>HTML 回到圖表位置"]
+    A["Pages<br/>Native visuals + short figure IDs"] --> B["Markdown export<br/>Body markers + complete footer HTML"]
+    B --> C["Verify pairing<br/>ID · reference · SHA-256"]
+    C --> D["Obsidian<br/>HTML returns to each chart position"]
 ```
 
-外掛從匯出檔讀取 HTML。只有唯一 ID、精確原生參照（reference）、完整來源與 SHA-256 全部通過，才清除該組標記及圖片參照；配對不明確時保留原文並警告。v1／v2 舊格式仍相容。
+The importer reads HTML from the exported Markdown. It removes a figure's marker and native image reference only when its unique ID, exact reference, complete source and SHA-256 all verify. Ambiguous pairings stay unchanged and produce warnings. Older v1 and v2 formats remain supported.
 
-[閱讀 v3 配對契約 →](docs/format.md)
+[Read the pairing contract →](docs/format.md) (Traditional Chinese) · [English authoring format reference →](skills/gpt-pages-obsidian-visualizations/references/export-format.md)
 
-## 閱讀、渲染與信任
+## Rendering and trust
 
-手動匯入預設將原始碼保留為 `html-source`。需要互動時，先檢查內容、明確信任，再配合獨立安裝的 [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer) 呈現 `html`。
+Manual imports keep HTML in `html-source` fences by default. For interactive rendering, inspect the source, explicitly trust it, and use the separately installed [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer) to render `html` fences.
 
-- 手動匯入的信任適用於**整份文件的 HTML 區塊**。
-- 資料夾信任適用於該資料夾及子資料夾中，**現有與日後的所有 HTML 區塊**。
-- 自動清理預設保留既有語言；關閉渲染選項不會還原已是 `html` 的區塊。
-- 寫入前先備份；JavaScript 可能執行並發出網路請求。SHA-256 配對成功不代表程式碼安全。
+- Manual import trust covers **all HTML blocks in the document**.
+- Folder trust covers **all current and future HTML blocks in the folder and its subfolders**, including unpaired blocks.
+- Automatic cleanup preserves existing fence languages by default. Disabling rendering stops future conversions; it does not revert existing `html` blocks.
+- Changes are backed up before writing. Trusted JavaScript may execute and make network requests. A matching SHA-256 establishes source consistency, not code safety.
 
-[查看渲染選項、備份與還原 →](docs/usage.md)
+To enable rendering after cleanup, turn on **清理後啟用 HTML 渲染** ("Enable HTML rendering after cleanup"), read and confirm the folder trust dialog, then save settings. Changing the watched folder requires confirming trust again. The importer does not install or enable a renderer automatically.
 
-## 隱私與存取（Privacy and access）
+[Rendering options, backups and recovery →](docs/usage.md) (Traditional Chinese)
 
-此外掛免費使用，不要求帳號、付款或 API 金鑰，不收集遙測資料（telemetry），也不自行發送網路請求。手動匯入會透過檔案選擇器讀取你選擇的 vault 外 Markdown；寫入僅限目前 vault 內的目的筆記、備份與外掛設定。自動清理只處理你指定的 vault 資料夾及子資料夾。
+## Privacy and access
 
-HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／JavaScript 若包含外部圖片、字型、函式庫或請求，可能由 renderer 存取相應遠端服務。請在啟用信任前檢查完整內容。
+The plugin is free, requires no account, payment or API key, collects no telemetry and sends no network requests. Manual import reads the external Markdown file you select through the file picker. Writes stay within the current vault: destination notes, backups and plugin settings. Automatic cleanup processes only the configured vault folder and its subfolders.
 
-## 文件與資源
+HTML rendering is provided by the separately installed Polyglot Renderer. If trusted HTML or JavaScript includes external images, fonts, libraries or requests, the renderer may contact those services. Inspect the complete source before enabling trust.
 
-| 想完成的事 | 從這裡開始 |
+The importer does not download Page assets or provide cloud or bidirectional sync.
+
+## Documentation and resources
+
+| Task | Resource |
 | :--- | :--- |
-| 安裝、匯入、設定監看資料夾、重匯與還原 | [完整使用指南](docs/usage.md) |
-| 編寫或檢查 v3／v2／v1 配對格式 | [格式契約](docs/format.md) |
-| 生成可匯出至 Obsidian 的 Page | [完整技能與工具](skills/gpt-pages-obsidian-visualizations/SKILL.md) |
-| 核對原生圖與 Markdown 匯出的實測範圍 | [相容性紀錄](docs/compatibility.md) · [往返驗證摘要](docs/pages-roundtrip.md) |
-| 試讀通用、自行編寫的資料 | [靜態範例](examples/static.md) · [互動範例](examples/interactive.md) |
+| Installation, importing, watched folders, re-imports and recovery | [Detailed usage guide](docs/usage.md) (Traditional Chinese) |
+| v3, v2 and v1 pairing rules | [Format contract](docs/format.md) (Traditional Chinese) |
+| Author portable Pages for Obsidian | [English skill and tools](skills/gpt-pages-obsidian-visualizations/SKILL.md) · [English format reference](skills/gpt-pages-obsidian-visualizations/references/export-format.md) |
+| Check validation scope | [Compatibility record](docs/compatibility.md) · [Round-trip evidence summary](docs/pages-roundtrip.md) (Traditional Chinese) |
+| Try authored sample data | [Static example](examples/static.md) · [Interactive example](examples/interactive.md) (Traditional Chinese) |
+| Report a bug or request a feature | [GitHub Issues](https://github.com/DLeungDL/obsidian-gpt-pages-importer/issues) |
 
 <a id="development"></a>
 
-## 開發與驗證（Development）
+## Development
 
 ```sh
-npm run typecheck   # TypeScript
-npm run build       # 打包與載入檢查
-npm test            # Vitest 回歸測試
-npm run check       # 公開資料檢查 + 建置 + 測試
+npm run typecheck   # Strict TypeScript
+npm run build       # Bundle, package and smoke-test loading
+npm test            # Vitest regression tests
+npm run check       # Public-data check + build + tests
 ```
 
-技能的 Python 驗證器另有標準函式庫測試：
+The skill's Python verifier also has standard-library tests:
 
 ```sh
 python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
 ```
 
-轉換邏輯位於 [src/convert.ts](src/convert.ts)，匯入與衝突保護位於 [src/importer.ts](src/importer.ts)，自動清理位於 [src/cleanup.ts](src/cleanup.ts)。公開測試只使用虛構識別碼；私人 Page、原始匯出與截圖保留在 Git 外。
+Conversion logic lives in [src/convert.ts](src/convert.ts), importing and conflict protection in [src/importer.ts](src/importer.ts), and automatic cleanup in [src/cleanup.ts](src/cleanup.ts). Public fixtures use fictional identifiers. Private Pages, original exports and screenshots stay outside Git.
 
 <details>
-<summary><strong>常見問題（FAQ）</strong></summary>
+<summary><strong>FAQ</strong></summary>
 
-### 為什麼只有原生圖片參照，沒有可攜的互動圖？
+### Why do I only have native image references, without portable interactive charts?
 
-`visualize:` 參照本身不包含完整 HTML。請使用[生成技能](skills/gpt-pages-obsidian-visualizations/SKILL.md)，在 Page 頁尾加入與原生圖配對的完整來源，再匯出 Markdown。
+A `visualize:` reference does not contain complete HTML. Use the [authoring skill](skills/gpt-pages-obsidian-visualizations/SKILL.md) to include matching sources in the Page footer before exporting Markdown.
 
-### 可以一次處理多份文件嗎？
+### Can I process multiple documents at once?
 
-可以把多個 Markdown 放進監看資料夾或其子資料夾，由自動清理處理；手動匯入視窗每次選取一個檔案。
+Place multiple Markdown files into the watched folder or its subfolders for automatic cleanup. The manual import dialog accepts one file at a time.
 
-### 會自動連線 Pages 下載或同步嗎？
+### Does the plugin download from Pages or sync automatically?
 
-匯入與清理都使用你提供的 Markdown，不連線 Pages 下載附件，也不提供雲端或雙向同步。
+Import and cleanup use Markdown you provide. They do not connect to Pages to download attachments or offer cloud or bidirectional sync.
 
 </details>
 
-## 授權（License）
+## License
 
-本專案採 [MIT 授權](LICENSE)，包含外掛原始碼、文件與附帶的 Page 生成技能。打包依賴保留各自授權，完整聲明（third-party notices）隨發行檔提供，並嵌入 `main.js`。
+This project uses the [MIT License](LICENSE), covering the plugin source, documentation and bundled Page authoring skill. Bundled dependencies retain their own licenses. Complete third-party notices are included with release assets and embedded in `main.js`.

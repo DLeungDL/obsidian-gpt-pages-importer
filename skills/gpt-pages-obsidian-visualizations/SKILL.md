@@ -3,56 +3,57 @@ name: gpt-pages-obsidian-visualizations
 description: "Generate standard GPT Pages for Markdown export to Obsidian: native visualizations in the body, paired complete HTML sources at the bottom, compatible markers, byte-preserving verification, and explicit rendering trust. Use when creating or updating portable Page visualizations or reusable export layouts; not for live sync or general Obsidian configuration."
 ---
 
-# GPT Pages → Obsidian 標準匯出範本
+# GPT Pages to Obsidian: Standard Export Template
 
-讓 GPT Page 正文保留可閱讀、可互動的原生視覺化（native visualization），把完整 HTML 程式碼集中在文件底部，供使用者手動匯出 Markdown 到 Obsidian。匯入外掛依配對標記（marker）將 HTML 移回圖表位置，清理已驗證的標記與原生圖片參照。
+Keep readable, interactive native visualizations in the GPT Page body and complete HTML sources at the bottom for manual Markdown export to Obsidian. The importer uses pairing markers to move HTML back to each chart position and remove verified markers and native image references.
 
-## 核心不變條件
+## Core invariants
 
-- **每圖雙表示**：Page 原生視覺化與一個語言標籤為 `html` 的 fenced code block 並存。不可用程式碼取代原生圖，也不可只交付本機 HTML 而漏掉 Page 內原碼。
-- 每圖維護一份標準來源（canonical source），含資料、公式、標籤與互動邏輯。把同一份完整 HTML 提交給原生視覺化工具並原樣放入頁尾；取得工具回傳的真實參照（reference）後再產生標記。宿主配色可以不同，教材資料、計算與事件行為必須一致。
-- **乾淨版面**：正文只放主題標題、必要說明、圖表標記與原生圖；頁尾只放來源標記及完整 HTML 圍欄。不要新增「可匯出 HTML 原始碼」總標題、各圖的「HTML 原始碼」副標題、空章節或匯出操作說明。保留原本有意義的正文與使用者指定內容。
-- **相容格式**：目標外掛已確認支援時，新 Page 使用 v3 精簡標記（compact marker）：正文只留短 ID，頁尾保存 ref 與 sha256。無法確認 v3 支援時使用 v2 完整標記；不能只憑本機工作目錄有新程式碼，就認定使用者已安裝新版。SHA-256 校驗值（checksum）用來核對來源，不代表使用者信任執行程式碼。
-- 獨立 HTML 必須自包含：UTF-8、完整文件、HTML/SVG、內嵌資料、CSS、所需 inline JavaScript；明確字型、背景與文字顏色，CSS 變數有預設值。不要依賴 CDN、遠端字型、外部圖片、宿主 CSS、Page 私有參照或網路 API。
-- 保留既有內容與使用者修改。技能的使用本身不授權改 Page、vault 設定、安裝外掛、發佈或同步；依當次任務授權執行。
+- **Two representations per figure:** include both a native Page visualization and a fenced code block labeled `html`. Do not replace the native chart with code, or deliver only a local HTML file while omitting the source from the Page.
+- Maintain one canonical source per figure, including its data, formulas, labels and interaction logic. Submit the same complete HTML to the native visualization tool and place it unchanged in the footer. Generate markers only after receiving the tool's actual reference. Host colors may differ; data, calculations and event behavior must agree.
+- **Clean layout:** the body contains subject headings, necessary explanations, figure markers and native visuals. The footer contains only source markers and complete HTML fences. Do not add an "Exportable HTML source" appendix heading, per-chart "HTML source" subheadings, empty sections or export instructions. Preserve meaningful existing prose and user-requested content.
+- **Compatible format:** use compact v3 markers for new Pages only when the target plugin's support is confirmed. Keep only the short ID in the body and put `ref` and `sha256` in the footer. Otherwise use full v2 markers. New code in a local checkout does not establish which version the user has installed. SHA-256 verifies source consistency; it does not establish trust to execute code.
+- Standalone HTML must be self-contained: a complete UTF-8 document with HTML/SVG, embedded data, CSS and any required inline JavaScript. Set fonts, background and text colors explicitly, with defaults for CSS variables. Do not depend on CDNs, remote fonts, external images, host CSS, private Page references or network APIs.
+- Preserve existing content and user edits. Invoking this skill does not itself authorize Page edits, vault configuration changes, plugin installation, publishing or synchronization. Follow the current task's authorization.
+- Write Page prose, labels and accessibility text in the user's requested language. English skill instructions do not require English output.
 
-## 產製與更新
+## Create or update a Page
 
-1. 確認使用者指定的 Page、圖形與輸出範圍。先讀最新 Page，再設計適合教材的圖與互動；不要把示範圖數、課程、私人 ID 或本機路徑當成固定規格。
-2. 先讀 [references/export-format.md](references/export-format.md)，以 [assets/page-export-template.md](assets/page-export-template.md) 作為版型。依主題選擇圖表數量與互動；新互動圖可改用 [assets/weighted-sum.html](assets/weighted-sum.html) 作為無私人內容的起點。範本中的佔位符（placeholder）全部替換後才能寫入 Page。
-3. 保留符合來源與參照的既有原生圖，或透過目前可用工具建立／更新。每圖指定文件內唯一的短 ID，從實際回傳的原生參照取得檔案 ID，依目標外掛能力選 v3 或 v2，再用下方工具產生圖表標記與來源區塊。圖表標記緊鄰正文原生圖；相同 ID 的來源標記與完整 `html` 圍欄集中放在所有正文之後。配對依 ID，不依標題或順序；不要用 raw HTML 取代圍欄。
-4. 寫入前再次取得最新 Page，以唯一錨點與舊片段／版本條件做局部插入或替換（guarded edit）。錨點不唯一或內容已改變時，重新讀取並重做局部修改；不要重寫整頁或自動刪除測試與參照。工具缺乏安全局部修改能力時，交付可插入的片段並說明限制。
-5. 寫後讀回並核對每組唯一 ID、原生參照、SHA-256、HTML 位元組（bytes）、完整圍欄及圖表／來源數量；確認頁尾沒有新增的來源章節標題或未替換佔位符。另核對中文標題、公式與 ARIA。`????` 或替代字元可能是編碼損壞，不能直接視為字型問題；必要時另查 UTF-8 bytes／Unicode code points。
-6. 從實際 Page 下載的 Markdown 再驗證，不能把自行組裝的 Markdown 當作下載證據。未拿到下載檔時，明說匯出層尚未測。
+1. Identify the requested Page, visualizations and output scope. Read the latest Page before designing suitable charts and interactions. Do not treat a past example's chart count, subject, private IDs or local paths as fixed requirements.
+2. Read [references/export-format.md](references/export-format.md) and use [assets/page-export-template.md](assets/page-export-template.md) as the layout blueprint. Choose chart count and interactions for the subject. [assets/weighted-sum.html](assets/weighted-sum.html) is an optional interactive starting point without private content. Replace every template placeholder before writing to the Page.
+3. Keep existing native charts whose source and references still match, or create/update them with the available tools. Assign each figure a short ID unique within the document and obtain its file ID from the actual native reference. Choose v3 or v2 according to the target plugin's support, then generate the figure marker and source block with the helper below. Put the figure marker immediately before its native chart. Put the same-ID source marker and complete `html` fence after all body content. Pair by ID, not title or order; do not substitute raw HTML for fences.
+4. Read the latest Page again before writing. Use guarded, local insertions or replacements with unique anchors and old-content or version preconditions. If an anchor is ambiguous or content has changed, re-read and rebuild the local edit. Do not rewrite the whole Page or automatically remove tests or references. If tools cannot perform safe local edits, provide an insertable fragment and explain the limitation.
+5. Read back the result and check unique IDs, native references, SHA-256, HTML bytes, complete fences and figure/source counts. Confirm that no extra source-section headings or unreplaced placeholders were added. Check localized titles, formulas and ARIA text. `????` or replacement characters may indicate encoding damage; do not assume a font issue. Inspect UTF-8 bytes or Unicode code points when needed.
+6. Verify Markdown actually downloaded from the Page. Self-assembled Markdown is not download evidence. If no downloaded file is available, state that the export layer remains untested.
 
-## 匯出與 Obsidian
+## Export and Obsidian
 
-遇到匯出、renderer 相容性或互動驗收時，讀 [references/validation.md](references/validation.md)。其中有分層驗收、常見失敗與主要來源。
+Read [references/validation.md](references/validation.md) when checking exports, renderer compatibility or interaction acceptance. It covers evidence layers, common failures and primary sources.
 
-- Page 原生圖／PNG 的 Markdown 匯出曾只留下 `visualize:`／`library-file:` 參照；它們不代表原碼或圖片 bytes 已隨檔輸出。可攜原碼由 HTML code block 承載。
-- v2／v3 配對使用匯出 Markdown 內的 HTML，不會連線 Pages 下載。只清理已成功驗證的配對；缺失、重複、歧義或 hash 不符時保留原文並回報，不能把「清得乾淨」當成成功的唯一標準。
-- raw HTML 曾呈現成文字，匯出也可能加 Markdown 跳脫。不要全篇刪除反斜線，這會破壞程式碼、數學與路徑。
-- 優先重用使用者已選擇且可用的 Polyglot Renderer。它處理 `html` code block；原生 Obsidian raw HTML 會限制 scripts，CSS snippets 或 `css`／`js`／`json` fenced blocks 不等於互動 HTML renderer。JSON／YAML 資料也不會自動成為圖。
-- 僅執行已檢查且可信的原碼。保留 renderer 的 sandbox 權限；不要加 `allow-same-origin`、改 vault 設定或以 DataviewJS 繞過。sandbox 不是完整斷網或安全保證。
-- 匯入預設使用 `html-source`；可執行的 `html` 需要明確信任（explicit trust）。資料夾自動清理不等於啟用渲染，亦不會自動停用原本已是 `html` 的區塊；需要測試信任流程時，另用 `html-source` 測試副本，只改圍欄語言、不改 HTML 內容或校驗值。技能不得自動接受信任對話框。
-- renderer 有自己的 HTML/body 包裝，完整文件需用代表性樣本測試。分別記錄實際測過的 Reading view／Live Preview、外掛版本與平台；不要硬編碼永久「最新」版本。
+- Previous native visualization/PNG exports have contained only `visualize:` or `library-file:` references. These references do not prove that source code or image bytes were exported. The HTML code block carries the portable source.
+- v2/v3 pairing uses HTML already in the exported Markdown; it does not connect to Pages to download it. Clean only successfully verified pairs. Preserve and report missing, duplicate, ambiguous or hash-mismatched content. Complete removal of visible clutter is not sufficient evidence of success.
+- Raw HTML has appeared as text, and exports may add Markdown escaping. Never strip backslashes across the document: doing so damages code, mathematics and paths.
+- Prefer an available Polyglot Renderer already chosen by the user. It processes `html` code blocks. Native Obsidian raw HTML restricts scripts; CSS snippets and fenced `css`, `js` or `json` blocks are not interactive HTML renderers. JSON/YAML data does not automatically become a visualization.
+- Execute only inspected, trusted source. Preserve the renderer's sandbox permissions. Do not add `allow-same-origin`, change vault settings or bypass restrictions with DataviewJS. A sandbox is not a complete network block or a general safety guarantee.
+- Manual import defaults to `html-source`; executable `html` requires explicit trust. Automatic folder cleanup does not itself enable rendering, nor does it disable existing `html` blocks. To test the trust flow, use a separate `html-source` test copy and change only the fence language, preserving HTML bytes and checksums. This skill must not automatically accept trust dialogs.
+- Renderers add their own HTML/body wrapper, so test complete documents with representative samples. Record the Reading view and Live Preview modes, plugin versions and platforms actually tested. Do not hard-code a version as permanently "latest."
 
-## 驗證工具與交付
+## Verification tools and delivery
 
-[scripts/build_figure_pair.mjs](scripts/build_figure_pair.mjs) 只讀取完整 HTML，以原始 bytes 計算 SHA-256 並選擇不會截斷內容的圍欄。需 Node.js；三個參數依序為唯一 ID、工具回傳的檔案 ID、HTML 路徑。確認目標支援 v3 後使用：
+[scripts/build_figure_pair.mjs](scripts/build_figure_pair.mjs) reads a complete HTML file, hashes its original bytes with SHA-256 and chooses a fence that cannot truncate the source. It requires Node.js. Its three positional arguments are the unique figure ID, the tool-returned native file ID and the HTML path. After confirming v3 support:
 
-```powershell
+```sh
 node <skill-dir>/scripts/build_figure_pair.mjs --v3 chart-a ACTUAL_NATIVE_FILE_ID canonical.html
 ```
 
-省略 `--v3` 則輸出 v2。輸出 JSON 的 `figure_marker` 放在原生圖前；`source_markdown` 放在頁尾。先解析 JSON，再使用字串值，不要把 JSON 跳脫字元原樣貼入 Page。工具不產生原生圖，也不驗證參照屬於該圖。HTML 必須保留結尾換行；若新增或更改任何 bytes，重新建立原生圖與校驗值。精確規格見格式參考。
+Omit `--v3` for v2 output. Put the JSON output's `figure_marker` before the native chart and `source_markdown` in the footer. Parse the JSON and use its string values; do not paste JSON escape sequences literally into the Page. The helper neither creates native charts nor verifies that a reference belongs to a chart. HTML must retain its final newline. If any bytes are added or changed, regenerate the native chart and checksum. See the format reference for exact rules.
 
-[scripts/verify_html_export.py](scripts/verify_html_export.py) 使用 Python 標準函式庫解析頂層 `html` 圍欄，保留 UTF-8 內容與換行，輸出 byte 數和 SHA-256；可與標準 Markdown 比對、擷取 HTML、對 inline JS 執行 `node --check`。它不執行文件 JavaScript，也不驗證 HTML 顯示、斷網或 Obsidian 行為。
+[scripts/verify_html_export.py](scripts/verify_html_export.py) uses the Python standard library to parse top-level `html` fences, preserve UTF-8 content and line endings, and report byte counts and SHA-256. It can compare against canonical Markdown, extract HTML and run `node --check` on inline JavaScript. It does not execute document scripts or verify rendering, network isolation or Obsidian behavior.
 
-```powershell
+```sh
 python <skill-dir>/scripts/verify_html_export.py downloaded.md --expected canonical.md --out extracted --node-check
 ```
 
-`canonical.md` 應由標準來源產生並已與 Page 讀回核對；兩檔需含相同順序的 HTML 區塊。`--out` 僅接受新建或空目錄，不覆寫檔案。完整參數與精確換行比較的限制見驗證參考。
+Generate `canonical.md` from canonical sources and verify it against the Page readback first. Both files must contain HTML blocks in the same order. `--out` accepts only a new or empty directory and never overwrites files. The validation reference explains all options and exact-newline comparison limits.
 
-交付時列出已完成的 Page 圖／原碼配對、下載檔原碼比對、JS 語法、瀏覽器互動與 Obsidian 實測。每層標記「代理實測／使用者回報／尚未測／失敗」，附對應證據。使用者回報端到端成功可照實引用；不得提升為代理獨立完成所有平台驗證。
+Report completed Page figure/source pairings, downloaded-source comparisons, JavaScript syntax checks, browser interactions and real Obsidian tests separately. Label each layer **agent-tested / user-reported / untested / failed** with corresponding evidence. You may quote a user's end-to-end success report accurately; do not promote it to independent agent verification across all platforms.

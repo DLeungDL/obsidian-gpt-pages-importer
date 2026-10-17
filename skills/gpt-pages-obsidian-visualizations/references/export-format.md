@@ -1,54 +1,54 @@
-# 標準匯出版型（standard export layout）
+# Standard export layout
 
-此格式供 GPT Pages → Markdown → GPT Pages Importer 使用。建立或更新 Page 時使用；單純詢問格式不授權修改 Page。
+Use this format for GPT Pages → Markdown → GPT Pages Importer when creating or updating a Page. A question about the format alone does not authorize Page edits.
 
-## 版面與佔位符
+## Layout and placeholders
 
-[標準範本](../assets/page-export-template.md) 是編排藍圖，不能原樣發佈。Page 標題使用 Page 本身的標題欄；正文開頭放介紹，依題材重複主題標題、說明、圖表標記及原生圖。所有完整 HTML 來源統一放在最後，來源之間僅留空行，不新增來源章節標題或匯出驗證說明。
+The [standard template](../assets/page-export-template.md) is a layout blueprint, not publishable content. Use the Page's title field for its title. Start the body with an introduction, then repeat subject headings, explanations, figure markers and native charts as appropriate. Collect all complete HTML sources at the end, separated only by blank lines. Do not add source-section headings or export-validation instructions.
 
-| 範本欄位 | 實際內容 |
+| Template field | Replacement |
 | --- | --- |
-| `INTRODUCTION` | 讀者需要的主題介紹 |
-| `SUBJECT_HEADING`、`SUBJECT_DESCRIPTION` | 有意義的圖表標題與資料／互動說明 |
-| `FIGURE_MARKER_FROM_BUILDER` | 工具輸出的 `figure_marker` 字串 |
-| `EXACT_NATIVE_VISUALIZATION_MARKDOWN_FROM_TOOL` | 原生工具回傳的完整圖表 Markdown，原樣保留 |
-| `OTHER_BODY_SECTIONS_BEFORE_ALL_SOURCES` | 其餘正文與圖表；只有一圖時省略 |
-| `SOURCE_MARKDOWN_FROM_BUILDER` | 同圖工具輸出的 `source_markdown` 字串 |
-| `OTHER_SOURCE_BLOCKS_WITHOUT_APPENDIX_HEADINGS` | 其餘圖的來源區塊；只有一圖時省略 |
+| `INTRODUCTION` | The subject introduction readers need |
+| `SUBJECT_HEADING`, `SUBJECT_DESCRIPTION` | Meaningful chart titles and descriptions of data or interactions |
+| `FIGURE_MARKER_FROM_BUILDER` | The helper's `figure_marker` string |
+| `EXACT_NATIVE_VISUALIZATION_MARKDOWN_FROM_TOOL` | The native tool's complete chart Markdown, unchanged |
+| `OTHER_BODY_SECTIONS_BEFORE_ALL_SOURCES` | Remaining body sections and charts; omit for a single chart |
+| `SOURCE_MARKDOWN_FROM_BUILDER` | The helper's `source_markdown` string for the same chart |
+| `OTHER_SOURCE_BLOCKS_WITHOUT_APPENDIX_HEADINGS` | Remaining chart source blocks; omit for a single chart |
 
-刪去不用的佔位符；寫入前確認沒有剩餘 `{{...}}`。來源區塊本身會在 Page 佔用空間，這個格式不承諾隱藏來源或在原生圖匯出時自動附帶 HTML。
+Remove unused placeholders and verify that no `{{...}}` remains before writing. Source blocks occupy space in the Page. This format does not promise to hide sources or automatically attach HTML when native charts are exported.
 
-## 優先格式：v3 精簡標記（compact marker）
+## Preferred format: compact v3 markers
 
-目標外掛確認支援 v3 時使用；正文只保留圖表 ID：
+Use v3 when support in the target plugin is confirmed. Keep only the figure ID in the body:
 
 ```text
 <!-- gpt-pages:figure id=chart-a -->
 ```
 
-完整原生參照與校驗值移到文件底部、緊接完整 HTML 圍欄之前：
+Move the complete native reference and checksum to the document footer, immediately before the complete HTML fence:
 
 ```text
 <!-- gpt-pages:source v=3 id=chart-a ref=ACTUAL_NATIVE_FILE_ID sha256=ACTUAL_64_LOWERCASE_HEX -->
 ```
 
-v3 版本由頁尾來源標記宣告；正文不要加 `v=3`、ref 或 sha256。也不要使用未定義的 `gpt-pages:chart-a` 縮寫。共同的 ID、參照、來源 bytes、圍欄與相鄰規則見下一節。
+The footer source marker declares v3. Do not add `v=3`, `ref` or `sha256` to the body marker, or invent shorthand such as `gpt-pages:chart-a`. Shared rules for IDs, references, source bytes, fences and adjacency appear below.
 
-```powershell
+```sh
 node <skill-dir>/scripts/build_figure_pair.mjs --v3 chart-a ACTUAL_NATIVE_FILE_ID canonical.html
 ```
 
-## 相容格式：v2 完整標記
+## Compatible format: full v2 markers
 
-正文圖表標記（下列大寫欄位均需替換，不可直接使用）：
+The body figure marker has the following shape. Replace every uppercase field; do not use placeholders as actual metadata:
 
 ```text
 <!-- gpt-pages:figure v=2 id=chart-a ref=ACTUAL_NATIVE_FILE_ID sha256=ACTUAL_64_LOWERCASE_HEX -->
 ```
 
-緊接該標記放工具回傳的原生視覺化 Markdown，只能隔空行。`ref` 等於原生參照 URI 的檔案 ID，不含 `visualize:` 或 `library-file:` 前綴；不要把 Page ID、檔名或自編 ID 當成它。不能建立原生圖時，交付草稿並說明缺少的配對，不能杜撰成功參照。
+Put the tool-returned native visualization Markdown immediately after the figure marker, separated only by blank lines. `ref` is the file ID from the native reference URI, without the `visualize:` or `library-file:` prefix. Do not substitute a Page ID, filename or invented ID. If native chart creation is unavailable, deliver a draft and disclose the missing pairing instead of fabricating a successful reference.
 
-文件底部每一份來源的形狀如下。示例中的 `COMPLETE_HTML_BYTES` 必須換成完整文件；實際圍欄由產生工具決定。
+Each footer source has the following shape. Replace `COMPLETE_HTML_BYTES` with the complete document. The helper chooses the actual fence length.
 
 ````text
 <!-- gpt-pages:source v=2 id=chart-a -->
@@ -58,41 +58,41 @@ COMPLETE_HTML_BYTES
 ```
 ````
 
-- 圖表 ID 為 `[A-Za-z0-9_-]+`，在文件中唯一；對應的 source 使用相同 ID。選簡短且穩定的 ID，例如 `chart-a`，更新內容時保持不變。
-- 原生檔案 ID 為 `[A-Za-z0-9_-]{1,256}`；工具輸出與實際匯出不符合此格式時，停止宣稱可配對，先核對外掛解析器（parser）的相容性。
-- source 標記與來源圍欄必須是獨立的頂層區塊，只能隔空行。不要放入清單、引言、另一個程式碼區塊，也不要在中間插入標題或說明。
-- 來源可與正文排序不同，但不要重複 ID 或同時保留同圖的相鄰來源與頁尾來源。不能只憑標題、順序或相同 hash 推測圖表配對。
-- `sha256` 是 64 位小寫十六進位，涵蓋起始圍欄換行之後、結束圍欄之前的**完整 HTML UTF-8 bytes**，含 HTML 本身的 BOM、CRLF 與最後換行，不含標記或圍欄。
-- 保留原始來源 bytes，不做格式化、HTML entities 解碼、全域去除跳脫或換行正規化。生成器會要求結尾換行；缺少時先在標準來源加上，再建立原生圖與 hash。
-- 產生工具接受最多 256 KiB 的來源。超出時先確認目標外掛限制並調整設計，不可截斷文件。
-- 若來源內含圍欄，選比最長連續反引號更長的外圍圍欄，至少三個。完整 HTML 應為自包含文件；圖表資料、樣式與互動都在其中。
+- Figure IDs match `[A-Za-z0-9_-]+` and must be unique within the document. The corresponding source uses the same ID. Prefer short, stable IDs such as `chart-a` and preserve them when updating content.
+- Native file IDs match `[A-Za-z0-9_-]{1,256}`. If tool output or actual exports do not fit, stop claiming pairing compatibility and check the target parser.
+- Source markers and source fences must be separate top-level blocks, separated only by blank lines. Do not nest them in lists, blockquotes or other code blocks, or insert headings or explanations between them.
+- Sources may appear in a different order from body figures. Do not duplicate IDs or keep both an adjacent and a footer source for one figure. Do not infer pairings solely from titles, order or matching hashes.
+- `sha256` is a 64-character lowercase hexadecimal digest covering the **complete HTML UTF-8 bytes** after the opening fence's newline and before the closing fence. It includes the HTML payload's BOM, CRLF and final newline, but excludes markers and fences.
+- Preserve original source bytes without formatting, HTML entity decoding, global unescaping or newline normalization. The builder requires a final newline; if missing, add it to the canonical source before creating the native chart and hash.
+- The builder accepts sources up to 256 KiB. For larger sources, check the target plugin's limits and adjust the design. Do not truncate a document.
+- If source contains backticks, use an outer fence longer than the longest consecutive backtick run, with at least three backticks. Complete HTML should be self-contained, including chart data, styles and interactions.
 
-產生兩段標記與來源，避免手算 hash：
+Generate the figure marker and source block rather than calculating hashes manually:
 
-```powershell
+```sh
 node <skill-dir>/scripts/build_figure_pair.mjs chart-a ACTUAL_NATIVE_FILE_ID canonical.html
 ```
 
-JSON 的字串值才是要寫入的 Markdown；原生圖仍取自視覺化工具。把同一份 canonical HTML 提交給原生工具，若工具回讀來源變更，先解決差異再產生標記。
+Use the JSON string values as Markdown; obtain the native chart from the visualization tool. Submit the same canonical HTML to that tool. If its source readback differs, resolve the difference before generating markers.
 
-## 格式版本的相容性界線
+## Format compatibility boundaries
 
-v2 圖表標記包含 ref 與 sha256，來源標記只含版本與 ID；v3 則使用精簡正文標記與完整頁尾來源標記。兩者不能只改一半、混用欄位或自行省略 metadata。
+v2 puts `ref` and `sha256` in the figure marker, with only version and ID in the source marker. v3 uses a compact body marker and a complete footer source marker. Do not migrate only half a pair, mix fields or omit metadata arbitrarily.
 
-以目標解析器（parser）、格式契約與行為測試確認能力，並區分本機開發版本與使用者已安裝版本；沒有證據時用 v2。不要杜撰新版語法、把 metadata 搬到未支援欄位，或聲稱短標記在 Page 會隱藏。既有 Page 更新時保留其有效格式，除非當次任務要求遷移或需要新格式。
+Confirm support using the target parser, format contract and behavioral tests. Distinguish local development code from the user's installed version; use v2 without evidence of v3 support. Do not invent syntax, move metadata into unsupported fields or claim short markers will be hidden in the Page. Preserve an existing Page's valid format unless migration is requested or a new format is needed.
 
-## 匯入與信任（import and trust）
+## Import and trust
 
-外掛由匯出 Markdown 取得完整 HTML，驗證成功才把來源圍欄移回原生圖位置，並清理相應 marker 與原生圖片參照。SHA 不符、來源缺失／不完整、重複 ID 或參照不符時，保留相關原文並顯示警告；不能直接刪掉所有看似失效的圖片。
+The plugin obtains complete HTML from exported Markdown. Only after successful verification does it move the source fence to the native chart position and clean the matching marker and native image reference. Hash mismatches, missing/incomplete sources, duplicate IDs or reference mismatches must preserve the relevant original content and produce warnings. Do not remove every image that appears broken.
 
-手動匯入預設把 HTML 保留為 `html-source`，啟用可執行 `html` 需要使用者明確信任。資料夾自動清理預設保留既有的圍欄語言；停用轉換選項不會撤銷先前已啟用的 HTML。需要驗證信任流程時，使用獨立測試副本，把來源開頭的 `html` 改成 `html-source`，保留內容 bytes 與 hash，並確認目標外掛支援此語言標籤。
+Manual import defaults to `html-source`; executable `html` requires explicit user trust. Automatic folder cleanup preserves existing fence languages by default. Disabling conversion does not undo previously enabled HTML. To test trust, use a separate test copy, change its source fence language from `html` to `html-source`, preserve all payload bytes and hashes, and confirm target-plugin support for that language label.
 
-不得自動勾選信任、安裝或啟用 renderer。SHA-256 只證明配對內容一致，不證明來源安全或取得執行授權。
+Do not automatically confirm trust, install or enable a renderer. SHA-256 establishes source consistency, not source safety or authorization to execute it.
 
-## 驗收（acceptance）
+## Acceptance
 
-1. 每圖有一個真實原生圖、一個唯一 figure marker、一個相同 ID 的 source marker 與完整 HTML 圍欄；資料與互動相符。
-2. 原生來源、Page 回讀及實際下載 Markdown 的 HTML bytes 與 hash 相符，所有來源都在正文之後。
-3. 沒有佔位符、虛構原生參照、額外來源章節標題或空副標題；主題標題、正文與其他圖片保留。
-4. 若有可用的外掛驗證環境，確認移回位置、清理僅限有效配對、歧義保留、重複處理不增生內容；不要為了生成 Page 修改外掛。
-5. 渲染、互動、信任對話框與 Obsidian 實機結果分層回報，詳見 [validation.md](validation.md)。未取得下載或實機環境時明確標為尚未測。
+1. Each figure has one real native chart, one unique figure marker, one same-ID source marker and a complete HTML fence. Data and interactions match.
+2. Native sources, Page readback and actually downloaded Markdown have matching HTML bytes and hashes. All source blocks follow the body.
+3. No placeholders, fabricated native references, extra source-section headings or empty subheadings remain. Preserve subject headings, prose and other images.
+4. If plugin validation is available, check restored positions, cleanup limited to valid pairs, preservation of ambiguity and repeat processing without duplication. Do not modify the plugin merely to generate a Page.
+5. Report rendering, interactions, trust dialogs and real Obsidian results as separate evidence layers. See [validation.md](validation.md). Explicitly mark download or device validation as untested when unavailable.
