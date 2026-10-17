@@ -18,6 +18,10 @@ class MemoryStorage implements Storage {
   }
 }
 const empty = (): State => ({ version: 1, entries: {} });
+it('rejects embedded ASCII controls while preserving valid Unicode vault paths', () => {
+  for (let code = 0; code < 32; code++) expect(() => vaultPath(`Inbox/a${String.fromCharCode(code)}b.md`)).toThrow();
+  expect(vaultPath('Inbox/中文 🐱.md')).toBe('Inbox/中文 🐱.md');
+});
 const persist = async (_state: State) => {};
 async function initial(source = '中文') {
   const storage = new MemoryStorage();

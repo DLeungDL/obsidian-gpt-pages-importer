@@ -212,3 +212,11 @@ This run did not reconfirm trust through the GUI or operate the five charts' con
 6. Test hash/ID mismatches, duplicate IDs, missing sources, escaping and assets. Publish summaries and fictional fixtures only, run `npm run check:public` and keep original receipts/screenshots out of Git.
 
 Actual v1/v2 UI exports, Linux importing and the specified Windows fixture scope were tested. Windows retests cover the BOM fix and marker cleanup, with later footer/v3 checks above. Other platforms and untested areas remain gaps; full compatibility acceptance cannot be marked complete.
+
+## 0.1.3 community-review corrections
+
+On 2026-10-17, the prepared 0.1.3 source passed Obsidian ESLint with zero warnings, all 255 Vitest tests and 8 Python export-verifier tests. Two builds produced byte-identical community assets. The 0.1.2 release mismatch was reproduced as 21 CRLF sequences in the license header; executable bytes were identical. New builds canonicalize these text bytes to LF.
+
+A fresh real Obsidian 1.14.4 Linux vault verified manual import pairing (2 figures), plain-text preview, native settings-search results, confirmation/cancellation before rendering, save-before-application, nested watched-folder cleanup, exact backup and an unchanged outside-folder note. No renderer was installed for this run. The legacy settings UI remains covered by host-double tests; an older Obsidian desktop version was not newly tested.
+
+The tag workflow now prepares only the supported three assets and requires GitHub build provenance before publication. No new tag, release, attestation or external scanner result is claimed yet. See the [release process](releasing.md) and [public summary](evidence/validation-summary.json).

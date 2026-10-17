@@ -138,7 +138,7 @@ function prepare(markdown: string, trusted: boolean | null): Prepared {
           if (topLevel && !closed) warnings.push({ code: 'unclosed-fence', message: trusted === null ? 'HTML fence 未關閉，保留原文。' : 'HTML fence 未關閉，保留內容並停用預設執行。', line: first + 1 });
         }
       }
-      if ('children' in node) walk(node.children as RootContent[], false);
+      if ('children' in node) walk(node.children, false);
     }
   };
   walk(tree.children, true);

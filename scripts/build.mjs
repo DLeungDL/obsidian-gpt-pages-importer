@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { mkdir, copyFile, readFile, writeFile, readdir } from 'node:fs/promises';
 import { Script } from 'node:vm';
+import { canonicalText } from './build-text.mjs';
 
 // Neutral resolution selects pure entity tables rather than the parser's DOM decoder.
 const result = await build({
@@ -18,19 +19,20 @@ const notices = [];
 for (const name of [...packages].sort()) {
   const root = `node_modules/${name}`;
   const metadata = JSON.parse(await readFile(`${root}/package.json`, 'utf8'));
-  const license = (await readdir(root)).find(file => /^licen[cs]e(?:\.md|\.txt)?$/i.test(file));
+  const license = (await readdir(root)).sort().find(file => /^licen[cs]e(?:\.md|\.txt)?$/i.test(file));
   if (!license) throw new Error(`Missing bundled dependency license: ${name}`);
-  notices.push(`${name} ${metadata.version}\n${await readFile(`${root}/${license}`, 'utf8')}`);
+  notices.push(`${name} ${metadata.version}\n${canonicalText(await readFile(`${root}/${license}`, 'utf8'))}`);
 }
 const noticeText = notices.join('\n\n---\n\n');
 await writeFile('dist/gpt-pages-importer/THIRD-PARTY-NOTICES.txt', noticeText);
 // Obsidian only installs main.js, manifest.json and styles.css from a release.
 // Keep dependency license notices in the installed bundle as well as the archive.
 const bundle = await readFile('main.js', 'utf8');
-const projectLicense = await readFile('LICENSE', 'utf8');
+const projectLicense = canonicalText(await readFile('LICENSE', 'utf8'));
 await writeFile('main.js', '/*!\n' + projectLicense.replaceAll('*/', '* /') + '\nThird-party notices\n\n' + noticeText.replaceAll('*/', '* /') + '\n*/\n' + bundle);
 for (const name of ['main.js', 'manifest.json', 'styles.css', 'LICENSE']) {
-  await copyFile(name, `dist/gpt-pages-importer/${name}`);
+  if (name === 'main.js') await copyFile(name, `dist/gpt-pages-importer/${name}`);
+  else await writeFile(`dist/gpt-pages-importer/${name}`, canonicalText(await readFile(name, 'utf8')));
 }
 const module = { exports: {} };
 new Script(await readFile('dist/gpt-pages-importer/main.js', 'utf8')).runInNewContext({

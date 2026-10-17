@@ -210,3 +210,11 @@ Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 
 6. 測摘要／ID 不符、重複 ID、缺 source、escaping 與 assets；結果發布成摘要及虛構 fixtures，執行 `npm run check:public`。不要提交原始回條或截圖。
 
 真正 v1／v2 UI、Linux 匯入及上述 Windows 公開 fixture 範圍已測，BOM 修復與配對標記清理已在 Windows 重測；其他平台與上列未實測範圍仍有缺口，不能將完整相容性驗收標為完成。
+
+## 0.1.3 社群審查修正
+
+2026-10-17，準備中的 0.1.3 原始碼通過零警告的 Obsidian ESLint、255 項 Vitest 測試及 8 項 Python 匯出驗證。兩次建置的社群安裝檔逐位元組一致。0.1.2 發行差異已重現，僅為授權標頭的 21 個 CRLF，執行程式碼相同；新建置統一文字換行為 LF。
+
+獨立的真正 Obsidian 1.14.4 Linux vault 已驗證手動匯入兩圖配對、純文字預覽、原生設定搜尋、確認／取消信任、儲存後才套用、指定資料夾巢狀清理、完整備份與外部筆記不變。本次未安裝 renderer。舊版設定頁以 host double 驗證，未新增舊 Obsidian 桌面版本實測。
+
+標籤工作流程只準備三個支援的安裝檔，發布前須通過 GitHub 建置來源證明（build provenance）。尚未建立新標籤、發布版本或宣稱外部掃描結果更新；詳見[發行流程](releasing.md)及[公開摘要](evidence/validation-summary.json)。

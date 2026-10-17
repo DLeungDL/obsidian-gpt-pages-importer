@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
+      - run: npm run build:verify
+      - name: Prepare exact community asset set
+        run: |
+          mkdir release
+          cp dist/gpt-pages-importer/main.js dist/gpt-pages-importer/manifest.json dist/gpt-pages-importer/styles.css release/
+          node scripts/check-release-assets.mjs release "$GITHUB_REF_NAME"
+      - name: Attest all installed assets
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: |
+            release/main.js
+            release/manifest.json
+            release/styles.css
+      - name: Verify provenance before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for asset in release/*; do
+            gh attestation verify "$asset" --repo "$GITHUB_REPOSITORY"
+          done
+      - name: Publish verified tag assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes \
+            --title "GPT Pages Importer $GITHUB_REF_NAME" \
+            release/main.js release/manifest.json release/styles.css

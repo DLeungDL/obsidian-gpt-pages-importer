@@ -184,5 +184,50 @@
       "No full application exit and restart or other runtime verification"
     ],
     "original_artifacts_published": false
+  },
+  "community_review_0_1_3": {
+    "validation_date_hong_kong": "2026-10-17",
+    "vitest_tests": 255,
+    "python_tests": 8,
+    "obsidian_eslint_warnings": 0,
+    "reproducible_build": {
+      "matching_builds": 2,
+      "asset_names": [
+        "main.js",
+        "manifest.json",
+        "styles.css"
+      ],
+      "main_sha256": "08bffb5fd0fad6198b3cf34a92be5cc6b29e2b0576d1a00cd87c2754580da726"
+    },
+    "old_release_mismatch": {
+      "version": "0.1.2",
+      "difference": "21 CRLF sequences in the license header",
+      "executable_bytes_identical": true,
+      "whole_bundle_identical_after_crlf_to_lf": true
+    },
+    "desktop": {
+      "obsidian": "1.14.4",
+      "os": "Debian 13.6 with Xorg virtual display",
+      "plugin_version": "0.1.3",
+      "checks": {
+        "manual_import_pairing": 2,
+        "preview_creates_executable_dom": false,
+        "settings_rendered_by_real_modern_host": true,
+        "native_settings_search_finds_plugin_controls": true,
+        "rendering_requires_confirmation": true,
+        "cancelled_confirmation_keeps_rendering_off": true,
+        "changes_only_persist_after_save": true,
+        "configured_nested_file_cleaned": true,
+        "outside_file_untouched": true,
+        "exact_backup_before_cleanup": true
+      },
+      "renderer_installed": false
+    },
+    "release_status": "Prepared in source; no new tag or release published, no live attestation claim",
+    "limitations": [
+      "Obsidian before 1.13 settings fallback is covered by host-double tests, not a new old-runtime desktop run",
+      "Malware/build-verification availability disclosures are controlled by the external review service",
+      "Publication and actual review-service rescanning remain required"
+    ]
   }
 }

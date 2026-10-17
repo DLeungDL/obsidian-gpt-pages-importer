@@ -32,7 +32,7 @@ export async function cleanFile(storage: Storage, path: string, allowed: () => b
   if (await storage.read(safePath) !== source) throw new Error('清理前原始檔已變更，已停止寫入；請重新清理。');
   if (!allowed()) return { figures: 0, warnings: [] };
   const key = await digest(safePath);
-  const backup = `GPT Pages Backups/cleanup/${key.slice(0, 16)}/${Date.now()}-${globalThis.crypto.randomUUID()}.md`;
+  const backup = `GPT Pages Backups/cleanup/${key.slice(0, 16)}/${Date.now()}-${window.crypto.randomUUID()}.md`;
   await storage.create(backup, source);
   if (!allowed()) return { figures: 0, warnings: [] };
   await storage.replace(safePath, source, output.markdown);
@@ -42,17 +42,17 @@ export async function cleanFile(storage: Storage, path: string, allowed: () => b
 /** Debounce copy/save bursts, process serially, and retain changes arriving mid-run. */
 export class CleanupQueue {
   private pending = new Set<string>();
-  private timer?: ReturnType<typeof setTimeout>;
+  private timer?: number;
   private running = false;
   private stopped = false;
   constructor(private process: (paths: string[]) => Promise<void>, private delay = 1000) {}
   enqueue(path: string): void {
     if (this.stopped) return;
     this.pending.add(path);
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => { void this.drain(); }, this.delay);
+    window.clearTimeout(this.timer);
+    this.timer = window.setTimeout(() => { void this.drain(); }, this.delay);
   }
-  clear(): void { clearTimeout(this.timer); this.pending.clear(); }
+  clear(): void { window.clearTimeout(this.timer); this.pending.clear(); }
   stop(): void { this.stopped = true; this.clear(); }
   private async drain(): Promise<void> {
     if (this.running || this.stopped) return;

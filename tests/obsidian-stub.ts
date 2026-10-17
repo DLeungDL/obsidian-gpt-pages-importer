@@ -5,7 +5,9 @@ export class TFile extends TAbstractFile {
   constructor(path: string, size = 0) { super(path); this.stat = { size }; }
   get name() { return this.path.split('/').at(-1)!; }
 }
-export class TFolder extends TAbstractFile {}
+export class TFolder extends TAbstractFile {
+  constructor(path: string, public children: TAbstractFile[] = []) { super(path); }
+}
 export class TestVault {
   files = new Map<string, string>();
   folders = new Set<string>();
@@ -13,7 +15,22 @@ export class TestVault {
   on(name: string, callback: (file: TAbstractFile, oldPath?: string) => void) { const handlers = this.handlers.get(name) ?? []; handlers.push(callback); this.handlers.set(name, handlers); return {}; }
   emit(name: string, file: TAbstractFile, oldPath?: string) { for (const handler of this.handlers.get(name) ?? []) handler(file, oldPath); }
   getFiles() { return [...this.files].map(([path, text]) => new TFile(path, new TextEncoder().encode(text).length)); }
-  getAbstractFileByPath(path: string) { return this.files.has(path) ? new TFile(path, new TextEncoder().encode(this.files.get(path)!).length) : this.folders.has(path) ? new TFolder(path) : null; }
+  getAbstractFileByPath(path: string): TAbstractFile | null {
+    if (this.files.has(path)) return new TFile(path, new TextEncoder().encode(this.files.get(path)!).length);
+    if (!this.folders.has(path)) return null;
+    return this.folder(path);
+  }
+  private folder(path: string): TFolder {
+    const children = new Map<string, TAbstractFile>();
+    for (const candidate of [...this.folders, ...this.files.keys()]) {
+      if (!candidate.startsWith(path + '/')) continue;
+      const name = candidate.slice(path.length + 1).split('/')[0]!;
+      const childPath = path + '/' + name;
+      if (candidate !== childPath || this.folders.has(childPath)) children.set(childPath, this.folder(childPath));
+      else children.set(childPath, new TFile(childPath, new TextEncoder().encode(this.files.get(childPath)!).length));
+    }
+    return new TFolder(path, [...children.values()]);
+  }
   // Real Vault.read strips the opening BOM; readBinary and process preserve it.
   async read(file: TFile) { return new TextDecoder().decode(await this.readBinary(file)); }
   async readBinary(file: TFile) { return new TextEncoder().encode(this.files.get(file.path)!).buffer; }
@@ -124,6 +141,7 @@ class Control {
 }
 export class Setting {
   element = document.createElement('div');
+  get controlEl() { return this.element; }
   constructor(container: HTMLElement) { container.append(this.element); }
   setName(text: string) { const label = document.createElement('label'); label.textContent = text; this.element.append(label); return this; }
   setHeading() { this.element.classList.add('setting-item-heading'); return this; }

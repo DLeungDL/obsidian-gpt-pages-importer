@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve deliberate byte-level fixtures, including future BOM/CRLF cases.
+tests/fixtures/** -text
