@@ -1,9 +1,5 @@
 # Repository Guidelines
 
-## 回覆規則（Response Rules）
-
-一律使用繁體中文（Traditional Chinese）回覆，無論輸入語言。重要詞彙需附上英文對照（bilingual annotation）。
-
 ## Project Structure & Module Organization
 
 TypeScript Obsidian plugin for manually importing Pages Markdown.
