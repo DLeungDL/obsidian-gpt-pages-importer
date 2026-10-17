@@ -41,13 +41,25 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 | **Folder cleanup** | Watch one folder and all its subfolders. Add multiple Markdown exports for automatic cleanup in place. |
 | **Protected writes** | Preview as plain text, back up before changes, skip identical imports and stop when local edits conflict. |
 | **Explicit trust** | Manual imports default to `html-source`. Executable `html` requires explicit confirmation. |
-| **Authoring skill** | Includes a Page template, a self-contained interactive example, marker generators and an export-source verifier. |
+| **AI authoring workflow** | Use the included skill to prepare export-ready Pages with paired HTML sources before importing. Includes templates, marker generators and an export-source verifier. |
 
 <a id="quick-start"></a>
 
 ## Quick start
 
-### 1 · Install the plugin
+### 1 · Use the authoring skill in your AI agent
+
+**Prepare the Page with the skill before exporting.** Use an AI agent with access to Pages and native visualization tools. Add the complete [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) folder to your agent's skill library, including its scripts, references and assets. If your agent loads instructions from files, point it to the folder's [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md) and keep the linked resources available.
+
+Ask the agent:
+
+```text
+Use $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Keep native visualizations in the body and matching complete, self-contained HTML sources in the footer, with the required pairing markers.
+```
+
+The skill prepares native charts, short figure IDs and footer HTML with matching references and SHA-256 checksums. This is the required authoring step in this workflow: a normal Page export may contain only native image references, which do not carry portable HTML. The importer cannot reconstruct missing sources. The skill runs in your AI agent; GPT Pages Importer handles the resulting Markdown in Obsidian.
+
+### 2 · Install the plugin
 
 Open the [Obsidian Community listing](https://community.obsidian.md/plugins/gpt-pages-importer), select **Add to Obsidian**, and install and enable **GPT Pages Importer** in Obsidian.
 
@@ -81,17 +93,19 @@ Copy `dist/gpt-pages-importer/` into your vault's `.obsidian/plugins/` directory
 
 </details>
 
-### 2 · Prepare a Page export
+### 3 · Export the prepared Page
 
-Download Markdown from Pages with each visualization's complete HTML source included in the document. The bundled [Page authoring skill](skills/gpt-pages-obsidian-visualizations/SKILL.md) helps create compatible Pages. A native image reference alone does not contain the HTML source.
+Download the skill-prepared Page as Markdown. Confirm that the export includes the figure markers and each visualization's complete fenced `html` source in the footer. If any source is missing, ask the agent to correct the Page using the skill, then export again.
 
-### 3 · Import your first note
+### 4 · Import your first note
 
 1. Run **GPT Pages Importer: Import Pages Markdown**, then select or drop a file.
 2. Review the destination, verified figure count and warnings in the text-only preview.
 3. Confirm the import. The destination note opens automatically.
 
 When importing the same Page again, reuse its source name. The default destination for a new source is `GPT Pages/`; later imports reuse the saved destination. See the [detailed usage guide](docs/usage.md) for other entry points, re-imports and recovery.
+
+To use interactive charts, install Polyglot Renderer, inspect the HTML and explicitly confirm trust as described under [Rendering and trust](#rendering-and-trust).
 
 ## Import or automatic cleanup
 

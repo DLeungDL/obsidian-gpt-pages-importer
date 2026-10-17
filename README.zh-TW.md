@@ -41,13 +41,25 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 | **資料夾清理（Folder cleanup）** | 監看指定資料夾及所有子資料夾，可一次放入多個 Markdown，自動原地處理。 |
 | **寫入保護（Protected writes）** | 純文字預覽、修改前備份、重複匯入不重寫，本機修改有衝突保護。 |
 | **明確信任（Explicit trust）** | 手動匯入預設保存為 `html-source`；經確認後才產生供 renderer 執行的 `html`。 |
-| **生成技能（Authoring skill）** | 附 Page 版型、自包含互動範例、標記生成器與匯出原碼驗證工具。 |
+| **AI 生成流程（AI authoring workflow）** | 匯入前先使用附帶技能，製作含配對 HTML 來源的 Page；提供版型、標記生成器與匯出原碼驗證工具。 |
 
 <a id="quick-start"></a>
 
 ## 快速開始（Quick start）
 
-### 1 · 取得外掛
+### 1 · 在 AI 代理中使用生成技能
+
+**匯出前，先使用技能準備 Page。** 請使用能存取 Pages 與原生視覺化工具的 AI 代理（AI agent），將完整的 [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) 資料夾加入代理的技能庫，包含 scripts、references 與 assets。如果代理透過檔案讀取指引，請指定其中的 [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md)，並保留其連結的資源供代理使用。
+
+可直接使用以下提示詞（prompt）：
+
+```text
+使用 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。正文保留原生視覺化，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼，並加入所需的配對標記。
+```
+
+技能會準備原生圖表、簡短圖表 ID，以及含對應參照（reference）與 SHA-256 校驗資訊的頁尾 HTML。這是本流程必要的製作步驟：一般 Page 匯出可能只有原生圖片參照，未包含可攜式 HTML，外掛無法還原缺少的來源。技能在 AI 代理中使用，GPT Pages Importer 則在 Obsidian 中處理產生的 Markdown。
+
+### 2 · 取得外掛
 
 開啟 [Obsidian 社群外掛頁面](https://community.obsidian.md/plugins/gpt-pages-importer)，按 **Add to Obsidian**，在 Obsidian 內安裝並啟用 **GPT Pages Importer**。
 
@@ -71,7 +83,7 @@ npm run check
 
 </details>
 
-### 2 · 安裝到 Obsidian
+### 3 · 安裝到 Obsidian
 
 將包含三個下載檔的 `gpt-pages-importer/`（自行建置則為 `dist/gpt-pages-importer/`）整個資料夾複製到：
 
@@ -87,13 +99,15 @@ npm run check
 
 在 **設定 → Community plugins** 啟用 **GPT Pages Importer**。更新檔案後，重新載入外掛。
 
-### 3 · 匯入第一份筆記
+### 4 · 匯出並匯入第一份筆記
 
-1. 從 Pages 下載 Markdown；視覺化的完整 HTML 需一併保存在文件中，可用附帶的 [Page 生成技能](skills/gpt-pages-obsidian-visualizations/SKILL.md) 準備。
+1. 將使用技能準備好的 Page 下載為 Markdown，確認圖表標記及各圖完整的 `html` 程式碼區塊已包含在頁尾。若缺少來源，請讓 AI 代理使用技能補齊 Page，再重新匯出。
 2. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入檔案。
 3. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
 
 後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.zh-TW.md)。
+
+需要使用互動圖表時，請安裝 Polyglot Renderer、檢查 HTML 並明確確認信任，詳見下方「閱讀、渲染與信任」。
 
 ## 選擇你的工作方式
 
