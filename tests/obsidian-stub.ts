@@ -126,6 +126,7 @@ export class Setting {
   element = document.createElement('div');
   constructor(container: HTMLElement) { container.append(this.element); }
   setName(text: string) { const label = document.createElement('label'); label.textContent = text; this.element.append(label); return this; }
+  setHeading() { this.element.classList.add('setting-item-heading'); return this; }
   setDesc(text: string) { const p = document.createElement('p'); p.textContent = text; this.element.append(p); return this; }
   private control(type: 'text' | 'checkbox' | 'button', fn: (control: Control) => void) {
     const element = document.createElement(type === 'button' ? 'button' : 'input'); element.type = type;

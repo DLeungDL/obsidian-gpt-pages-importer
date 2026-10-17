@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.0-8b5cf6?style=flat-square" alt="Version 0.1.0"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.1-8b5cf6?style=flat-square" alt="Version 0.1.1"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -26,9 +26,31 @@
 
 ---
 
+## English overview
+
+GPT Pages Importer brings Markdown exported from ChatGPT Pages into Obsidian, including complete, portable HTML visualizations. Keep native charts in the Page body and their matching HTML sources in a footer. The importer verifies each figure's unique ID, exact asset reference and SHA-256 before moving its HTML back to the original chart position and removing the matched marker and native image reference. Ambiguous pairings stay unchanged and produce warnings. Compact v3 markers and older v1/v2 formats are supported.
+
+### Install and use
+
+1. Download `gpt-pages-importer-0.1.1.zip` from [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest). Extract its `gpt-pages-importer` folder into your vault's `.obsidian/plugins/` directory and enable **GPT Pages Importer** in Community plugins.
+2. Export a Page as Markdown, including its complete HTML sources. The bundled [authoring skill](skills/gpt-pages-obsidian-visualizations/SKILL.md) helps prepare compatible Pages; an image reference alone does not contain the HTML.
+3. Run the import command, choose or drop a Markdown file, inspect the text-only preview and confirm. The destination note opens automatically. Keep the same source name when importing that Page again.
+
+Imports back up existing notes before replacement and stop when local edits or concurrent changes conflict. Alternatively, configure one watched vault folder and its subfolders to automatically clean existing, added, modified or moved Markdown files in place. Each modification creates a backup; unchanged files are not rewritten.
+
+### Rendering, privacy and support
+
+Manual imports default to non-executable `html-source` fences. Rendering requires explicit trust and the separately installed [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer). Folder rendering trust covers all current and future HTML blocks in that folder and its subfolders. Trusted JavaScript may execute and make network requests; a matching checksum does not establish safety. Turning off rendering stops future conversions but does not revert existing `html` fences.
+
+The importer is free, MIT-licensed and requires no account, payment or API key. It collects no telemetry, sends no network requests, downloads no Page assets and provides no cloud sync. It reads the external Markdown file selected by the user and writes destination notes, backups and settings within the current vault. Automatic cleanup is restricted to the configured vault folder and its subfolders. The optional renderer may contact external services referenced by trusted HTML. Report bugs through [GitHub Issues](https://github.com/DLeungDL/obsidian-gpt-pages-importer/issues). See the [compatibility record](docs/compatibility.md) for the actual scope of device testing.
+
+The following sections provide the detailed Traditional Chinese guide.
+
+---
+
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前為 0.1.0 MVP。** 採手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前為 0.1.1 MVP。** 採手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
 
 ## 為什麼使用它？
 
@@ -47,7 +69,7 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 ### 1 · 取得外掛
 
-從 [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest) 下載並解壓縮 `gpt-pages-importer-0.1.0.zip`。壓縮檔包含 `gpt-pages-importer/` 資料夾，可直接依下一步安裝。
+從 [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest) 下載並解壓縮 `gpt-pages-importer-0.1.1.zip`。壓縮檔包含 `gpt-pages-importer/` 資料夾，可直接依下一步安裝。
 
 也可個別下載 `main.js`、`manifest.json` 與 `styles.css`，放入同一個 `gpt-pages-importer/` 資料夾。
 
