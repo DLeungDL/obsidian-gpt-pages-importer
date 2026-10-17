@@ -2,6 +2,7 @@
   "name": "obsidian-gpt-pages-importer",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "npm run typecheck && node scripts/build.mjs",
     "typecheck": "tsc --noEmit",

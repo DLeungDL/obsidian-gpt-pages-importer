@@ -13,6 +13,7 @@
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
   <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.0-8b5cf6?style=flat-square" alt="Version 0.1.0"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
 </p>
 
@@ -44,7 +45,14 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 ## 快速開始（Quick start）
 
-### 1 · 建置外掛
+### 1 · 取得外掛
+
+從 [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest) 下載並解壓縮 `gpt-pages-importer-0.1.0.zip`。壓縮檔包含 `gpt-pages-importer/` 資料夾，可直接依下一步安裝。
+
+也可個別下載 `main.js`、`manifest.json` 與 `styles.css`，放入同一個 `gpt-pages-importer/` 資料夾。
+
+<details>
+<summary>自行建置（Build from source）</summary>
 
 需要 **Node.js 24** 與 npm：
 
@@ -57,9 +65,11 @@ npm run check
 
 也可在成功的 [GitHub Actions 工作流程](https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml) 下載 `gpt-pages-importer` 建置產物（artifact）。
 
+</details>
+
 ### 2 · 安裝到 Obsidian
 
-將 `dist/gpt-pages-importer/` 整個資料夾複製到：
+將下載解壓縮的 `gpt-pages-importer/`（自行建置則為 `dist/gpt-pages-importer/`）整個資料夾複製到：
 
 ```text
 你的 vault/
@@ -69,7 +79,7 @@ npm run check
             ├── main.js
             ├── manifest.json
             ├── styles.css
-            └── …第三方授權 notices
+            └── …授權檔與第三方授權 notices
 ```
 
 在 **設定 → Community plugins** 啟用 **GPT Pages Importer**。更新檔案後，重新載入外掛。
@@ -118,6 +128,12 @@ flowchart LR
 
 [查看渲染選項、備份與還原 →](docs/usage.md)
 
+## 隱私與存取（Privacy and access）
+
+此外掛免費使用，不要求帳號、付款或 API 金鑰，不收集遙測資料（telemetry），也不自行發送網路請求。手動匯入會透過檔案選擇器讀取你選擇的 vault 外 Markdown；寫入僅限目前 vault 內的目的筆記、備份與外掛設定。自動清理只處理你指定的 vault 資料夾及子資料夾。
+
+HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／JavaScript 若包含外部圖片、字型、函式庫或請求，可能由 renderer 存取相應遠端服務。請在啟用信任前檢查完整內容。
+
 ## 文件與資源
 
 | 想完成的事 | 從這裡開始 |
@@ -163,3 +179,7 @@ python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
 匯入與清理都使用你提供的 Markdown，不連線 Pages 下載附件，也不提供雲端或雙向同步。
 
 </details>
+
+## 授權（License）
+
+本專案採 [MIT 授權](LICENSE)，包含外掛原始碼、文件與附帶的 Page 生成技能。打包依賴保留各自授權，完整聲明（third-party notices）隨發行檔提供，並嵌入 `main.js`。
