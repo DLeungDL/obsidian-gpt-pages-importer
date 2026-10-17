@@ -88,7 +88,7 @@ Download Markdown from Pages with each visualization's complete HTML source incl
 
 ### 3 · Import your first note
 
-1. Run **GPT Pages Importer: **Import Pages Markdown**, then select or drop a file.
+1. Run **GPT Pages Importer: Import Pages Markdown**, then select or drop a file.
 2. Review the destination, verified figure count and warnings in the text-only preview.
 3. Confirm the import. The destination note opens automatically.
 
@@ -104,7 +104,7 @@ When importing the same Page again, reuse its source name. The default destinati
 | **HTML fences** | Defaults to `html-source`; trusted imports can use `html` | Preserves existing fence languages by default; folder rendering trust is optional |
 | **Backups** | Before replacing an existing destination | Before each modification in place |
 
-In the plugin settings, enter an existing vault folder under **自動清理資料夾** ("Automatic cleanup folder"). Turn on **啟用自動清理** ("Enable automatic cleanup") and select **儲存設定** ("Save settings"). Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
+In the plugin settings, enter an existing vault folder under **Automatic cleanup folder**. Turn on **Enable automatic cleanup** and select **Save settings** . Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
 
 Cleanup removes only verified figure markers and native image references. A verified footer source moves to its original figure position. Backups and destination notes tracked by the manual importer are excluded. Cleanup backups are stored under `GPT Pages Backups/cleanup`. See the [settings and trust guide](docs/usage.md#指定資料夾自動清理) (Traditional Chinese) for details.
 
@@ -130,7 +130,7 @@ Manual imports keep HTML in `html-source` fences by default. For interactive ren
 - Automatic cleanup preserves existing fence languages by default. Disabling rendering stops future conversions; it does not revert existing `html` blocks.
 - Changes are backed up before writing. Trusted JavaScript may execute and make network requests. A matching SHA-256 establishes source consistency, not code safety.
 
-To enable rendering after cleanup, turn on **清理後啟用 HTML 渲染** ("Enable HTML rendering after cleanup"), read and confirm the folder trust dialog, then save settings. Changing the watched folder requires confirming trust again. The importer does not install or enable a renderer automatically.
+To enable rendering after cleanup, turn on **Enable HTML rendering after cleanup** , read and confirm the folder trust dialog, then save settings. Changing the watched folder requires confirming trust again. The importer does not install or enable a renderer automatically.
 
 [Rendering options, backups and recovery →](docs/usage.md) (Traditional Chinese)
 
