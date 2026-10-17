@@ -88,7 +88,7 @@ Download Markdown from Pages with each visualization's complete HTML source incl
 
 ### 3 · Import your first note
 
-1. Run **GPT Pages Importer: 匯入 Pages Markdown** ("Import Pages Markdown"), then select or drop a file.
+1. Run **GPT Pages Importer: **Import Pages Markdown**, then select or drop a file.
 2. Review the destination, verified figure count and warnings in the text-only preview.
 3. Confirm the import. The destination note opens automatically.
 
