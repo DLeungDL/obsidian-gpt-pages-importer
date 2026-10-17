@@ -1,14 +1,18 @@
-# 靜態圖表範例
+# Static Chart Example
 
-這是自行編寫的測試內容，不是實際 Pages 匯出。數學公式：$E = mc^2$。
+**English** · [繁體中文](static.zh-TW.md)
+
+This is original sample content authored for testing, not an actual Pages export. Math example: $E = mc^2$.
+
+This example uses the supported legacy v1 format. For new Pages, use the [compact v3 format](../docs/format.md).
 
 <!-- gpt-pages:figure v=1 id=static-bars -->
 visualize:static-bars
 ```html
 <!doctype html>
-<html lang="zh-Hant">
-<head><meta charset="utf-8"><title>靜態長條圖</title>
+<html lang="en">
+<head><meta charset="utf-8"><title>Static Bar Chart</title>
 <style>body{font-family:system-ui;padding:1rem}.bar{background:#478cba;color:white;margin:.5rem;padding:.5rem}</style></head>
-<body><h1>每週閱讀</h1><div class="bar" style="width:40%">週一：4</div><div class="bar" style="width:70%">週二：7</div></body>
+<body><h1>Weekly Reading</h1><div class="bar" style="width:40%">Monday: 4</div><div class="bar" style="width:70%">Tuesday: 7</div></body>
 </html>
 ```

@@ -14,15 +14,15 @@
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
   <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.1-8b5cf6?style=flat-square" alt="Version 0.1.1"></a>
-  <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
+  <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
 </p>
 
 <p align="center">
   <a href="#quick-start">快速開始</a> ·
-  <a href="docs/usage.md">使用指南</a> ·
-  <a href="docs/format.md">配對格式</a> ·
+  <a href="docs/usage.zh-TW.md">使用指南</a> ·
+  <a href="docs/format.zh-TW.md">配對格式</a> ·
   <a href="skills/gpt-pages-obsidian-visualizations/SKILL.md">Page 生成技能</a>
 </p>
 
@@ -30,7 +30,7 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前為 0.1.1 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前為 0.1.1 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
 
 ## 為什麼使用它？
 
@@ -96,7 +96,7 @@ npm run check
 2. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入檔案。
 3. 查看目的地、成功配對數與警告，確認後寫入；目的筆記會自動開啟。
 
-後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.md)。
+後續重匯同一 Page，沿用相同的來源識別名稱（source name）。完整流程與其他入口見[使用指南](docs/usage.zh-TW.md)。
 
 ## 選擇你的工作方式
 
@@ -108,7 +108,7 @@ npm run check
 | **HTML 語言** | 預設 `html-source`，信任後可輸出 `html` | 預設保留原語言，可另確認資料夾渲染信任 |
 | **備份** | 更新既有目的筆記前備份 | 每次原地修改前備份 |
 
-設定自動清理時，填入一個監看資料夾（watched folder），即可涵蓋所有子資料夾。儲存並啟用後，會掃描既有文件，並處理之後新增、修改與移入的 Markdown。詳見[設定與信任流程](docs/usage.md#指定資料夾自動清理)。
+設定自動清理時，填入一個監看資料夾（watched folder），即可涵蓋所有子資料夾。儲存並啟用後，會掃描既有文件，並處理之後新增、修改與移入的 Markdown。詳見[設定與信任流程](docs/usage.zh-TW.md#指定資料夾自動清理)。
 
 ## 從 Page 到筆記
 
@@ -121,7 +121,7 @@ flowchart LR
 
 外掛從匯出檔讀取 HTML。只有唯一 ID、精確原生參照（reference）、完整來源與 SHA-256 全部通過，才清除該組標記及圖片參照；配對不明確時保留原文並警告。v1／v2 舊格式仍相容。
 
-[閱讀 v3 配對契約 →](docs/format.md)
+[閱讀 v3 配對契約 →](docs/format.zh-TW.md)
 
 ## 閱讀、渲染與信任
 
@@ -132,7 +132,7 @@ flowchart LR
 - 自動清理預設保留既有語言；關閉渲染選項不會還原已是 `html` 的區塊。
 - 寫入前先備份；JavaScript 可能執行並發出網路請求。SHA-256 配對成功不代表程式碼安全。
 
-[查看渲染選項、備份與還原 →](docs/usage.md)
+[查看渲染選項、備份與還原 →](docs/usage.zh-TW.md)
 
 ## 隱私與存取（Privacy and access）
 
@@ -144,11 +144,11 @@ HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／Jav
 
 | 想完成的事 | 從這裡開始 |
 | :--- | :--- |
-| 安裝、匯入、設定監看資料夾、重匯與還原 | [完整使用指南](docs/usage.md) |
-| 編寫或檢查 v3／v2／v1 配對格式 | [格式契約](docs/format.md) |
+| 安裝、匯入、設定監看資料夾、重匯與還原 | [完整使用指南](docs/usage.zh-TW.md) |
+| 編寫或檢查 v3／v2／v1 配對格式 | [格式契約](docs/format.zh-TW.md) |
 | 生成可匯出至 Obsidian 的 Page | [完整技能與工具](skills/gpt-pages-obsidian-visualizations/SKILL.md) |
-| 核對原生圖與 Markdown 匯出的實測範圍 | [相容性紀錄](docs/compatibility.md) · [往返驗證摘要](docs/pages-roundtrip.md) |
-| 試讀通用、自行編寫的資料 | [靜態範例](examples/static.md) · [互動範例](examples/interactive.md) |
+| 核對原生圖與 Markdown 匯出的實測範圍 | [相容性紀錄](docs/compatibility.zh-TW.md) · [往返驗證摘要](docs/pages-roundtrip.zh-TW.md) |
+| 試讀通用、自行編寫的資料 | [靜態範例](examples/static.zh-TW.md) · [互動範例](examples/interactive.zh-TW.md) |
 
 <a id="development"></a>
 

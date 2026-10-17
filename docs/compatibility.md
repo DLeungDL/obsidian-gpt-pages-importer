@@ -1,210 +1,214 @@
-# 相容性與驗收紀錄
+# Compatibility and Acceptance Record
 
-## 公開介面與自動檢查
+**English** · [繁體中文](compatibility.zh-TW.md)
 
-Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 與 [manifest](https://github.com/Nimaapr/polyglot-renderer/blob/main/manifest.json) 指定 `html` fence、inline rendering 及最低 Obsidian 1.5.0。本外掛只產生公開支援的 fence，不使用 renderer 私有 API 或打包 renderer。公開 iframe 設定為 `allow-scripts`，opaque origin 不代表網路隔離。
+This is a record of specific test runs, including historical failures and later fixes. Counts, versions and hashes below describe those runs; they are not claims that every check was repeated for the latest release.
 
-2026-10-17 最新檢查環境為 Node.js 24.15.0／npm 11.12.1、Obsidian SDK 型別 1.13.1。`npm run check` 執行公開資料檢查、TypeScript、esbuild 建置、無 DOM 的打包 smoke check 及 108 項 Vitest 測試；完整依賴見 package-lock.json。
+## Public interfaces and automated checks
 
-- 獨立輸入／預期 fixtures：CommonMark fences、跳脫參照、中文／emoji／公式／反斜線、CRLF／BOM 與 source bytes。
-- v2 摘要、ID／URI／文件邊界、重複宣告、部分成功、校驗失敗保留、冪等性及同步 v1 相容。
-- 成功配對後移除 marker 與原生圖片參照，保留正文／HTML bytes／開頭 BOM；舊版保留 marker 的筆記重匯先備份，仍阻止覆寫本機編輯。此次新增 12 項回歸測試（regression tests）。
-- 匯入生命週期：建立、重匯、備份、本機修改、競態、備份及紀錄儲存失敗。
-- Obsidian API 模擬、UTF-8／路徑／大小拒絕與純文字預覽不執行內容。
-- BOM 修復新增 10 項回歸測試：LF／CRLF／雙 BOM、讀回既有紀錄、來源增刪 BOM 的備份／摘要、本機增刪 BOM 衝突及備份後原子寫入競態。測試替身現在反映真正 `Vault.read()` 移除 BOM 的差異；修復前新增案例有 8 項失敗，修復後全部通過。
+The inspected Polyglot Renderer [README](https://github.com/Nimaapr/polyglot-renderer) and [manifest](https://github.com/Nimaapr/polyglot-renderer/blob/main/manifest.json) describe `html` fences, inline rendering and a minimum Obsidian version of 1.5.0. This plugin produces publicly supported fences, uses no private renderer APIs and does not bundle the renderer. The documented iframe uses `allow-scripts`; an opaque origin does not establish network isolation.
 
-模擬、SDK 型別與 jsdom 不等於真正桌面程式。公開資料檢查只針對此儲存庫的來源識別資料形式與證據目錄規則，不是通用機密掃描器。
+The recorded automated check on 2026-10-17 used Node.js 24.15.0, npm 11.12.1 and Obsidian SDK types 1.13.1. At that stage, `npm run check` ran the public-data check, TypeScript, esbuild, a packaged-bundle smoke check without a DOM and 108 Vitest tests. Complete dependency versions are in `package-lock.json`.
 
-## 真正 Linux 桌面結果摘要
+- Independent input/expected fixtures cover CommonMark fences, escaped references, Chinese/emoji/formulas/backslashes, CRLF/BOM and source bytes.
+- v2 checks cover hashes, IDs/URIs/document boundaries, duplicate declarations, partial success, preservation on verification failure, idempotence and synchronous v1 compatibility.
+- Successful pairing removes markers/native image references while preserving prose, HTML bytes and an opening BOM. Old notes retaining markers are backed up before re-import cleanup, and local edits still block replacement. That change added 12 regression tests.
+- Import lifecycle checks cover creation, re-imports, backups, local edits, races and backup/record-save failures.
+- Obsidian API simulations cover invalid UTF-8, paths, size limits and non-executing text previews.
+- The BOM fix added 10 regression cases: LF/CRLF/double BOM, existing records, source BOM additions/removals with exact backups/hashes, local BOM conflicts and atomic-write races after backup. The host double now reflects real `Vault.read()` BOM stripping. Eight new cases failed before the fix; all passed afterward.
 
-維護者於 2026-10-14 在 Debian GNU/Linux 13.6 x86_64、Xorg 虛擬顯示器啟動官方 Obsidian 1.14.4／Polyglot Renderer 1.3.0。內嵌 Electron 43.7.7、Chromium 150.0.7871.250、Node.js 24.21.0；使用 Playwright／CDP 操作真正 UI、Vault API 及 iframe，未使用 stub 或 jsdom。啟動旗標 `--no-sandbox --disable-gpu`，沒有驗證 Electron 外層 sandbox 或 GPU。
+Simulations, SDK types and jsdom do not establish real desktop compatibility. The public-data check covers this repository's source-identifier patterns and evidence-directory rules; it is not a general secret scanner.
 
-| 階段 | 維護者回報結果 |
+## Real Linux desktop results
+
+On 2026-10-14, the maintainer ran official Obsidian 1.14.4 and Polyglot Renderer 1.3.0 on Debian GNU/Linux 13.6 x86_64 with an Xorg virtual display. Embedded versions were Electron 43.7.7, Chromium 150.0.7871.250 and Node.js 24.21.0. Playwright/CDP drove the real UI, Vault API and iframes, without stubs or jsdom. Launch flags were `--no-sandbox --disable-gpu`; the outer Electron sandbox and GPU were not validated.
+
+| Stage | Maintainer-reported result |
 | --- | --- |
-| 基準 MVP 桌面驗證 | 19 項通過、1 項 BOM 失敗；含匯入、重匯、備份、競態／衝突、大小／路徑／UTF-8 拒絕及重啟 |
-| 基準 MVP 與真正 v1 UI 匯出 | 13 項通過、1 項原生參照配對不支援；完整 HTML 可明確信任後呈現 |
-| v2 明確綁定的測試副本 | 15 項通過，兩圖配對、摘要／ID 不符保留及兩種呈現模式正常 |
-| 正式儲存 v2 的服務來源 | 4 項通過，兩個 marker 儲存、其他內容保留、摘要正確與冪等性 |
-| 新下載的真正 v2 UI 匯出 | 15 項通過，原檔不變、配對 2、HTML bytes 保留、slider／reset、重匯／備份／衝突正常 |
+| Baseline MVP desktop validation | 19 passed, 1 BOM failure; covered importing, re-importing, backups, races/conflicts, size/path/UTF-8 rejection and restart |
+| Baseline MVP with an actual v1 UI export | 13 passed, 1 unsupported native-reference pairing; complete HTML rendered after explicit trust |
+| Test copy with explicit v2 bindings | 15 passed; two figures paired, hash/ID mismatches preserved and both tested rendering modes worked |
+| Service source saved with v2 metadata | 4 passed: both markers saved, other content preserved, correct hashes and idempotence |
+| Fresh actual v2 UI export | 15 passed: original unchanged, 2 pairs, exact HTML bytes, slider/reset, re-imports/backups/conflicts |
 
-[結果摘要](evidence/validation-summary.json) 不含來源識別碼。[公開 fixtures](evidence/README.md) 全部使用虛構 ID；原始匯出、讀回、操作回條及截圖只保留於儲存庫外，因此公開資料不能獨立核驗全部桌面步驟。
+The [result summary](evidence/validation-summary.json) excludes source identifiers. [Public fixture notes](evidence/README.md) (Traditional Chinese) describe fictional-ID fixtures. Original exports, readbacks, operation receipts and screenshots remain outside the repository, so public artifacts cannot independently verify every desktop step.
 
-### BOM 重匯誤判衝突：基準問題與修復
+### BOM re-import false conflict: baseline and fix
 
-以 UTF-8 BOM 儲存通用 Markdown，首次匯入後立即用相同來源名稱重匯，實際誤判「停止寫入」，完整重啟後也可重現。磁碟 bytes 與保存的 outputHash 相同，但真正 Vault.read() 移除開頭 BOM，Vault.readBinary() 保留。VaultStorage.read() 使用前者，因此 hash 比較將未修改檔案誤判成本機修改；自動測試的 host double 沒有此差異。
+A generic Markdown file saved with a UTF-8 BOM imported successfully, but an immediate re-import under the same source name incorrectly stopped writing. A full restart reproduced it. Disk bytes matched the saved `outputHash`, but real `Vault.read()` stripped the opening BOM while `Vault.readBinary()` retained it. `VaultStorage.read()` used the former, so hash comparison mistook unchanged content for a local edit. The original host double did not reflect that difference.
 
-上述為修復前結果。2026-10-17 已改用 `Vault.readBinary()` 搭配嚴格 UTF-8 解碼（`fatal: true, ignoreBOM: true`），保留 BOM／換行再比對 hash 與製作備份。保留原有 `Vault.process()` 的原子內容比對；實測此 API 的 callback 收到包含 BOM 的原文。未修改既有 outputHash 或忽略本機增刪 BOM，因此舊匯入紀錄可直接使用，本機 BOM 變更仍會停止覆寫。Windows 修復後實測另列於下方；未宣稱已在 Linux 重測修復版本。
+Those were pre-fix results. On 2026-10-17, reading changed to `Vault.readBinary()` with strict UTF-8 decoding (`fatal: true, ignoreBOM: true`), preserving BOM/line endings before hashing and backup. Existing atomic comparison through `Vault.process()` remains; real testing confirmed its callback receives the BOM-containing original. Existing output hashes were not migrated, and local BOM edits are not ignored. Old records remain usable; local BOM changes still block overwrites. Windows post-fix results follow. No Linux retest of the fixed version is claimed.
 
-## Windows 實機驗收（desktop acceptance）
+## Windows desktop acceptance
 
-2026-10-17（香港時間），在 Windows 11 Home x64（10.0.22631）以獨立測試 vault 驗證提交 `bd5e0a7` 的建置產物。Obsidian 應用程式為 1.14.4，既有安裝器（installer）為 1.6.7；實際內嵌 Electron 30.1.2、Chromium 124.0.6367.243、Node.js 20.14.0，Polyglot Renderer 為 1.3.0。本機建置環境為 Node.js 24.15.0／npm 11.12.1，`npm run check` 的 86 項自動測試通過。
+On 2026-10-17, Hong Kong time, a separate test vault on Windows 11 Home x64 (10.0.22631) ran a build from commit `bd5e0a7`. Obsidian was 1.14.4, with the existing 1.6.7 installer. Embedded versions were Electron 30.1.2, Chromium 124.0.6367.243 and Node.js 20.14.0; Polyglot Renderer was 1.3.0. The build environment used Node.js 24.15.0 and npm 11.12.1, and all 86 automated tests then in `npm run check` passed.
 
-核心驗收透過 Obsidian 官方命令列（CLI）在真正 Electron renderer 中執行已註冊的匯入命令、操作實際 modal／File API，並使用真正 Vault API 與磁碟 bytes 驗證；未使用 stub 或 jsdom。補充驗收以 Windows 原生檔案選擇器及滑鼠操作實際畫面。使用儲存庫自行編寫、含虛構 ID 的公開 v2 fixture，並非此次重新下載的 Pages UI 匯出。
+Core acceptance used the official Obsidian CLI to invoke registered import commands in the real Electron renderer, operate actual modals/File API and verify real Vault API/disk bytes, without stubs or jsdom. Supplementary checks used the native Windows file picker and mouse. Input was the repository-authored public v2 fixture with fictional IDs, not a fresh Pages UI download.
 
-| 核心驗收項目 | 結果 |
+| Core acceptance check | Result |
 | --- | --- |
-| 外掛載入與匯入命令註冊 | 通過 |
-| v2 兩圖配對、純文字預覽無可執行元素 | 通過 |
-| 首次匯入與獨立預期輸出逐 byte 相同、outputHash 正確 | 通過 |
-| 相同來源重匯不寫入、不重複、不新增備份 | 通過 |
-| 更新先完整備份，再替換目的內容 | 通過 |
-| 本機編輯及預覽後競態阻止覆寫 | 2 項通過 |
-| 摘要不符、原生 ID 不符及重複 figure ID 保留參照 | 3 項通過 |
-| 非法目的路徑、非法 UTF-8 及超過 20 MiB 拒絕 | 3 項通過 |
-| BOM 首次匯入保留磁碟 bytes | 通過 |
-| 未修改 BOM 檔案重匯應為無變更 | **失敗：重現已知誤判衝突，原檔未覆寫** |
+| Plugin loading and import command registration | Passed |
+| Two v2 pairs and a text-only preview without executable elements | Passed |
+| First import matches independent expected bytes and output hash | Passed |
+| Identical re-import performs no write, duplication or extra backup | Passed |
+| Update fully backs up before replacement | Passed |
+| Local edits and post-preview races block overwrites | 2 passed |
+| Hash mismatch, native ID mismatch and duplicate figure IDs retain references | 3 passed |
+| Invalid destination path, invalid UTF-8 and files over 20 MiB are rejected | 3 passed |
+| First BOM import preserves disk bytes | Passed |
+| Unmodified BOM re-import should be unchanged | **Failed: known false conflict reproduced; original not overwritten** |
 
-核心共 15 項：14 項通過、1 項已知問題失敗。另有 5 項補充檢查通過：Windows 原生選檔後成功配對 2 圖並寫入正確 bytes、預設 `html-source` 閱讀模式顯示 2 個 source blocks 且無 iframe、靜態圖標籤及比例、滑桿由 50 調到 85 時數值與長條同步、重設回 50。呈現檢查使用從獨立預期輸出另製的 `html` fence 筆記；沒有將此結果宣稱為信任勾選框的端到端匯入驗證。可見的兩個 renderer iframe 均為 `sandbox="allow-scripts"`，不代表已測網路隔離。
+Core total: 15 checks, 14 passed and 1 known failure. Five supplementary checks passed: native file selection paired 2 figures and wrote exact bytes; default `html-source` Reading view showed 2 source blocks without iframes; static labels/proportions rendered; moving the slider from 50 to 85 updated the value/bar; reset returned to 50. Rendering checks used a separate `html`-fence note derived from independent expected output, not an end-to-end trust-checkbox import. Both visible renderer iframes used `sandbox="allow-scripts"`; network isolation was not tested.
 
-此段為修復前的 Windows 基準結果：磁碟保留 BOM、outputHash 與磁碟一致，但 `Vault.read()` 讀回不含 BOM；相同來源重匯因此被誤判為本機修改，與 Linux 基準問題一致。
+These are pre-fix Windows baseline results. Disk retained the BOM and matched `outputHash`, while `Vault.read()` omitted it, reproducing the Linux false-conflict behavior.
 
-原始操作回條（receipts）、驗收腳本、測試 vault 與畫面證據均保留在儲存庫外；[公開結果摘要](evidence/validation-summary.json) 只保存環境、項目數與限制。本次未測完整程式重啟、信任勾選框的匯入流程、其他 renderer 模式或任意 Pages 檔案，不能將完整相容性驗收標為完成。
+Original receipts, acceptance scripts, vault and screenshots stay outside the repository. The [public result summary](evidence/validation-summary.json) records environments, counts and limitations only. This run did not test a full application restart, importer trust-checkbox flow, other renderer modes or arbitrary Pages files; complete compatibility acceptance is not established.
 
-### Windows BOM 修復後重測
+### Windows BOM fix retest
 
-同日、相同 Windows／Obsidian 環境，在獨立測試 vault 安裝以 `bd5e0a7` 為基底的工作目錄修復建置，重新載入該 vault 後驗收。實際安裝的 `main.js` 與建置產物 SHA-256 均為 `6f6072abfb36c17df0d223f7f26ca632d0337001e33d2a0d5e2800497c3a210a`。
+On the same date and Windows/Obsidian environment, the separate test vault installed a working-tree fix built on `bd5e0a7` and was reloaded. Built and installed `main.js` SHA-256 both matched `6f6072abfb36c17df0d223f7f26ca632d0337001e33d2a0d5e2800497c3a210a`.
 
-| 修復後驗收項目 | 結果 |
+| Post-fix acceptance check | Result |
 | --- | --- |
-| 上述 15 項核心流程全部重測，含原失敗的 BOM 相同來源重匯 | 15 項通過 |
-| 修復前已匯入的 BOM 筆記，不轉換紀錄、不重寫目的檔案 | 通過 |
-| BOM／CRLF 首匯與重匯、更新後逐 byte 備份及 outputHash | 2 項通過 |
-| 來源新增／移除 BOM 正常更新、先備份，之後重匯無變更 | 2 項通過 |
-| 本機新增／移除 BOM 阻止覆寫 | 2 項通過 |
-| 預覽後新增／移除 BOM，在建立備份前停止 | 2 項通過 |
-| 備份後、真正 `Vault.process()` 前注入 BOM 增刪競態，原子比對拒絕替換並保留備份 | 2 項通過 |
-| 開頭雙 BOM 保留且重匯無變更 | 通過 |
-| 再次重新載入測試 vault，從磁碟載入紀錄後 BOM／CRLF 重匯無變更 | 通過 |
+| All 15 core flows rerun, including the formerly failing identical BOM re-import | 15 passed |
+| Previously imported BOM note needs no record migration or destination rewrite | Passed |
+| BOM/CRLF first import, re-import, update backup and output hash | 2 passed |
+| Adding/removing a source BOM updates after backup, then re-imports unchanged | 2 passed |
+| Adding/removing a local BOM blocks replacement | 2 passed |
+| Adding/removing a BOM after preview stops before backup | 2 passed |
+| BOM addition/removal injected after backup but before real `Vault.process()` is rejected atomically; backup retained | 2 passed |
+| Double opening BOM is preserved and re-imports unchanged | Passed |
+| Vault reload loads persisted records and re-imports BOM/CRLF content unchanged | Passed |
 
-共 28 項實機檢查全部通過，使用真正匯入 modal、File API、Vault API 與磁碟 bytes，未使用 stub 或 jsdom。初次腳本在背景等待 UI 超過 5 秒逾時，已保留回條並延長等待、使用獨立來源名稱重跑受影響項目；最終 27 項流程檢查及 1 項重新載入檢查均通過。公開摘要不包含原始操作回條。此次沒有重跑前述 renderer 滑鼠補充項目，也未測完整程式關閉再啟動或 Linux 修復版本。
+All 28 real-device checks passed using actual modals, File/Vault APIs and disk bytes, without stubs/jsdom. An initial background UI wait exceeded five seconds; receipts were retained, the wait was extended and affected cases rerun with separate source names. Final results were 27 flow checks plus 1 vault-reload check. Public summaries exclude raw receipts. Earlier renderer mouse checks were not repeated; neither full application exit/restart nor the Linux fix was tested.
 
-### Windows 配對標記清理驗證
+### Windows marker cleanup validation
 
-2026-10-17，以 `a56bbe8` 為基底的標記清理修改在相同獨立測試 vault 建置、安裝並重新載入。建置與安裝的 `main.js` SHA-256 均為 `33b49be1037e4db7cb3a7537adaa00f14ab13adbb45fc3b2615857c2a527c0f1`。以下 8 項實機檢查全部通過：
+On 2026-10-17, marker cleanup changes based on `a56bbe8` were built, installed and reloaded in the same separate vault. Built and installed `main.js` SHA-256 matched `33b49be1037e4db7cb3a7537adaa00f14ab13adbb45fc3b2615857c2a527c0f1`. All 8 checks passed:
 
-| 驗收項目 | 結果 |
+| Acceptance check | Result |
 | --- | --- |
-| 實際 runtime、外掛載入與安裝產物 hash | 通過 |
-| 公開 v2 fixture 的兩組 marker／原生圖片參照清理、純文字預覽與獨立預期輸出 | 通過 |
-| 寫入內容逐 byte 相同，紀錄 outputHash 正確 | 通過 |
-| 相同來源重匯不寫入、不新增備份 | 通過 |
-| 摘要不符保留該組 metadata，其他有效配對仍清理 | 通過 |
-| 原生 ID 不符保留標記與圖片參照 | 通過 |
-| 檔案開頭即為 marker 時保留 BOM，重匯無變更 | 通過 |
-| 雨水範例勾選信任後匯入，兩個可見 renderer iframe、完整 HTML bytes、章節標題保留且無可見標記／失效圖片 | 通過 |
+| Actual runtime, loaded plugin and installed bundle hash | Passed |
+| Public v2 fixture: both markers/native image references cleaned; safe preview matches independent output | Passed |
+| Exact written bytes and recorded output hash | Passed |
+| Identical re-import creates no write or backup | Passed |
+| Hash mismatch preserves that metadata; valid neighboring pairs still clean | Passed |
+| Native ID mismatch preserves marker/image reference | Passed |
+| First-line marker cleanup retains opening BOM; re-import unchanged | Passed |
+| Trusted rainwater example import: 2 visible renderer iframes, exact HTML, headings retained and no visible metadata/broken images | Passed |
 
-雨水範例使用先前保存的 Page API 讀回內容，**不是此次重新取得的 Pages UI 匯出**。實際畫面另確認長條圖及互動圖初始的 240 公升、每日 30 公升、可用 8 天及七日後剩水 30 公升；本次沒有操作滑桿／重設。原始來源、驗證腳本與回條保留於 Git 外。
+The rainwater example used saved Page API readback, **not a fresh Pages UI export**. The actual display confirmed the bars and interactive initial state: 240 liters stored, 30 liters/day, 8 days available and 30 liters left after seven days. Slider/reset were not operated in this run. Original sources, scripts and receipts remain outside Git.
 
-初次腳本的 runtime 診斷使用了 CLI 環境無法載入的模組，產品測試尚未執行；修正後完成前 7 項。最後呈現檢查曾把 Obsidian 快取的隱藏 iframe 計入總數；最終改以兩個可見 iframe 並分別核對靜態／互動來源，結果為 8 項通過。未改動 renderer。
+The first runtime diagnostic required a module unavailable in the CLI context, so no product checks ran in that attempt. After correction, the first 7 checks completed. The final rendering check initially counted a hidden cached iframe; it was corrected to inspect 2 visible iframes and verify distinct static/interactive sources. Final result: 8 passed. The renderer was unchanged.
 
-### Windows 匯入流程改善驗證
+### Windows import workflow improvements
 
-2026-10-17，在相同獨立測試 vault 安裝以 `fd16aca` 為基底的工作目錄建置。最後安裝的 `main.js` 與建置產物 SHA-256 均為 `c6c8271a0d05b0b6cd71191ec5e228cd16a22d6d8a56ac325dab84780cf55321`，建置及 129 項自動測試通過。使用使用者保留的四圖 Markdown 原檔副本，未在此次重新匯出 Pages。
+On 2026-10-17, the same separate vault installed a working-tree build based on `fd16aca`. Final built/installed `main.js` SHA-256 matched `c6c8271a0d05b0b6cd71191ec5e228cd16a22d6d8a56ac325dab84780cf55321`. Build and 129 automated tests passed. Input was a copy of the user's preserved four-figure Markdown export; Pages was not re-exported.
 
-| 實機檢查 | 結果 |
+| Real-device check | Result |
 | --- | --- |
-| 右鍵入口直接帶入選取的 Markdown，顯示選檔名稱與更換檔案按鈕 | 通過 |
-| 預覽顯示成功配對 4 組，摘要及確認按鈕可見，原始碼與資產報告預設摺疊 | 通過 |
-| 返回設定保留所選檔案，毋須重新選檔即可再次預覽 | 通過 |
-| 確認寫入後關閉預覽並自動開啟正確目的筆記 | 通過 |
-| 磁碟輸出無配對標記／原生圖片參照，四份 HTML body bytes 與原檔一致，原檔未修改，紀錄 hash 正確 | 通過 |
-| 目的筆記不再提供「匯入目前筆記」命令 | 通過 |
+| Right-click import preloads the selected Markdown and shows filename/change-file controls | Passed |
+| Preview shows 4 verified pairs, visible summary/confirmation and initially collapsed sources/assets | Passed |
+| Returning to settings keeps the selected file; preview can be repeated without reselecting | Passed |
+| Confirming closes preview and opens the correct destination | Passed |
+| Disk output has no pairing/native image references; 4 HTML payloads match; original unchanged; record hash correct | Passed |
+| Destination note no longer offers the current-note import command | Passed |
 
-此次使用預設不信任模式，輸出四個 `html-source` 區塊，未重新驗證互動圖執行。拖放、換檔時的信任重設、不同來源名稱與資料夾、無變更／錯誤／取消等流程另由自動測試涵蓋；不將這些模擬結果宣稱為 Windows 實機檢查。原檔副本、操作摘要及磁碟驗證回條保留於 Git 外。
+Default untrusted mode produced 4 `html-source` blocks; interactive execution was not retested. Drag/drop, trust reset when changing files, different source names/folders, unchanged/error/cancel flows are covered separately by automated tests, not claimed as Windows device checks. Export copy, operation summary and disk-verification receipts remain outside Git.
 
-### Windows 指定資料夾原地清理驗證
+### Windows watched-folder in-place cleanup
 
-2026-10-17，在相同獨立測試 vault 安裝以 `fd16aca` 為基底、包含匯入流程改善及資料夾自動清理的工作目錄建置。建置與安裝的 `main.js` SHA-256 均為 `24c9d2e55ba6a488d31e6ab3b0f6cdbb23ade2df939f46a3c357c02b3b8ce38b`，建置與 163 項自動測試通過。
+On 2026-10-17, the same separate vault installed a working-tree build based on `fd16aca`, including import workflow improvements and automatic folder cleanup. Built/installed `main.js` SHA-256 matched `24c9d2e55ba6a488d31e6ab3b0f6cdbb23ade2df939f46a3c357c02b3b8ce38b`. Build and 163 automated tests passed.
 
-透過 Obsidian CLI 在真正 runtime 呼叫外掛設定及 Vault API，使用公開、自行編寫的 v2 兩圖 fixture，先將 fence 設為 `html-source`，未執行測試 HTML。17 項 runtime 檢查全部通過，涵蓋：
+Obsidian CLI invoked the installed plugin's settings and real Vault API using a public, authored two-figure v2 fixture with `html-source` fences. Test HTML was not executed. All 17 runtime checks passed, covering:
 
-| 檢查範圍 | 結果 |
+| Scope | Result |
 | --- | --- |
-| 正確測試 vault、設定初始關閉、啟用即掃描現有及子資料夾 Markdown | 通過 |
-| 真正 create／modify／rename 事件自動清理原檔，不改路徑 | 通過 |
-| 重複掃描及外掛自己的 modify 事件不重寫、不新增重複備份 | 通過 |
-| 範圍外相近名稱資料夾、非 Markdown 與未知版本標記保留 | 通過 |
-| 每份備份與寫入前來源 bytes 相同，子資料夾同名檔案使用不同備份目錄 | 通過 |
-| HTML body bytes、fence 語言、目前筆記與既有匯入紀錄保留，成功配對 metadata 移除 | 通過 |
-| 停用後新增檔案不處理，測試後恢復原先關閉設定 | 通過 |
+| Correct test vault, initially disabled settings, immediate scan of existing/subfolder Markdown on enable | Passed |
+| Real create/modify/rename events clean original files without changing paths | Passed |
+| Repeated scans and the plugin's own modify events cause no redundant write/backup | Passed |
+| Similar out-of-scope folder names, non-Markdown files and unknown markers remain unchanged | Passed |
+| Backups match pre-write bytes; same filenames in different subfolders use distinct backup directories | Passed |
+| HTML bytes, fence languages, current note and prior import records preserved; verified metadata removed | Passed |
+| Files added after disabling are not processed; original disabled settings restored after testing | Passed |
 
-另以 Windows 電腦操作開啟 **設定 → GPT Pages Importer**，確認資料夾輸入框、預設關閉的啟用開關、儲存設定及立即清理按鈕均可見。此次未透過 GUI 啟用監看；設定儲存及檔案事件由上述真正 runtime API 驗證。備份失敗、並行編輯、停用中的原子寫入保護、非法 UTF-8 與大小上限由自動測試涵蓋，不宣稱為此次實機注入測試。原始回條、備份及測試筆記保留於 Git 外。
+Native Windows UI inspection confirmed folder input, initially disabled toggle, save and immediate-cleanup controls under **Settings → GPT Pages Importer**. Watching was not enabled through the GUI in this run; settings persistence and events were validated through real runtime APIs. Backup failure, concurrent edits, atomic protection during disable, invalid UTF-8 and size limits were covered by automated tests rather than device-level fault injection. Raw receipts, backups and test notes remain outside Git.
 
-### Windows 自動清理後 HTML 渲染選項驗證
+### Windows HTML rendering after automatic cleanup
 
-2026-10-17，在相同獨立測試 vault 安裝加入資料夾信任確認的工作目錄建置。建置與安裝的 `main.js` SHA-256 均為 `26d99781f4d7df6239f88058e7f5717aa543bea9b34c2420d74c97e91ac4f8ee`，建置與 177 項自動測試通過。
+On 2026-10-17, the same separate vault installed a working-tree build with folder trust confirmation. Built/installed `main.js` SHA-256 matched `26d99781f4d7df6239f88058e7f5717aa543bea9b34c2420d74c97e91ac4f8ee`. Build and 177 automated tests passed.
 
-透過 Obsidian CLI 呼叫已安裝外掛及真正 Vault API，使用獨立資料夾、公開 v2 fixture 及自行編寫的無外部依賴 HTML，15 項 runtime 檢查全部通過，包含：
+Obsidian CLI drove the installed plugin and real Vault API using a separate folder, the public v2 fixture and authored HTML without external dependencies. All 15 runtime checks passed, including:
 
-| 檢查範圍 | 結果 |
+| Scope | Result |
 | --- | --- |
-| 升級保留原本監看資料夾／清理設定，新渲染選項預設關閉；未確認資料夾信任的 API 呼叫被拒絕 | 通過 |
-| 預設清理保留 `html-source`；明確授予測試資料夾信任後，已清理筆記及新增檔案轉為 `html` | 通過 |
-| 原始 HTML body bytes、完整備份、重複掃描不重寫、範圍外來源與匯入紀錄保留 | 通過 |
-| 開啟自行編寫的證明筆記，以 Polyglot Renderer iframe 的來源及執行後 `postMessage` 回條確認 HTML／JavaScript 實際執行 | 通過 |
-| 取消渲染信任後，之後清理保留 `html-source`，既有 `html` 保留 | 通過 |
-| 測試完成恢復原有監看資料夾／啟用設定及目前筆記，渲染選項保持關閉 | 通過 |
+| Upgrade preserves folder/cleanup settings; new rendering option defaults off; API calls without confirmed folder trust are rejected | Passed |
+| Default cleanup keeps `html-source`; explicit test-folder trust converts cleaned notes and newly added files to `html` | Passed |
+| Exact HTML payloads/backups, no repeated-scan rewrites, out-of-scope sources and import records preserved | Passed |
+| Authored proof note: renderer iframe source and execution-time `postMessage` receipt confirm actual HTML/JavaScript execution | Passed |
+| Revoking rendering trust leaves future cleanup at `html-source` and preserves existing `html` | Passed |
+| Original watched folder, enable setting and current note restored; rendering remains disabled | Passed |
 
-信任視窗的確認／取消／關閉、更換資料夾後重新確認、確認後仍須儲存設定，以及信任撤銷時的原子寫入防護，由 jsdom 自動測試涵蓋。此次實機驗證直接為自行編寫的測試資料夾授予 API 信任，未透過 GUI 代替使用者接受信任提示，也未對原有監看資料夾啟用渲染。原始回條、備份及測試來源保留於 Git 外。
+Confirm/cancel/close behavior, folder changes requiring renewed trust, saving after confirmation and atomic protection when trust is revoked were covered by jsdom tests. This device run directly granted API trust for an authored test folder; it did not accept the GUI prompt for the user or enable rendering on the original watched folder. Raw receipts, backups and sources remain outside Git.
 
-### Windows 信任確認按鈕回歸修正
+### Windows trust-confirmation button regression
 
-2026-10-17，依使用者回報追查確認按鈕無法完成的問題。在已安裝的 Obsidian 1.14.4 原始碼確認 `ToggleComponent.setValue` 會在值改變時同步呼叫 `onChange`；確認信任後更新開關，因此再次進入開啟信任視窗的流程。舊測試替身未模擬程式設定開關也會觸發事件的行為。
+On 2026-10-17, a user report of a non-working confirmation button was traced to installed Obsidian 1.14.4: `ToggleComponent.setValue` synchronously invokes `onChange` when the value changes. Updating the toggle after confirmation re-entered the flow that opened the trust dialog. The old double did not simulate programmatic changes firing events.
 
-修正測試替身後，原有信任測試與新增的「一次確認後視窗關閉、不再開啟另一個視窗」回歸測試共 3 項失敗；加入程式更新開關時的事件防護後，建置與 178 項測試全部通過。取消／關閉、再次開啟確認、儲存前不啟用，以及更換資料夾重新確認也由自動測試涵蓋。
+After correcting the double, 3 tests failed: existing trust cases and a new regression asserting that one confirmation closes the dialog without opening another. Guarding programmatic toggle updates made the build and all 178 tests pass. Automated checks also covered cancellation/close, reopening confirmation, not enabling before save and renewed trust after folder changes.
 
-修正版安裝至相同獨立測試 vault，建置及安裝的 `main.js` SHA-256 均為 `6b2a7297ecc8d9ed6a7e21c42b499b2e0317ff5886f47e2dd98b738b4fde17a4`。真正 runtime 已重新載入外掛並確認保留原有設定，`data.json` bytes 不變。接受資料夾內容信任及實際渲染的 GUI 操作由使用者手動驗證；此回歸修正的按鈕流程結果來自上述自動測試。
+The fix was installed in the same vault; built/installed `main.js` SHA-256 matched `6b2a7297ecc8d9ed6a7e21c42b499b2e0317ff5886f47e2dd98b738b4fde17a4`. The real runtime reloaded the plugin with existing settings and unchanged `data.json` bytes. GUI acceptance of folder trust and actual rendering was left for the user to validate manually; button-flow evidence for this fix comes from automated tests above.
 
-### Windows 頁尾 HTML 配對與外掛重新載入驗證
+### Windows footer HTML pairing and plugin reload
 
-2026-10-17，使用者將五份 HTML 集中至 Page 頁尾後，匯入預覽仍顯示舊版「相鄰且完整的 HTML source」警告及零組配對。磁碟外掛已更新，但執行環境尚未載入新版。透過 Obsidian CLI 在相同獨立 Windows 測試 vault 卸載及重新載入既有外掛，確認產生新實例、舊實例停止，並保留已啟用的監看資料夾與原有信任設定。載入檔案的 SHA-256 為 `52945805db823265abfcf055e36f1754dcd1b218af3b7c04119ae8d665b311ce`。
+On 2026-10-17, after the user moved five sources to the Page footer, preview still reported the old adjacent-complete-source warning and zero pairs. Plugin files on disk were updated, but the runtime still used the old version. Obsidian CLI unloaded/reloaded the existing plugin in the same separate Windows vault, confirming a new instance, stopped old instance and preserved watched-folder/trust settings. Loaded-file SHA-256 was `52945805db823265abfcf055e36f1754dcd1b218af3b7c04119ae8d665b311ce`.
 
-測試使用真正 Pages UI 下載的五圖 Markdown，原始匯出與回條保留於 Git 外。
+Testing used five-figure Markdown actually downloaded through the Pages UI; original export and receipts remain outside Git.
 
-| 實機檢查 | 結果 |
+| Real-device check | Result |
 | --- | --- |
-| 新增至既有可信任監看資料夾後，真正 create 事件觸發已安裝外掛，自動配對全部五組頁尾來源 | 通過 |
-| 配對標記及原生圖片參照移除，五份完整 HTML 移回正文各圖位置，章節與頁尾文字保留 | 通過 |
-| 五份 HTML body SHA-256 與 UI 匯出完全相同，原地清理備份與修改前 bytes 相同 | 通過 |
-| 既有資料夾信任將測試副本的五個 html-source 轉為 html，重掃不改內容且不新增備份 | 通過 |
-| 匯入核心經真正 Vault API 修正原目的筆記，先完整備份，紀錄 hash 與磁碟內容一致 | 通過 |
-| 預設未信任的匯入計畫仍輸出五個 html-source；相同信任設定重匯為 unchanged | 通過 |
+| Adding to the existing trusted folder triggers the installed create handler and pairs all 5 footer sources | Passed |
+| Pairing/native image references removed; complete HTML restored to each body position; sections/footer text retained | Passed |
+| All 5 HTML body hashes match the UI export; cleanup backup matches pre-write bytes | Passed |
+| Existing folder trust converts the copy's 5 `html-source` fences to `html`; rescan causes no write/backup | Passed |
+| Import core updates the original destination through real Vault API after a complete backup; record hash matches disk | Passed |
+| Default untrusted plan still produces 5 `html-source` fences; identical trusted re-import is unchanged | Passed |
 
-自動清理由已安裝外掛的事件處理器執行；目的筆記更新及重匯檢查使用同一份原始碼建置的匯入核心與真正 Vault API，未宣稱透過 GUI 點選預覽／確認按鈕。Windows 操作工具無法取得視窗焦點，未由工具代按信任確認，也未在此次驗證五圖的互動控制。原有信任設定及目的內容既有的信任狀態均保留。
+Automatic cleanup used installed event handlers. Destination update/re-import checks used the import core built from the same sources and real Vault API, not GUI preview/confirmation clicks. Windows automation could not focus the window; tools did not press trust confirmation or exercise five-chart controls. Existing trust settings and destination trust state remained intact.
 
-### Windows v3 精簡標記與頁尾校驗資訊
+### Windows compact v3 markers and footer checksums
 
-2026-10-17，正文 figure 標記改為只含短 ID，原生參照（reference）與 SHA-256 移至同 ID 的 v3 source 標記。真正 Pages UI 下載的五圖 Markdown 成功配對 5 組，五份 HTML body bytes 與修改前完全一致；同一內容的 v2／v3 格式清理後輸出亦完全一致。新增精簡格式、生成工具與舊筆記重匯回歸測試，涵蓋 escaping、BOM／CRLF、亂序來源、重複與歧義配對、摘要失敗、校驗不可用、預設信任行為，以及本機修改保護。
+On 2026-10-17, body figure markers were reduced to short IDs, with native references and SHA-256 in same-ID v3 source markers. Actual five-figure Pages UI Markdown paired all 5 figures and retained every HTML payload byte. Equivalent v2/v3 documents produced identical cleaned output. Added compact-format/generator/legacy re-import regression tests cover escaping, BOM/CRLF, reordered sources, duplicate/ambiguous pairings, hash failure, unavailable verification, default trust and local-edit protection.
 
-在上述獨立 Obsidian 1.14.4 Windows 測試 vault 安裝並真正重新載入新版外掛，載入檔案 SHA-256 為 `b2fb01dacf31ff360882d4349fae0d4f3558698e2b434e6eb3bffb7b8e6145d6`。原有監看資料夾與使用者既有的渲染信任保持不變。
+The new plugin was installed and actually reloaded in the separate Obsidian 1.14.4 Windows vault. Loaded-file SHA-256 was `b2fb01dacf31ff360882d4349fae0d4f3558698e2b434e6eb3bffb7b8e6145d6`. Existing watched folder and user-granted rendering trust were unchanged.
 
-| 實機檢查 | 結果 |
+| Real-device check | Result |
 | --- | --- |
-| UI 實際匯出保留五組短正文標記與五組完整頁尾來源標記，沒有額外原始碼章節標題 | 通過 |
-| 真正 Vault create 事件觸發已安裝外掛清理五組 v3，完整 HTML 回到各圖位置 | 通過 |
-| 原生圖片參照與兩種配對標記清除，五份 HTML body bytes 不變，修改前有精確備份 | 通過 |
-| 既有資料夾信任將五個 html-source 轉為 html，重掃不重寫、不新增備份 | 通過 |
-| 同版匯入核心經真正 Vault API 讀取的預設匯入計畫成功配對五組，保持五個 html-source | 通過 |
+| Actual UI export retains 5 short body markers and 5 complete footer markers, without extra source-section headings | Passed |
+| Real Vault create event triggers installed cleanup of 5 v3 pairs; complete HTML returns to each chart position | Passed |
+| Native image references and both marker types removed; exact HTML bytes retained; exact pre-write backup exists | Passed |
+| Existing trust converts 5 `html-source` fences to `html`; rescan creates no write/backup | Passed |
+| Same-version import core reads through real Vault API, verifies 5 pairs and defaults to 5 `html-source` fences | Passed |
 
-此次實機未經 GUI 重新確認信任，亦未重新操作五圖的互動控制；自動清理使用已安裝外掛的事件處理器，匯入計畫檢查使用建置的核心與真正 Vault API。既有目的筆記未覆寫。原始 Page、匯出、截圖及服務回條保留於 Git 外。
+This run did not reconfirm trust through the GUI or operate the five charts' controls. Cleanup used installed handlers; import-plan checks used the built core and real Vault API. Existing destination notes were not overwritten. Original Page, exports, screenshots and service receipts remain outside Git.
 
-## 尚未實測
+## Not yet tested
 
-| 項目 | 範圍 |
+| Area | Scope |
 | --- | --- |
-| 其他 Pages 匯出版本、附件包裝及視覺化類型 | 僅自行編寫、自包含靜態／互動測試 Page 的 v1／v2／v3 UI 原檔 |
-| 最低目標 Obsidian 1.5.0 與其他 runtime | 已測 1.14.4 Linux 與上述 Windows runtime，其他未驗證 |
-| 其他 renderer 版本及 file view／embed／smart paste | 已測 1.3.0 inline，其他未驗證 |
-| macOS、實體 Linux GPU、Android／iOS | 未驗證 |
-| 任意 Pages／HTML 無損、安全執行或離線保證 | 不保證 |
+| Other Pages exporter versions, attachment packaging and visualization types | UI coverage limited to authored, self-contained static/interactive test Pages in v1/v2/v3 |
+| Minimum Obsidian 1.5.0 and other runtimes | Tested 1.14.4 on Linux and the specified Windows runtime; others unverified |
+| Other renderer versions and file view/embed/smart paste | Tested 1.3.0 inline; other combinations unverified |
+| macOS, physical Linux GPU, Android/iOS | Unverified |
+| Lossless import, safe execution or offline operation for arbitrary Pages/HTML | Not guaranteed |
 
-## 人工端到端驗收
+## Manual end-to-end acceptance
 
-1. 自行編寫通用內容並建立自己的測試 Page，包含靜態／互動原生視覺化及相鄰完整 HTML。不要將私人 Page／匯出加入 Git。
-2. 依 [v2 契約](format.md) 使用真實檔案 ID 與摘要，手動匯出，將日期／介面版本及原檔保存在儲存庫外。檢查 metadata、fence 和 HTML bytes。
-3. 記錄 OS／Obsidian／renderer 版本，以獨立 vault 安裝外掛。先驗證預設 html-source、預覽不執行、文字／HTML 保留。
-4. 重匯不得重複，本機修改阻止覆寫，更新未修改筆記先完整備份。
-5. 僅對已檢查的自有內容明確信任，確認閱讀／Live Preview 的靜態圖、slider、reset、中文及資產／網路行為。
-6. 測摘要／ID 不符、重複 ID、缺 source、escaping 與 assets；結果發布成摘要及虛構 fixtures，執行 `npm run check:public`。不要提交原始回條或截圖。
+1. Author generic content in your own test Page, with native static/interactive visualizations and complete HTML. Do not commit private Pages/exports.
+2. Follow the [pairing contract](format.md), using actual file IDs and hashes. Export manually, keeping the date, UI version and original outside the repository. Inspect metadata, fences and HTML bytes.
+3. Record OS/Obsidian/renderer versions and install in a separate vault. First verify default `html-source`, non-executing preview and text/HTML preservation.
+4. Re-import without duplication; local edits must block replacement; updates of unchanged notes must create exact backups first.
+5. Explicitly trust only inspected content you own. Check static charts, sliders, reset, localized text, assets and network behavior in Reading view/Live Preview.
+6. Test hash/ID mismatches, duplicate IDs, missing sources, escaping and assets. Publish summaries and fictional fixtures only, run `npm run check:public` and keep original receipts/screenshots out of Git.
 
-真正 v1／v2 UI、Linux 匯入及上述 Windows 公開 fixture 範圍已測，BOM 修復與配對標記清理已在 Windows 重測；其他平台與上列未實測範圍仍有缺口，不能將完整相容性驗收標為完成。
+Actual v1/v2 UI exports, Linux importing and the specified Windows fixture scope were tested. Windows retests cover the BOM fix and marker cleanup, with later footer/v3 checks above. Other platforms and untested areas remain gaps; full compatibility acceptance cannot be marked complete.

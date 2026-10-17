@@ -30,7 +30,7 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Current release: 0.1.1 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) (Traditional Chinese) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
+> **Current release: 0.1.1 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
 
 ## Why use it?
 
@@ -92,7 +92,7 @@ Download Markdown from Pages with each visualization's complete HTML source incl
 2. Review the destination, verified figure count and warnings in the text-only preview.
 3. Confirm the import. The destination note opens automatically.
 
-When importing the same Page again, reuse its source name. The default destination for a new source is `GPT Pages/`; later imports reuse the saved destination. See the [detailed usage guide](docs/usage.md) (Traditional Chinese) for other entry points, re-imports and recovery.
+When importing the same Page again, reuse its source name. The default destination for a new source is `GPT Pages/`; later imports reuse the saved destination. See the [detailed usage guide](docs/usage.md) for other entry points, re-imports and recovery.
 
 ## Import or automatic cleanup
 
@@ -106,7 +106,7 @@ When importing the same Page again, reuse its source name. The default destinati
 
 In the plugin settings, enter an existing vault folder under **Automatic cleanup folder**. Turn on **Enable automatic cleanup** and select **Save settings** . Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
 
-Cleanup removes only verified figure markers and native image references. A verified footer source moves to its original figure position. Backups and destination notes tracked by the manual importer are excluded. Cleanup backups are stored under `GPT Pages Backups/cleanup`. See the [settings and trust guide](docs/usage.md#指定資料夾自動清理) (Traditional Chinese) for details.
+Cleanup removes only verified figure markers and native image references. A verified footer source moves to its original figure position. Backups and destination notes tracked by the manual importer are excluded. Cleanup backups are stored under `GPT Pages Backups/cleanup`. See the [settings and trust guide](docs/usage.md#automatic-folder-cleanup) for details.
 
 ## From Page to note
 
@@ -119,7 +119,7 @@ flowchart LR
 
 The importer reads HTML from the exported Markdown. It removes a figure's marker and native image reference only when its unique ID, exact reference, complete source and SHA-256 all verify. Ambiguous pairings stay unchanged and produce warnings. Older v1 and v2 formats remain supported.
 
-[Read the pairing contract →](docs/format.md) (Traditional Chinese) · [English authoring format reference →](skills/gpt-pages-obsidian-visualizations/references/export-format.md)
+[Read the pairing contract →](docs/format.md) · [English authoring format reference →](skills/gpt-pages-obsidian-visualizations/references/export-format.md)
 
 ## Rendering and trust
 
@@ -132,7 +132,7 @@ Manual imports keep HTML in `html-source` fences by default. For interactive ren
 
 To enable rendering after cleanup, turn on **Enable HTML rendering after cleanup** , read and confirm the folder trust dialog, then save settings. Changing the watched folder requires confirming trust again. The importer does not install or enable a renderer automatically.
 
-[Rendering options, backups and recovery →](docs/usage.md) (Traditional Chinese)
+[Rendering options, backups and recovery →](docs/usage.md)
 
 ## Privacy and access
 
@@ -144,13 +144,15 @@ The importer does not download Page assets or provide cloud or bidirectional syn
 
 ## Documentation and resources
 
+The guides and examples below default to English. Each includes a link to its Traditional Chinese version.
+
 | Task | Resource |
 | :--- | :--- |
-| Installation, importing, watched folders, re-imports and recovery | [Detailed usage guide](docs/usage.md) (Traditional Chinese) |
-| v3, v2 and v1 pairing rules | [Format contract](docs/format.md) (Traditional Chinese) |
+| Installation, importing, watched folders, re-imports and recovery | [Detailed usage guide](docs/usage.md) |
+| v3, v2 and v1 pairing rules | [Format contract](docs/format.md) |
 | Author portable Pages for Obsidian | [English skill and tools](skills/gpt-pages-obsidian-visualizations/SKILL.md) · [English format reference](skills/gpt-pages-obsidian-visualizations/references/export-format.md) |
-| Check validation scope | [Compatibility record](docs/compatibility.md) · [Round-trip evidence summary](docs/pages-roundtrip.md) (Traditional Chinese) |
-| Try authored sample data | [Static example](examples/static.md) · [Interactive example](examples/interactive.md) (Traditional Chinese) |
+| Check validation scope | [Compatibility record](docs/compatibility.md) · [Round-trip evidence summary](docs/pages-roundtrip.md) |
+| Try authored sample data | [Static example](examples/static.md) · [Interactive example](examples/interactive.md) |
 | Report a bug or request a feature | [GitHub Issues](https://github.com/DLeungDL/obsidian-gpt-pages-importer/issues) |
 
 <a id="development"></a>

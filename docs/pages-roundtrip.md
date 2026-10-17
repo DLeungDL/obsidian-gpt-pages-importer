@@ -1,37 +1,41 @@
-# Pages 匯出與 Obsidian 匯入驗證摘要
+# Pages Export and Obsidian Import Validation Summary
 
-維護者於 2026-10-14 以本專案自行編寫的通用內容驗證 Pages 原生視覺化（native visualization）、Markdown 介面匯出（UI export）及 Obsidian 匯入。真正 v2 UI 匯入完成 15 項桌面檢查，全部通過、兩圖配對成功；完整原檔與識別資料保留於儲存庫外。
+**English** · [繁體中文](pages-roundtrip.zh-TW.md)
 
-## 公開測試資料
+On 2026-10-14, the maintainer used original sample content authored for this project to validate native Pages visualizations, Markdown downloads through the Pages interface, and imports into Obsidian. The actual v2 UI export passed all 15 desktop import checks, with both figures paired successfully. Original exports and identifying information remain outside this repository.
 
-[v2 輸入 fixture](../tests/fixtures/v2-escaped.input.md) 與 [獨立預期輸出](../tests/fixtures/v2-escaped.expected.md) 使用虛構檔案 ID，包含靜態長條圖、互動 slider／reset，以及中文、emoji、公式表示、反斜線與 HTML entities。它們依觀察到的 CommonMark 語法自行編寫，不是 UI 下載原檔。
+## Public test data
+
+The [v2 input fixture](../tests/fixtures/v2-escaped.input.md) and [independently authored expected output](../tests/fixtures/v2-escaped.expected.md) use fictional file IDs. They include a static bar chart, an interactive slider and reset button, Chinese text, emoji, formula notation, backslashes and HTML entities. These fixtures reproduce the observed CommonMark syntax; they are not the original files downloaded through the Pages interface.
 
 ```markdown
-\<!-- gpt-pages\:figure v=2 id=example-chart ref=fixture-native-file sha256=64位小寫摘要 -->
+\<!-- gpt-pages\:figure v=2 id=example-chart ref=fixture-native-file sha256=ACTUAL_64_LOWERCASE_HEX -->
 
-![圖表](visualize\:fixture-native-file)
+![Chart](visualize\:fixture-native-file)
 ```
 
-上例為語法說明；可執行的正確摘要及完整 HTML 見 fixture。原生檔案 ID 與 HTML 摘要必須明確綁定，不僅依相鄰順序猜測。v1 沒有綁定資訊的原生 image-style 參照保留並警告。
+This snippet illustrates the syntax. The fixtures contain valid hashes and complete HTML. A native file ID must be explicitly bound to the HTML checksum; proximity alone is insufficient. Native image references without binding metadata in v1 are preserved with a warning.
 
-## 桌面結果
+## Desktop results
 
-使用官方 Obsidian 1.14.4／Polyglot Renderer 1.3.0，在 Debian 13.6、Xorg 虛擬顯示器的獨立 vault／設定中操作真正命令選單、檔案輸入、按鈕與 iframe；未使用 Obsidian stub 或 jsdom。
+The run used official Obsidian 1.14.4 and Polyglot Renderer 1.3.0 on Debian 13.6 with an Xorg virtual display and an isolated vault and settings. It exercised the actual command palette, file input, buttons and iframes, without the Obsidian stub or jsdom.
 
-| 檢查範圍 | 維護者回報結果 |
+| Check | Maintainer-reported result |
 | --- | --- |
-| 真正 v2 UI 匯出與 HTML | ref／sha256 欄位保留，兩份 HTML bytes 相同；escaping 僅在 HTML 之外 |
-| 配對與輸出 | 成功配對 2，只移除校驗通過的參照行並更改 fence 語言 |
-| 預設預覽／閱讀 | 純文字預覽不建立 script／iframe／img；html-source 不執行 |
-| 信任後閱讀／Live Preview | 靜態標籤正常；slider 50→83、長條 83%、reset 回 50 |
-| 重匯、更新、本機修改 | 無重複或多餘備份，更新先完整備份，修改後阻止覆寫 |
-| 錯誤摘要／原生 ID | 保留不符參照並警告，另一有效圖仍配對 |
-| 原檔完整性 | 匯入前後原檔未修改，未將原檔改成合約格式才測試 |
+| Actual v2 UI export and HTML | The ref and sha256 fields survived export. Both HTML payloads retained identical bytes; escaping occurred only outside HTML. |
+| Pairing and output | Two figures paired successfully. Only verified native reference lines were removed, and the fence language was changed. |
+| Default preview and reading view | The text preview created no scripts, iframes or images. The html-source blocks did not execute. |
+| Trusted reading view and Live Preview | Static labels displayed correctly. The slider changed from 50 to 83, the bar reached 83%, and reset restored 50. |
+| Re-imports, updates and local edits | No duplicate imports or unnecessary backups. Updates created complete backups first; local edits blocked replacement. |
+| Incorrect checksum or native ID | Mismatched references were preserved with warnings, while the other valid figure still paired. |
+| Original file integrity | The source file was unchanged before and after import. It was not rewritten into the contract format before testing. |
 
-[公開摘要](evidence/validation-summary.json) 記錄階段結果：基準 MVP 桌面 19 項通過、1 項 BOM 失敗；原始 v1 UI 13 項通過、1 項不支援；v2 升級副本與真正 v2 UI 各 15 項通過。結果不等於任意 Pages 內容或其他平台都相容。
+The [public validation summary](evidence/validation-summary.json) records the separate phases: 19 passes and one BOM failure for the baseline MVP desktop run; 13 passes and one unsupported case for the original v1 UI export; and 15 passes each for the upgraded v2 copy and the actual v2 UI export. These results do not establish compatibility with arbitrary Pages content or other platforms.
 
-## 證據發布範圍
+## Published evidence and limitations
 
-2026-10-15 的公開資料清理移出實際匯出、服務快照、附件回條、上傳／區塊／原生檔案識別碼、Page URL 與截圖；只發布虛構 fixtures 及維護者回報的摘要。公開摘要不能獨立證明所有桌面步驟；詳細紀錄保留於 Git 外，不以替換識別碼後的副本冒充原檔。
+The public-data cleanup on 2026-10-15 moved actual exports, service snapshots, attachment receipts, upload IDs, block IDs, native file IDs, Page URLs and screenshots outside Git. Only fictional fixtures and maintainer-reported summaries are published. The public summary cannot independently prove every desktop step. Detailed records remain outside Git, and copies with substituted IDs are not presented as original exports.
 
-重新驗證時使用自己的測試 Page，依 [相容性驗收](compatibility.md) 操作；發布內容前先執行 `npm run check:public`。其他 exporter／附件包裝、Pages 原生 viewer 的直接操作、Windows／macOS／mobile、實體 GPU 及 Electron 外層 sandbox 未驗證。既有 BOM 重匯問題尚未修正。
+To repeat the validation, use your own test Page and follow the [compatibility and acceptance record](compatibility.md). Run `npm run check:public` before publishing material.
+
+The 2026-10-14 run did not validate other exporters or attachment packaging, direct interaction with the native Pages viewer, Windows, macOS, mobile devices, physical GPUs or the outer Electron sandbox. It also recorded an unresolved BOM re-import defect at that time. The [compatibility record](compatibility.md) documents the later BOM fix, Windows checks and newer pairing formats; those later results are separate from this historical run.
