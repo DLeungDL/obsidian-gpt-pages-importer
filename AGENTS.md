@@ -16,6 +16,7 @@ TypeScript Obsidian plugin for manually importing Pages Markdown.
 Use Node.js 24 and npm from the repository root:
 
 - `npm ci`: install locked dependencies.
+- `npm run lint`: check Obsidian and typed ESLint rules without warnings.
 - `npm run typecheck`: check strict TypeScript without emitting files.
 - `npm run build`: typecheck, bundle with esbuild, package files, and smoke-test module loading without a DOM.
 - `npm test`: run all Vitest suites.
@@ -25,7 +26,7 @@ For local testing, copy `dist/gpt-pages-importer/` into a test vault's `.obsidia
 
 ## Coding Style & Naming Conventions
 
-Follow existing TypeScript: two-space indentation, single quotes, semicolons, explicit interfaces, and type-only imports where appropriate. Use camelCase for functions/variables and PascalCase for classes/interfaces. Keep conversion pure and Obsidian integration in `main.ts`. Preserve Traditional Chinese user-facing text. No formatter or linter is configured; avoid unrelated reformatting.
+Follow existing TypeScript: two-space indentation, single quotes, semicolons, interfaces, and type-only imports. Use camelCase for functions/variables and PascalCase for classes/interfaces. Keep conversion pure and Obsidian integration in `main.ts`. Preserve Traditional Chinese user-facing text. ESLint checks `src/`; avoid unrelated reformatting.
 
 ## Testing Guidelines
 

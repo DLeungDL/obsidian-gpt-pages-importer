@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.2-8b5cf6?style=flat-square" alt="Version 0.1.2"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.3-8b5cf6?style=flat-square" alt="Version 0.1.3"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,7 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Current release: 0.1.2 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
+> **Source version: 0.1.3 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
 
 ## Why use it?
 
@@ -51,7 +51,7 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 Open the [Obsidian Community listing](https://community.obsidian.md/plugins/gpt-pages-importer), select **Add to Obsidian**, and install and enable **GPT Pages Importer** in Obsidian.
 
-For manual installation, download and extract `gpt-pages-importer-0.1.2.zip` from [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest). Copy the extracted `gpt-pages-importer/` folder into:
+For manual installation, download `main.js`, `manifest.json` and `styles.css` from [GitHub Releases](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/latest). Create the plugin folder and place those three files in:
 
 ```text
 your vault/
@@ -60,11 +60,10 @@ your vault/
         └── gpt-pages-importer/
             ├── main.js
             ├── manifest.json
-            ├── styles.css
-            └── …license and third-party notices
+            └── styles.css
 ```
 
-You can also download `main.js`, `manifest.json` and `styles.css` individually into the same plugin folder. Enable the plugin under **Settings → Community plugins**. Reload it after replacing files for a manual update.
+License and third-party notices are embedded in `main.js`. Enable the plugin under **Settings → Community plugins**. Reload it after replacing files for a manual update.
 
 <details>
 <summary>Build from source</summary>
@@ -193,4 +192,4 @@ Import and cleanup use Markdown you provide. They do not connect to Pages to dow
 
 ## License
 
-This project uses the [MIT License](LICENSE), covering the plugin source, documentation and bundled Page authoring skill. Bundled dependencies retain their own licenses. Complete third-party notices are included with release assets and embedded in `main.js`.
+This project uses the [MIT License](LICENSE), covering the plugin source, documentation and bundled Page authoring skill. Bundled dependencies retain their own licenses. Complete third-party notices are embedded in `main.js`; source builds and CI installation artifacts also include readable license files.

@@ -50,6 +50,16 @@ it('defaults to no automatic mutation until explicitly enabled', async () => {
   expect(plugin.getCleanupSettings()).toEqual({ enabled: false, folder: '', renderHtml: false });
   expect(plugin.settingTabs).toHaveLength(1);
 });
+it('scans only the configured folder tree without enumerating the whole vault', async () => {
+  const plugin = await setup();
+  await plugin.app.vault.create('Inbox/sub/example.md', input);
+  await plugin.app.vault.create('Elsewhere/private.md', input);
+  const enumerate = vi.spyOn(plugin.app.vault, 'getFiles').mockImplementation(() => { throw new Error('whole-vault enumeration'); });
+  await enable(plugin); await cleaned(plugin, 'Inbox/sub/example.md');
+  expect(enumerate).not.toHaveBeenCalled();
+  expect(plugin.app.vault.files.get('Elsewhere/private.md')).toBe(input);
+  expect(backups(plugin)).toHaveLength(1);
+});
 it('cleans existing and nested Markdown in place, preserving names, renderer mode, state and active note', async () => {
   const plugin = await setup();
   await plugin.app.vault.create('Inbox/a.md', input);

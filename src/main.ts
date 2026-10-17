@@ -92,7 +92,7 @@ class ImportModal extends Modal {
     fileInput.hidden = true;
     const chooseButton = this.contentEl.createEl('button', { text: this.selected ? '更換檔案…' : '選擇 Markdown 檔案…' });
     chooseButton.addEventListener('click', () => fileInput.click());
-    const dropZone = this.contentEl.createEl('div');
+    const dropZone = this.contentEl.createDiv();
     dropZone.classList.add('gpt-pages-drop-zone');
     dropZone.append(selectedLabel, chooseButton, fileInput);
     let busy = false;
@@ -119,19 +119,18 @@ class ImportModal extends Modal {
     });
     if (this.current) new Setting(this.contentEl).addButton(button => button.setButtonText('使用目前筆記').onClick(() => selectFile(this.current)));
     const advanced = this.contentEl.createEl('details');
-    const summary = advanced.ownerDocument.createElement('summary');
-    summary.textContent = '來源與目的地（進階設定）'; advanced.append(summary);
+    advanced.createEl('summary', { text: '來源與目的地（進階設定）' });
     new Setting(advanced).setName('來源識別名稱').setDesc('預設使用檔名。重新匯入使用相同名稱；不同 Pages 即使檔名相同也請改用不同名稱。').addText(text => {
-      setSource = value => text.setValue(value);
+      setSource = value => { text.setValue(value); };
       text.setValue(this.sourceId).onChange(value => { this.sourceId = value; this.customSource = !!value.trim() && value !== this.selected?.name; });
     });
     new Setting(advanced).setName('新來源的目的目錄').setDesc('預設 GPT Pages。已匯入來源沿用原目的地。').addText(text => text.setValue(this.folder).onChange(value => { this.folder = value; }));
     new Setting(this.contentEl).setName('我信任這份內容，允許 renderer 執行 HTML／JavaScript').setDesc('預設關閉。開啟後輸出 html fence；Polyglot Renderer 可能自動執行 scripts 及外部網路請求。sandbox 不保證網路隔離。重新匯入已啟用的內容時，請先關閉 renderer，以免讀取模式立即執行。').addToggle(toggle => {
-      setTrusted = value => toggle.setValue(value);
+      setTrusted = value => { toggle.setValue(value); };
       toggle.setValue(this.trusted).onChange(value => { this.trusted = value; });
     });
     new Setting(this.contentEl).addButton(button => {
-      setPreviewEnabled = enabled => button.setDisabled(busy || !enabled);
+      setPreviewEnabled = enabled => { button.setDisabled(busy || !enabled); };
       button.setButtonText('預覽').setCta().onClick(async () => {
         if (busy) return;
         busy = true;
@@ -169,7 +168,7 @@ export default class GPTPagesImporter extends Plugin {
   cleanupStatus = '自動清理尚未啟用。';
   async onload(): Promise<void> {
     try {
-      const saved = await this.loadData();
+      const saved: unknown = await this.loadData();
       this.state = readState(saved);
       this.cleanupSettings = readCleanupSettings(saved);
     }
@@ -229,9 +228,21 @@ export default class GPTPagesImporter extends Plugin {
       if (notify) new Notice('請先在 GPT Pages Importer 設定中指定資料夾並啟用自動清理。');
       return;
     }
-    const files = this.app.vault.getFiles().filter(file => this.canClean(file.path));
-    for (const file of files) this.cleanupQueue.enqueue(file.path);
-    this.cleanupStatus = `監看中：${this.cleanupSettings.folder}；已排入 ${files.length} 個 Markdown 檔案。`;
+    const folder = this.app.vault.getAbstractFileByPath(this.cleanupSettings.folder);
+    if (!(folder instanceof TFolder)) {
+      this.cleanupStatus = '自動清理資料夾不存在，請檢查設定。';
+      if (notify) new Notice(this.cleanupStatus);
+      return;
+    }
+    let count = 0;
+    const visit = (parent: TFolder): void => {
+      for (const child of parent.children) {
+        if (child instanceof TFolder) visit(child);
+        else if (child instanceof TFile && this.canClean(child.path)) { this.cleanupQueue.enqueue(child.path); count++; }
+      }
+    };
+    visit(folder);
+    this.cleanupStatus = `監看中：${this.cleanupSettings.folder}；已排入 ${count} 個 Markdown 檔案。`;
     if (notify) new Notice(this.cleanupStatus);
   }
   private async cleanPaths(paths: string[]): Promise<void> {

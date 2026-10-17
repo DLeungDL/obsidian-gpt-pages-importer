@@ -16,7 +16,7 @@ export interface Plan {
 }
 export function vaultPath(path: string): string {
   const normalized = path.trim().replace(/\\/g, '/');
-  if (!normalized || normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized) || normalized.split('/').some(p => !p || p === '.' || p === '..' || p.startsWith('.')) || /[\u0000-\u001f:*?"<>|]/.test(normalized)) throw new Error('目的路徑必須位於 vault 內，不能使用隱藏目錄、.. 或特殊字元。');
+  if (!normalized || normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized) || normalized.split('/').some(p => !p || p === '.' || p === '..' || p.startsWith('.')) || [...normalized].some(character => character.charCodeAt(0) < 32) || /[:*?"<>|]/.test(normalized)) throw new Error('目的路徑必須位於 vault 內，不能使用隱藏目錄、.. 或特殊字元。');
   return normalized;
 }
 export function readState(value: unknown): State {
@@ -68,7 +68,7 @@ export async function applyImport(storage: Storage, state: State, plan: Plan, pe
   if (plan.status === 'unchanged') return { state };
   let backup: string | undefined;
   if (current !== null) {
-    backup = `GPT Pages Backups/${plan.key.slice(0, 16)}/${Date.now()}-${globalThis.crypto.randomUUID()}.md`;
+    backup = `GPT Pages Backups/${plan.key.slice(0, 16)}/${Date.now()}-${window.crypto.randomUUID()}.md`;
     await storage.create(backup, current);
     await storage.replace(plan.destination, current, plan.conversion.markdown);
   } else await storage.create(plan.destination, plan.conversion.markdown);
