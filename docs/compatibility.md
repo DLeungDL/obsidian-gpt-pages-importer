@@ -192,9 +192,9 @@ The new plugin was installed and actually reloaded in the separate Obsidian 1.14
 
 This run did not reconfirm trust through the GUI or operate the five charts' controls. Cleanup used installed handlers; import-plan checks used the built core and real Vault API. Existing destination notes were not overwritten. Original Page, exports, screenshots and service receipts remain outside Git.
 
-## Unreleased bilingual interface
+## 0.1.5 bilingual interface and cleanup layout
 
-The unreleased bilingual interface was checked on 2026-10-19 with automated language/DOM tests and bundle-level host doubles. Coverage includes English/Traditional Chinese, unsupported-language fallback, modern API priority, missing/failed APIs and legacy storage, plain-text previews, explicit rendering trust in both settings UIs, and exact imported bytes/hashes across languages. The actual Obsidian 1.5.0 application has not been newly tested; host doubles do not establish real-device compatibility.
+The 0.1.5 bilingual interface was checked on 2026-10-19 with automated language/DOM tests and bundle-level host doubles. Coverage includes English/Traditional Chinese, unsupported-language fallback, modern API priority, missing/failed APIs and legacy storage, plain-text previews, explicit rendering trust in both settings UIs, and exact imported bytes/hashes across languages. The actual Obsidian 1.5.0 application has not been newly tested; host doubles do not establish real-device compatibility.
 
 On 2026-10-19, the user reported successful manual language switching in the Windows Obsidian 1.14.4 test vault: English displays English, Traditional Chinese displays Traditional Chinese, and French/Japanese fall back to English. This is user-reported desktop validation, separate from the automated checks above.
 
