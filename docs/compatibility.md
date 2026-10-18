@@ -192,6 +192,14 @@ The new plugin was installed and actually reloaded in the separate Obsidian 1.14
 
 This run did not reconfirm trust through the GUI or operate the five charts' controls. Cleanup used installed handlers; import-plan checks used the built core and real Vault API. Existing destination notes were not overwritten. Original Page, exports, screenshots and service receipts remain outside Git.
 
+## Unreleased bilingual interface
+
+The unreleased bilingual interface was checked on 2026-10-19 with automated language/DOM tests and bundle-level host doubles. Coverage includes English/Traditional Chinese, unsupported-language fallback, modern API priority, missing/failed APIs and legacy storage, plain-text previews, explicit rendering trust in both settings UIs, and exact imported bytes/hashes across languages. The actual Obsidian 1.5.0 application has not been newly tested; host doubles do not establish real-device compatibility.
+
+On 2026-10-19, the user reported successful manual language switching in the Windows Obsidian 1.14.4 test vault: English displays English, Traditional Chinese displays Traditional Chinese, and French/Japanese fall back to English. This is user-reported desktop validation, separate from the automated checks above.
+
+The cleanup action layout fix was then installed and inspected in the native Traditional Chinese settings window: status text occupies a full row above the buttons. An in-app DOM layout probe with cloned controls, English labels and a long folder name passed at action-row widths of 580, 360 and 240 pixels: the status stays full-width, buttons stay below it, and no horizontal overflow occurs. Plugin settings and the enabled-plugin list retained their pre-update SHA-256 hashes. The build and all 324 automated tests passed.
+
 ## Not yet tested
 
 | Area | Scope |

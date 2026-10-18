@@ -13,5 +13,11 @@ export default [
         ignoreRegex: ['[\\u3400-\\u9fff]']
       }]
     }
+  },
+  {
+    files: ['src/language.ts'],
+    // Only this compatibility adapter may read the pre-1.8.7 language setting.
+    // The public getLanguage API takes priority; tests cover missing/failed APIs.
+    rules: { 'obsidianmd/prefer-get-language': 'off' }
   }
 ];

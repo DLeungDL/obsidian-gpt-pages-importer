@@ -1,7 +1,10 @@
 import { beforeEach, vi } from 'vitest';
 import { webcrypto } from 'node:crypto';
+import { setLanguage } from '../src/i18n';
 
 beforeEach(() => {
+  // Existing regression fixtures exercise the original Traditional Chinese UI.
+  setLanguage('zh-TW');
   vi.stubGlobal('crypto', webcrypto);
   if (typeof window === 'undefined') vi.stubGlobal('window', globalThis);
   else Object.defineProperty(window, 'crypto', { configurable: true, value: webcrypto });

@@ -30,7 +30,7 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Source version: 0.1.4 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The plugin's current interface is in Traditional Chinese; original command labels are included below.
+> **Source version: 0.1.4 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. This source includes an English and Traditional Chinese interface that follows Obsidian's language, falling back to English for unsupported languages. Build from source to try these unreleased interface changes; existing 0.1.4 release files retain the Chinese interface.
 
 ## Why use it?
 
@@ -124,7 +124,7 @@ To use interactive charts, install Polyglot Renderer, inspect the HTML and expli
 | **HTML fences** | Defaults to `html-source`; trusted imports can use `html` | Preserves existing fence languages by default; folder rendering trust is optional |
 | **Backups** | Before replacing an existing destination | Before each modification in place |
 
-In the plugin settings, enter an existing vault folder under **Automatic cleanup folder**. Turn on **Enable automatic cleanup** and select **Save settings** . Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
+In the plugin settings, enter an existing vault folder under **Watched folder**. Turn on **Enable automatic cleanup** and select **Save settings**. Saving and enabling scans existing Markdown and then handles files added, modified or moved into the folder or any subfolder.
 
 Cleanup removes only verified figure markers and native image references. A verified footer source moves to its original figure position. Backups and destination notes tracked by the manual importer are excluded. Cleanup backups are stored under `GPT Pages Backups/cleanup`. See the [settings and trust guide](docs/usage.md#automatic-folder-cleanup) for details.
 
@@ -145,7 +145,7 @@ The importer reads HTML from the exported Markdown. It removes a figure's marker
 
 Manual imports keep HTML in `html-source` fences by default. For interactive rendering, inspect the source, explicitly trust it, and use the separately installed [Polyglot Renderer](https://github.com/Nimaapr/polyglot-renderer) to render `html` fences.
 
-The import dialog and the cleanup HTML rendering option show whether Polyglot Renderer is not installed, disabled or enabled. Use **重新檢查 renderer** ("Recheck renderer") after installing or changing its enablement. Detection reads this vault's installation files and saved enabled-plugin list; it does not verify successful loading or renderer settings. Unreadable or incomplete configuration shows "Unable to determine". Status checks never grant trust, install or enable plugins, or block importing and cleanup.
+The import dialog and the cleanup HTML rendering option show whether Polyglot Renderer is not installed, disabled or enabled. Use **Recheck renderer** (繁體中文: **重新檢查 renderer**) after installing or changing its enablement. Detection reads this vault's installation files and saved enabled-plugin list; it does not verify successful loading or renderer settings. Unreadable or incomplete configuration shows "Unable to determine". Status checks never grant trust, install or enable plugins, or block importing and cleanup.
 
 - Manual import trust covers **all HTML blocks in the document**.
 - Folder trust covers **all current and future HTML blocks in the folder and its subfolders**, including unpaired blocks.

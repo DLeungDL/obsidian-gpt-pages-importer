@@ -1,3 +1,4 @@
+import { t } from './i18n';
 import { Modal, PluginSettingTab, Setting, type App, type Plugin, type SettingDefinitionItem, type SettingDefinitionRender } from 'obsidian';
 import { cleanupFolder, type CleanupSettings } from './cleanup';
 import { addRendererStatus } from './renderer-status';
@@ -12,26 +13,26 @@ class TrustCleanupModal extends Modal {
   private confirmed = false;
   constructor(app: App, private folder: string, private confirm: () => void, private cancel: () => void) { super(app); }
   onOpen(): void {
-    this.contentEl.createEl('h2', { text: '確認信任資料夾內容' });
-    this.contentEl.createEl('p', { text: `資料夾：${this.folder}（含子資料夾）。` });
-    this.contentEl.createEl('p', { text: '信任適用於這個資料夾內現有及日後新增／修改的所有 HTML 區塊，包含已清理的筆記與未配對區塊。儲存並啟用自動清理後，html-source 將轉為 html。' });
-    this.contentEl.createEl('p', { text: 'Polyglot Renderer 啟用時可能立即執行 JavaScript 及外部網路請求；配對校驗不代表內容安全。請先檢查並信任內容。外掛不會自動安裝或啟用 renderer。' });
-    this.contentEl.createEl('p', { text: '每次修改前會備份。關閉此選項只停止後續轉換，已產生的 html 不會自動還原。按下確認後仍需「儲存設定」才生效。' });
+    this.contentEl.createEl('h2', { text: t('trust.title') });
+    this.contentEl.createEl('p', { text: t('trust.folder', { folder: this.folder }) });
+    this.contentEl.createEl('p', { text: t('trust.scope') });
+    this.contentEl.createEl('p', { text: t('trust.risk') });
+    this.contentEl.createEl('p', { text: t('trust.save') });
     new Setting(this.contentEl)
-      .addButton(button => button.setButtonText('取消').onClick(() => this.close()))
-      .addButton(button => button.setButtonText('我信任此資料夾內容，啟用').setCta().onClick(() => { this.confirmed = true; this.confirm(); this.close(); }));
+      .addButton(button => button.setButtonText(t('common.cancel')).onClick(() => this.close()))
+      .addButton(button => button.setButtonText(t('trust.confirm')).setCta().onClick(() => { this.confirmed = true; this.confirm(); this.close(); }));
   }
   onClose(): void { this.contentEl.empty(); if (!this.confirmed) this.cancel(); }
 }
 export class CleanupSettingTab extends PluginSettingTab {
   constructor(app: App, plugin: Plugin, private controller: CleanupController) { super(app, plugin); }
   getSettingDefinitions(): SettingDefinitionItem[] {
-    return [{ type: 'group', heading: '指定資料夾自動清理', items: this.formDefinitions() }];
+    return [{ type: 'group', heading: t('settings.heading'), items: this.formDefinitions() }];
   }
   // Obsidian before 1.13 has no declarative renderer or settings search.
   display(): void {
     this.containerEl.empty();
-    new Setting(this.containerEl).setName('指定資料夾自動清理').setHeading();
+    new Setting(this.containerEl).setName(t('settings.heading')).setHeading();
     for (const definition of this.formDefinitions()) {
       const setting = new Setting(this.containerEl).setName(definition.name);
       if (definition.desc) setting.setDesc(definition.desc);
@@ -47,8 +48,8 @@ export class CleanupSettingTab extends PluginSettingTab {
     const showStatus = (message: string) => { if (status) status.textContent = message; };
     return [
       {
-        name: '自動清理資料夾',
-        desc: '填入 vault 內的資料夾路徑，例如 Pages Inbox。直接修改指定資料夾及子資料夾內的 Markdown；請先建立資料夾。備份及已追蹤的匯入目的筆記不處理。',
+        name: t('settings.folder'),
+        desc: t('settings.folderDescription'),
         aliases: ['folder', 'watch', '資料夾'],
         render: setting => {
           setting.addText(text => text.setValue(draft.folder).onChange(folder => {
@@ -58,14 +59,14 @@ export class CleanupSettingTab extends PluginSettingTab {
         }
       },
       {
-        name: '啟用自動清理',
-        desc: '預設關閉。儲存並啟用後會清理現有檔案，之後處理新增、修改與移入的檔案。只有按下「儲存設定」後才會套用。',
+        name: t('settings.enabled'),
+        desc: t('settings.enabledDescription'),
         aliases: ['automatic cleanup', '自動清理'],
         render: setting => { setting.addToggle(toggle => toggle.setValue(draft.enabled).onChange(enabled => { draft.enabled = enabled; })); }
       },
       {
-        name: '清理後啟用 HTML 渲染',
-        desc: '預設關閉。確認信任此資料夾內容後，才將所有 html-source 區塊轉為 html；需自行啟用 Polyglot Renderer。更換資料夾須重新確認信任。',
+        name: t('settings.render'),
+        desc: t('settings.renderDescription'),
         aliases: ['HTML', 'renderer', 'trust', '信任'],
         render: setting => {
           addRendererStatus(setting, this.app);
@@ -82,7 +83,7 @@ export class CleanupSettingTab extends PluginSettingTab {
               if (!enabled) { trustDialog?.close(); return; }
               let folder: string;
               try { folder = cleanupFolder(draft.folder); }
-              catch { showStatus('請先填入有效的自動清理資料夾，再確認信任內容。'); return; }
+              catch { showStatus(t('settings.validFolder')); return; }
               trustDialog = new TrustCleanupModal(this.app, folder, () => {
                 draft.renderHtml = true; trustedFolder = folder; setRendering(true);
               }, () => { draft.renderHtml = false; trustedFolder = undefined; setRendering(false); });
@@ -92,18 +93,19 @@ export class CleanupSettingTab extends PluginSettingTab {
         }
       },
       {
-        name: '清理狀態與操作',
-        desc: '每次寫入前備份至 GPT Pages Backups/cleanup。只清理校驗成功的標記及參照，保留 HTML bytes 與未配對內容。',
+        name: t('settings.actions'),
+        desc: t('settings.actionsDescription'),
         aliases: ['save', 'scan', 'backup', '儲存', '備份'],
         render: setting => {
-          status = setting.controlEl.createEl('p', { text: this.controller.cleanupStatus });
+          setting.setClass('gpt-pages-cleanup-actions');
+          status = setting.controlEl.createEl('p', { cls: 'gpt-pages-cleanup-status', text: this.controller.cleanupStatus });
           status.setAttribute('role', 'status');
-          setting.addButton(button => button.setButtonText('儲存設定').setCta().onClick(async () => {
+          setting.addButton(button => button.setButtonText(t('settings.save')).setCta().onClick(async () => {
             button.setDisabled(true);
-            try { await this.controller.configureCleanup(draft, trustedFolder); showStatus('設定已儲存。' + this.controller.cleanupStatus); }
+            try { await this.controller.configureCleanup(draft, trustedFolder); showStatus(t('settings.saved', { status: this.controller.cleanupStatus })); }
             catch (error) { showStatus(error instanceof Error ? error.message : String(error)); }
             finally { button.setDisabled(false); }
-          })).addButton(button => button.setButtonText('立即清理資料夾').onClick(() => { this.controller.scanCleanup(); showStatus(this.controller.cleanupStatus); }));
+          })).addButton(button => button.setButtonText(t('settings.scan')).onClick(() => { this.controller.scanCleanup(); showStatus(this.controller.cleanupStatus); }));
         }
       }
     ];

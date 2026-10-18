@@ -1,4 +1,5 @@
 /** Public-API host double, not evidence of real Obsidian compatibility. */
+export function getLanguage(): string { return 'zh-TW'; }
 export class TAbstractFile { constructor(public path: string) {} }
 export class TFile extends TAbstractFile {
   stat: { size: number };
@@ -74,13 +75,13 @@ export class TestApp { vault = new TestVault(); workspace = new TestWorkspace();
 export function normalizePath(path: string) { return path.replace(/\\/g, '/').replace(/\/{2,}/g, '/').replace(/^\/|\/$/g, ''); }
 export class Plugin {
   app = new TestApp();
-  commands: { id: string; callback: () => void; checkCallback?: (checking: boolean) => boolean | void }[] = [];
+  commands: { id: string; name?: string; callback: () => void; checkCallback?: (checking: boolean) => boolean | void }[] = [];
   ribbonIcons: HTMLElement[] = [];
   settingTabs: PluginSettingTab[] = [];
   data: unknown = null;
   async loadData() { return this.data; }
   async saveData(data: unknown) { this.data = data; }
-  addCommand(command: { id: string; callback?: () => void; checkCallback?: (checking: boolean) => boolean | void }) { this.commands.push({ ...command, callback: command.callback ?? (() => command.checkCallback?.(false)) }); }
+  addCommand(command: { id: string; name?: string; callback?: () => void; checkCallback?: (checking: boolean) => boolean | void }) { this.commands.push({ ...command, callback: command.callback ?? (() => command.checkCallback?.(false)) }); }
   addRibbonIcon(_icon: string, title: string, callback: () => void) { const element = document.createElement('button'); element.title = title; element.addEventListener('click', callback); this.ribbonIcons.push(element); return element; }
   registerEvent(_event: unknown) {}
   addSettingTab(tab: PluginSettingTab) { this.settingTabs.push(tab); }
@@ -157,6 +158,7 @@ export class Setting {
   constructor(container: HTMLElement) { this.element.append(this.descEl); container.append(this.element); }
   setName(text: string) { const label = document.createElement('label'); label.textContent = text; this.element.append(label); return this; }
   setHeading() { this.element.classList.add('setting-item-heading'); return this; }
+  setClass(cls: string) { this.element.classList.add(cls); return this; }
   setDesc(text: string) { this.descEl.textContent = text; return this; }
   private control(type: 'text' | 'checkbox' | 'button', fn: (control: Control) => void) {
     const element = document.createElement(type === 'button' ? 'button' : 'input'); element.type = type;

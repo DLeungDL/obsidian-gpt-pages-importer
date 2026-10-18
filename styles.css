@@ -20,6 +20,26 @@
 .gpt-pages-renderer-status {
   margin-block-start: 0.5rem;
 }
+.gpt-pages-cleanup-actions.setting-item {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--size-4-3);
+}
+.gpt-pages-cleanup-actions .setting-item-info {
+  margin-inline-end: 0;
+}
+.gpt-pages-cleanup-actions .setting-item-control {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--size-4-2);
+}
+.gpt-pages-cleanup-status {
+  flex-basis: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
 .gpt-pages-preview-actions {
   position: sticky;
   top: 0;
