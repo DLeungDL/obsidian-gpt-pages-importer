@@ -1,7 +1,7 @@
 interface:
   display_name: "GPT Pages Export to Obsidian"
-  short_description: "Create portable Pages with the required Pages plugin"
-  default_prompt: "Use $gpt-pages-obsidian-visualizations with @Pages to create or update a Page using Pages tools, with native visualizations, compatible pairing markers and complete HTML sources in the footer for Markdown export."
+  short_description: "Create v3 portable Pages with the required Pages plugin"
+  default_prompt: "Use $gpt-pages-obsidian-visualizations with @Pages to create or update a Page with native visualizations, mandatory compact v3 markers and complete footer HTML sources; prepare a separate html-source Markdown copy only when testing rendering trust."
 
 dependencies:
   tools:

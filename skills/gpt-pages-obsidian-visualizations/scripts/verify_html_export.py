@@ -11,7 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 
-def html_blocks(path):
+def html_blocks(path, language='html'):
     text = Path(path).read_bytes().decode('utf-8-sig', errors='strict')
     blocks, active, payload = [], None, []
     for number, line in enumerate(text.splitlines(keepends=True), 1):
@@ -23,7 +23,7 @@ def html_blocks(path):
             indent, marker, info = fence.groups()
             if marker[0] == '`' and '`' in info:
                 continue
-            is_html = bool(info.strip()) and info.strip().split()[0].lower() == 'html'
+            is_html = bool(info.strip()) and info.strip().split()[0].lower() == language
             if is_html and indent:
                 raise ValueError(f'{path}:{number}: HTML fences must start in column 1')
             active = (marker[0], len(marker), is_html, number)
@@ -38,7 +38,7 @@ def html_blocks(path):
     if active:
         raise ValueError(f'{path}:{active[3]}: unclosed fence')
     if not blocks:
-        raise ValueError(f'{path}: no top-level fenced HTML found')
+        raise ValueError(f'{path}: no top-level fenced {language} found')
     return blocks
 
 
@@ -98,14 +98,17 @@ def node_check(blocks, node):
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('markdown', type=Path)
-    cli.add_argument('--expected', type=Path, help='Canonical Markdown with the same ordered HTML blocks')
+    cli.add_argument('--language', choices=('html', 'html-source'), default='html',
+                     help='Input fence language; use html-source for a separate trust-test copy')
+    cli.add_argument('--expected', type=Path, help='Canonical/Page Markdown with the same ordered html blocks')
     cli.add_argument('--out', type=Path, help='New or empty extraction directory; never overwrite')
     cli.add_argument('--node-check', action='store_true', help='Syntax only, not execution')
     cli.add_argument('--node', default='node', help='Node executable for --node-check')
     args = cli.parse_args()
     try:
-        blocks = html_blocks(args.markdown)
+        blocks = html_blocks(args.markdown, args.language)
         report = {'markdown_bytes': args.markdown.stat().st_size,
+                  'fence_language': args.language,
                   'html_blocks': [{'index': i, 'bytes': len(block),
                                    'sha256': hashlib.sha256(block).hexdigest()}
                                   for i, block in enumerate(blocks, 1)],

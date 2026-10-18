@@ -69,6 +69,31 @@ class ExportVerifierTests(unittest.TestCase):
         self.assertFalse(report['source_match'])
         self.assertEqual(report['mismatched_indices'], [1])
 
+    def test_trust_copy_matches_ordinary_export_without_changing_payload_bytes(self):
+        source = b'\xef\xbb\xbf' + self.source.replace(b'\n', b'\r\n')
+        expected = self.markdown('expected.md', body=source, fence=b'~~~~', ending=b'\r\n')
+        test_copy = self.root / 'trust-test.md'
+        test_copy.write_bytes(expected.read_bytes().replace(b'~~~~html\r\n', b'~~~~html-source\r\n', 1))
+        result = self.run_cli(test_copy, '--language', 'html-source', '--expected', expected)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report['fence_language'], 'html-source')
+        self.assertTrue(report['source_match'])
+        self.assertFalse(report['runtime_tested'])
+        self.assertEqual(VERIFIER.html_blocks(test_copy, 'html-source'), [source])
+        self.assertEqual(expected.read_bytes().count(b'~~~~html\r\n'), 1)
+        self.assertEqual(self.run_cli(test_copy).returncode, 2)
+        test_copy.write_bytes(test_copy.read_bytes().replace(b'&lt;p&gt;', b'&lt;changed&gt;'))
+        changed = self.run_cli(test_copy, '--language', 'html-source', '--expected', expected)
+        self.assertEqual(changed.returncode, 1, changed.stderr)
+        self.assertFalse(json.loads(changed.stdout)['source_match'])
+
+    def test_language_selection_does_not_accept_an_executable_copy_as_a_trust_test(self):
+        ordinary = self.markdown()
+        result = self.run_cli(ordinary, '--language', 'html-source', '--expected', ordinary)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('no top-level fenced html-source', result.stderr)
+
     def test_extracts_original_bytes_and_refuses_existing_output(self):
         path = self.markdown()
         out = self.root / 'extracted'

@@ -9,8 +9,27 @@
 | Static HTML/JavaScript checks | Complete document, CSS defaults, embedded data, no external dependencies and parseable inline JavaScript | `node --check` proves syntax only, not DOM, events or renderer behavior. Inspect sources for CSS URLs/imports, script sources, images, modules, fetch calls and other dependencies. |
 | Browser rendering and interactions | Labels, formulas, shapes, values and event results; narrow layouts, reset and repeated operations | Record browser, standalone HTML or iframe context, sandbox conditions and results. A simulated sandbox is not an Obsidian device test. |
 | Real Obsidian tests | Put the actual downloaded Markdown in the designated test vault, then check Polyglot Renderer display and interactions | Record platform, plugin versions, Reading view and any Live Preview mode actually tested. Screenshots establish appearance; interactions require observed results. Label user reports as user-reported. |
+| Automatic-cleanup trust flow (separate test) | Use the separate `html-source` Markdown copy; check cleanup without conversion, cancellation, and conversion after user-confirmed trust and saved settings | Record fence languages and identical HTML hashes before/after, the folder and renderer state, and who confirmed trust. A normal Page's `html` fences or a manual import are not evidence for this layer. |
 
 Passing one layer does not establish a later layer. For untested or blocked layers, identify the missing evidence. Without Page/download/Obsidian access, complete available authoring and static checks, but do not claim end-to-end success.
+
+## Ordinary export
+
+This is the default workflow for creating a Page or an unspecified import demo. The Page and its downloaded Markdown contain native visuals, compact v3 figure markers and complete `html` sources in the footer. Verify those bytes first. A manual import defaults to `html-source`; trusting a manual import and testing its renderer does not test the watched folder's trust setting.
+
+## Automatic-cleanup trust test
+
+Use this workflow when the user requests validation of watched-folder cleanup and rendering trust:
+
+1. Start with the verified, actually downloaded ordinary export. Prepare a separate Markdown test copy outside the original Page, changing only the top-level HTML source opening fences from `html` to `html-source`. Preserve fence delimiters, all payload bytes (including BOM/CRLF/final newline), v3 metadata and checksums. Do not use a global text replacement. Check that all expected sources are non-executable `html-source` fences and no executable HTML fences remain in the test copy.
+2. Verify the test copy against the ordinary `html` export using the command below. A count or byte mismatch is a failure; do not repair it by recalculating hashes over altered payloads. This comparison does not by itself establish that the original file came from an actual download.
+3. In the authorized test vault/folder, enable automatic cleanup, keep trusted HTML conversion off, and select **Save settings** to apply that state. Trigger cleanup and confirm that valid v3 markers/native references are cleaned while the fences stay `html-source` and no chart runs. Reprocessing must not duplicate sources or change their bytes. Do not change vault settings without the task's authorization; if the required state or runtime is unavailable, mark this layer untested.
+4. Ask the user to cancel a trust confirmation, select **Save settings**, trigger cleanup and verify that conversion stays off. Then have the user explicitly confirm folder trust; the agent must not accept the dialog. Confirmation changes only the settings draft: select **Save settings** before triggering cleanup again. Confirm `html-source` becomes `html`, hashes stay identical, and the already installed/enabled renderer displays the expected interactions. Record renderer status; folder trust does not install or enable it.
+5. Turning conversion off leaves already converted `html` intact. Use a fresh non-executable test copy for another before-trust run. Report cancellation, confirmation/conversion and actual renderer interaction separately; a source comparison or browser simulation does not prove those runtime results.
+
+```sh
+python <skill-dir>/scripts/verify_html_export.py downloaded-trust-test.md --language html-source --expected downloaded.md --node-check
+```
 
 ## Source verification helper
 
@@ -19,9 +38,9 @@ python <skill-dir>/scripts/verify_html_export.py downloaded.md --expected canoni
 ```
 
 - Requires only the Python standard library. `--node-check` also requires Node.js; use `--node <executable>` to select it.
-- Parses top-level fences, accepting backtick/tilde and longer delimiters. HTML opening fences must start in column 1. HTML inside lists/blockquotes is unsupported. Unclosed fences, invalid UTF-8, missing HTML or unsupported indentation fail explicitly rather than being silently repaired.
+- Parses top-level `html` fences by default; `--language html-source` selects the separate trust-test copy's non-executable fences instead. Accepts backtick/tilde and longer delimiters. Selected opening fences must start in column 1. HTML inside lists/blockquotes is unsupported. Unclosed fences, invalid UTF-8, missing selected fences or unsupported indentation fail explicitly rather than being silently repaired.
 - Compares each fence's complete UTF-8 payload, including the final newline, in block order. A BOM on the Markdown document itself is not part of the HTML payload. Preserve LF/CRLF without automatic normalization, unescaping or HTML entity decoding. Different line endings yield different hashes: investigate and report them instead of claiming identical bytes.
-- `--expected` compares HTML payloads against another Markdown file, which must first be verified against exact Page readback. Without this option the helper only produces a manifest, with `source_match` set to `null`; do not claim source comparison.
+- `--expected` always reads ordinary `html` fences from the canonical/Page export, even when the input uses `--language html-source`. Verify that expected file against exact Page readback first. The report records the selected input `fence_language`. Without `--expected`, the helper only produces a manifest, with `source_match` set to `null`; do not claim source comparison.
 - `--out` extracts payloads into sequentially named HTML files, writing only to a new or empty directory. Reports go to stdout. Exit code `0` means requested checks passed, `1` means hash/JavaScript syntax checks failed, and `2` means an input or tool error.
 - JavaScript checks distinguish classic scripts from `type="module"` and skip non-JavaScript data blocks. External `script src` fails. The helper cannot fully validate HTML event attributes or `javascript:` URLs; inspect them separately. It never executes extracted scripts.
 

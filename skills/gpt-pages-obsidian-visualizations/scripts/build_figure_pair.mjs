@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-export function buildFigurePair(id, ref, bytes, version = 2) {
-  if (version !== 2 && version !== 3) {
-    throw new Error('Supported format versions are 2 and 3.');
+export function buildFigurePair(id, ref, bytes, version = 3) {
+  if (version !== 3) {
+    throw new Error('This skill generates v3 pairs only; legacy format requests are not supported.');
   }
   if (typeof id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(id)) {
     throw new Error('Figure ID must contain only ASCII letters, digits, _ or -.');
@@ -33,12 +33,8 @@ export function buildFigurePair(id, ref, bytes, version = 2) {
   }
   const fence = '`'.repeat(Math.max(3, longestRun + 1));
   const sha256 = createHash('sha256').update(bytes).digest('hex');
-  const figureMarker = version === 3
-    ? `<!-- gpt-pages:figure id=${id} -->`
-    : `<!-- gpt-pages:figure v=2 id=${id} ref=${ref} sha256=${sha256} -->`;
-  const sourceMarker = version === 3
-    ? `<!-- gpt-pages:source v=3 id=${id} ref=${ref} sha256=${sha256} -->`
-    : `<!-- gpt-pages:source v=2 id=${id} -->`;
+  const figureMarker = `<!-- gpt-pages:figure id=${id} -->`;
+  const sourceMarker = `<!-- gpt-pages:source v=3 id=${id} ref=${ref} sha256=${sha256} -->`;
   return {
     format_version: version,
     id,
@@ -53,16 +49,17 @@ export function buildFigurePair(id, ref, bytes, version = 2) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const args = process.argv.slice(2);
-    let version = 2;
     if (args[0] === '--v3') {
       args.shift();
-      version = 3;
+    }
+    if (args[0]?.startsWith('--')) {
+      throw new Error('This skill generates v3 pairs only. The only supported flag is --v3 (optional).');
     }
     if (args.length !== 3) {
       throw new Error('Usage: node build_figure_pair.mjs [--v3] <id> <native-file-id> <canonical.html>');
     }
     const [id, ref, htmlPath] = args;
-    process.stdout.write(`${JSON.stringify(buildFigurePair(id, ref, readFileSync(htmlPath), version), null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(buildFigurePair(id, ref, readFileSync(htmlPath)), null, 2)}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 1;
