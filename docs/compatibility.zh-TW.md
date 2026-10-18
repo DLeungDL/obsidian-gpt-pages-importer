@@ -2,6 +2,14 @@
 
 [English](compatibility.md) · **繁體中文**
 
+## 0.1.6 v3 生成技能與獨立信任驗證
+
+2026-10-19，更新後的生成技能（authoring skill）與工具強制新建或更新的配對使用 v3，包含預設呼叫，並拒絕指定舊版格式。一般 Page 的來源維持 `html`；自動清理的信任測試另用 `html-source` 副本，HTML 位元組（bytes）與校驗值相同。指引要求使用者確認資料夾信任後儲存設定，並使用目前匯入器支援的精確 `visualize:` 參照格式。既有 v1／v2 匯入相容性不變。
+
+發行驗證涵蓋 20 個測試套件中的 327 項 Vitest 測試、10 項 Python 匯出驗證、程式碼檢查（lint）、型別檢查（typecheck）、打包載入與可重現安裝檔。回歸案例包含預設／明確 v3 生成、拒絕舊版、信任旗標前後的圍欄轉換、重複處理、精確保留 BOM／CRLF，以及獨立測試副本的摘要不符。本機安裝與儲存庫技能共八個檔案已逐位元組比對一致。本次未新增 Page 實際匯出、瀏覽器互動、Obsidian 渲染或人工信任對話框測試；自動檢查不能取代這些執行環境（runtime）驗證。
+
+發行前的 `npm audit --omit=dev` 未回報正式執行依賴的已知漏洞；完整稽核回報六項開發工具問題（四項 moderate、兩項 critical），本次未變更依賴版本。發行檢查通過不代表開發依賴稽核沒有問題。
+
 ## 公開介面與自動檢查
 
 Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 與 [manifest](https://github.com/Nimaapr/polyglot-renderer/blob/main/manifest.json) 指定 `html` fence、inline rendering 及最低 Obsidian 1.5.0。本外掛只產生公開支援的 fence，不使用 renderer 私有 API 或打包 renderer。公開 iframe 設定為 `allow-scripts`，opaque origin 不代表網路隔離。

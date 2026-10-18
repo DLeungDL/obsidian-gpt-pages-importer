@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.5-8b5cf6?style=flat-square" alt="Version 0.1.5"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.6-8b5cf6?style=flat-square" alt="Version 0.1.6"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,7 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前版本為 0.1.5 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前版本為 0.1.6 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
 
 ## 為什麼使用它？
 
@@ -58,10 +58,12 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 可直接使用以下提示詞（prompt）：
 
 ```text
-使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。正文保留原生視覺化，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼，並加入所需的配對標記。
+使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。正文保留原生視覺化與只含短 ID 的 v3 精簡標記，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼、原生參照與 SHA-256；不得回退 v2。
 ```
 
 技能會準備原生圖表、簡短圖表 ID，以及含對應參照（reference）與 SHA-256 校驗資訊的頁尾 HTML。這是本流程必要的製作步驟：一般 Page 匯出可能只有原生圖片參照，未包含可攜式 HTML，外掛無法還原缺少的來源。技能在 AI 代理中使用，GPT Pages Importer 則在 Obsidian 中處理產生的 Markdown。
+
+0.1.6 起，技能與生成工具強制使用 v3，即使未知目標外掛版本也不回退；匯入器仍相容既有 v1／v2 匯出檔。一般 Page 保留 `html` 來源圍欄（code fence）；自動清理的信任流程測試另用 `html-source` Markdown 副本，HTML 位元組（bytes）與校驗值保持相同。確認資料夾信任後，按「儲存設定」（Save settings）才套用轉換。AI 代理中的技能資料夾需與 Obsidian 外掛分別更新。
 
 ### 2 · 取得外掛
 

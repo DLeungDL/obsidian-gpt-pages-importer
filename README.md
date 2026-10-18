@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.5-8b5cf6?style=flat-square" alt="Version 0.1.5"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.6-8b5cf6?style=flat-square" alt="Version 0.1.6"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,7 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Version: 0.1.5 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The English and Traditional Chinese interface follows Obsidian's language, falling back to English for unsupported languages.
+> **Version: 0.1.6 MVP.** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. The English and Traditional Chinese interface follows Obsidian's language, falling back to English for unsupported languages.
 
 ## Why use it?
 
@@ -56,10 +56,12 @@ Add the complete [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-
 Ask the agent:
 
 ```text
-Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Keep native visualizations in the body and matching complete, self-contained HTML sources in the footer, with the required pairing markers.
+Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Keep native visualizations with compact v3 ID-only markers in the body and matching complete, self-contained HTML sources, native references and SHA-256 in the footer. Do not fall back to v2.
 ```
 
 The skill prepares native charts, short figure IDs and footer HTML with matching references and SHA-256 checksums. This is the required authoring step in this workflow: a normal Page export may contain only native image references, which do not carry portable HTML. The importer cannot reconstruct missing sources. The skill runs in your AI agent; GPT Pages Importer handles the resulting Markdown in Obsidian.
+
+From 0.1.6, the skill and its generator require v3, even if the target importer version is unknown. The importer still supports older v1/v2 exports. Ordinary Pages keep `html` source fences; for an automatic-cleanup trust test, use a separate `html-source` Markdown copy with identical HTML bytes and checksums. Confirm folder trust and select **Save settings** before testing conversion. Update the skill folder in your agent separately from the Obsidian plugin.
 
 ### 2 · Install the plugin
 

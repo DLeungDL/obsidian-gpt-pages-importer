@@ -4,6 +4,14 @@
 
 This is a record of specific test runs, including historical failures and later fixes. Counts, versions and hashes below describe those runs; they are not claims that every check was repeated for the latest release.
 
+## 0.1.6 v3 authoring skill and separate trust validation
+
+On 2026-10-19, the updated authoring skill and helper enforce v3 for new or updated pairs, including default invocations, and reject explicit legacy requests. Ordinary Page sources remain `html`; automatic-cleanup trust tests use a separate `html-source` copy with matching HTML bytes/checksums. Instructions require saving settings after user-confirmed folder trust and use the current importer's exact `visualize:` reference scheme. Legacy v1/v2 importing is unchanged.
+
+Release validation covers 327 Vitest tests in 20 suites, 10 Python export-verifier tests, lint, typechecking, packaged-bundle loading and reproducible installation assets. Regression cases cover default/explicit v3 generation, legacy rejection, fence conversion before/after the trusted flag, repeat processing, exact BOM/CRLF preservation and hash mismatches in a separate test copy. The installed local skill and repository skill were compared byte for byte across all eight files. No new Page export, browser interaction, Obsidian rendering or human trust-dialog run was performed for this release; the automated checks do not replace those runtime layers.
+
+The release preflight's `npm audit --omit=dev` reported no known production-dependency advisories. The full audit reported six development-tool findings (four moderate, two critical); dependency versions were unchanged. Passing the release checks is not a claim that the development dependency audit is clean.
+
 ## Public interfaces and automated checks
 
 The inspected Polyglot Renderer [README](https://github.com/Nimaapr/polyglot-renderer) and [manifest](https://github.com/Nimaapr/polyglot-renderer/blob/main/manifest.json) describe `html` fences, inline rendering and a minimum Obsidian version of 1.5.0. This plugin produces publicly supported fences, uses no private renderer APIs and does not bundle the renderer. The documented iframe uses `allow-scripts`; an opaque origin does not establish network isolation.
