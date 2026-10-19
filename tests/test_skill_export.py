@@ -115,12 +115,77 @@ class ExportVerifierTests(unittest.TestCase):
         self.assertEqual(len(report['js_syntax']), 2)
         self.assertTrue(all(item['passed'] for item in report['js_syntax']))
 
-    def test_syntax_check_rejects_bad_javascript_and_external_scripts(self):
-        for scripts in [b'<script>const = ;</script>', b'<script src="https://example.invalid/chart.js"></script>']:
-            path = self.markdown(body=self.source.replace(b'</body>', scripts + b'</body>'))
-            result = self.run_cli(path, '--node-check')
-            self.assertEqual(result.returncode, 1, result.stderr)
-            self.assertTrue(any(not item['passed'] for item in json.loads(result.stdout)['js_syntax']))
+    def test_syntax_check_still_rejects_bad_inline_javascript_with_cdn_dependencies(self):
+        scripts = b'<script src="https://example.invalid/chart-1.0.0.js"></script><script>const = ;</script>'
+        path = self.markdown(body=self.source.replace(b'</body>', scripts + b'</body>'))
+        result = self.run_cli(path, '--node-check')
+        self.assertEqual(result.returncode, 1, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(any(not item['passed'] for item in report['js_syntax']))
+        self.assertEqual(report['external_dependencies'][0]['kind'], 'script')
+
+    def test_cdn_is_reported_without_fetching_or_failing_inline_syntax(self):
+        scripts = b'<script src="https://example.invalid/chart-1.0.0.js"></script><script>throw new Error("never execute");</script>'
+        path = self.markdown(body=self.source.replace(b'</body>', scripts + b'</body>'))
+        result = self.run_cli(path, '--expected', path, '--node-check')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(report['source_match'])
+        self.assertEqual(len(report['js_syntax']), 1)
+        self.assertTrue(report['js_syntax'][0]['passed'])
+        self.assertEqual(report['external_dependencies'], [
+            {'block': 1, 'kind': 'script', 'url': 'https://example.invalid/chart-1.0.0.js', 'verified': False}])
+        self.assertFalse(report['dependencies_fetched'])
+        self.assertFalse(report['runtime_tested'])
+        self.assertIsNone(report['self_contained_check'])
+
+    def test_dependency_report_includes_css_dynamic_urls_and_relative_modules(self):
+        resources = b'''<link rel="stylesheet" href="theme.css">
+<style>@import "extra.css"; main { background: url(https://example.invalid/image.png); }</style>
+<img src="data:image/png;base64,AA=="><a href="https://example.invalid/docs">docs</a>
+<script type="module">import value from './data.js'; import('./dynamic.js');
+fetch('./table.json'); const url = 'https://example.invalid/mathbox-2.3.1.js';</script>'''
+        path = self.markdown(body=self.source.replace(b'</body>', resources + b'</body>'))
+        result = self.run_cli(path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        urls = {item['url'] for item in json.loads(result.stdout)['external_dependencies']}
+        self.assertEqual(urls, {'theme.css', 'extra.css', 'https://example.invalid/image.png', './data.js',
+                                './dynamic.js', './table.json', 'https://example.invalid/mathbox-2.3.1.js'})
+        offline = self.run_cli(path, '--require-self-contained')
+        self.assertEqual(offline.returncode, 1, offline.stderr)
+        self.assertFalse(json.loads(offline.stdout)['self_contained_check']['passed'])
+
+    def test_requested_self_contained_check_accepts_no_detected_dependencies(self):
+        path = self.markdown()
+        result = self.run_cli(path, '--require-self-contained', '--node-check')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report['external_dependencies'], [])
+        self.assertTrue(report['self_contained_check']['passed'])
+        self.assertFalse(report['runtime_tested'])
+
+    def test_external_only_script_does_not_claim_its_syntax_was_checked(self):
+        path = self.markdown(body=self.source.replace(b'</body>', b'<script src="library.js"></script></body>'))
+        result = self.run_cli(path, '--node-check')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)['js_syntax'], [])
+        self.assertEqual(self.run_cli(path, '--node-check', '--require-self-contained').returncode, 1)
+
+    def test_library_templates_preserve_bytes_and_report_pinned_dependencies(self):
+        for name, expected in [('plotly-function.html', 1), ('mathbox-curve.html', 4)]:
+            with self.subTest(name=name):
+                source = (ROOT / 'skills/gpt-pages-obsidian-visualizations/assets' / name).read_bytes()
+                path = self.markdown(body=source)
+                result = self.run_cli(path, '--expected', path, '--node-check')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                report = json.loads(result.stdout)
+                self.assertTrue(report['source_match'])
+                self.assertEqual(len(report['external_dependencies']), expected)
+                self.assertTrue(all(item['passed'] for item in report['js_syntax']))
+                self.assertTrue(all('cdn.jsdelivr.net/npm/' in item['url'] and '@' in item['url']
+                                    and '@latest' not in item['url'] for item in report['external_dependencies']))
+                self.assertFalse(report['runtime_tested'])
+                self.assertEqual(self.run_cli(path, '--require-self-contained').returncode, 1)
 
     def test_bundled_interactive_example_has_parseable_inline_javascript(self):
         source = (ROOT / 'skills/gpt-pages-obsidian-visualizations/assets/weighted-sum.html').read_bytes()

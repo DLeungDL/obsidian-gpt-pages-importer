@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>正弦曲線振幅探索</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 12px; color: #17243a; background: #fff; font: 15px system-ui, sans-serif; }
+main { max-width: 760px; margin: auto; }
+fieldset { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border: 0; padding: 0; margin: 12px 0; }
+input { max-width: 100%; }
+button { padding: 6px 12px; font: inherit; cursor: pointer; }
+#chart { position: relative; height: 280px; width: 100%; overflow: hidden; }
+#chart canvas { max-width: 100%; }
+#status { overflow-wrap: anywhere; }
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+<p aria-label="函數公式">y = a·sin(2x)</p>
+<p id="status" role="status">正在載入 MathBox 與相依套件…</p>
+<fieldset id="controls" disabled>
+<label for="amplitude">振幅 a</label>
+<input id="amplitude" type="range" min="0" max="1.5" step="0.1" value="1">
+<output id="value" for="amplitude">1.0</output>
+<button id="reset" type="button">重設</button>
+</fieldset>
+<div id="chart" role="img" aria-label="可調整振幅的正弦曲線"></div>
+</main>
+<script>
+(async function () {
+  'use strict';
+  const status = document.getElementById('status');
+  const controls = document.getElementById('controls');
+  const slider = document.getElementById('amplitude');
+  const chart = document.getElementById('chart');
+  function failed(error) {
+    controls.disabled = true;
+    status.setAttribute('role', 'alert');
+    status.textContent = '圖表載入或更新失敗：' + String(error.message || error);
+  }
+  function load(url, stylesheet) {
+    return new Promise(function (resolve, reject) {
+      const element = document.createElement(stylesheet ? 'link' : 'script');
+      const timer = setTimeout(function () { element.remove(); reject(new Error('相依套件載入逾時，請檢查網絡。')); }, 18000);
+      if (stylesheet) { element.rel = 'stylesheet'; element.href = url; }
+      else { element.src = url; element.crossOrigin = 'anonymous'; }
+      element.onload = function () { clearTimeout(timer); resolve(); };
+      element.onerror = function () { clearTimeout(timer); reject(new Error('無法載入相依套件，請檢查網絡或顯示環境限制。')); };
+      document.head.appendChild(element);
+    });
+  }
+  try {
+    await load('https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js');
+    await load('https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js');
+    await load('https://cdn.jsdelivr.net/npm/mathbox@2.3.1/build/bundle/mathbox.min.js');
+    await load('https://cdn.jsdelivr.net/npm/mathbox@2.3.1/build/mathbox.css', true);
+    if (!window.THREE || !window.THREE.OrbitControls || !window.MathBox) throw new Error('MathBox 相依套件尚未初始化。');
+    const box = window.MathBox.mathBox({ element: chart, plugins: ['core', 'controls', 'cursor'], controls: { klass: window.THREE.OrbitControls } });
+    if (box.fallback || !box.three || !box.three.renderer) throw new Error('此顯示環境未能初始化 WebGL。');
+    const host = box.three;
+    host.renderer.setPixelRatio(1);
+    function resize() {
+      const width = Math.max(200, Math.floor(chart.getBoundingClientRect().width));
+      host.renderer.setSize(width, 280);
+      host.camera.aspect = width / 280;
+      host.camera.updateProjectionMatrix();
+    }
+    resize();
+    host.camera.position.set(0, 0, 4);
+    host.camera.lookAt(0, 0, 0);
+    host.renderer.setClearColor(0xf1f5f9, 1);
+    const view = box.cartesian({ range: [[-2, 2], [-2, 2], [-1, 1]], scale: [1, 1, 1] });
+    view.axis({ axis: 1, color: 0x64748b });
+    view.axis({ axis: 2, color: 0x64748b });
+    let amplitude = Number(slider.value);
+    view.interval({ id: 'curve-data', width: 128, channels: 2, expr: function (emit, x) { emit(x, amplitude * Math.sin(2 * x)); } });
+    view.line({ points: '#curve-data', color: 0x2563eb, width: 6 });
+    function update() { amplitude = Number(slider.value); document.getElementById('value').textContent = amplitude.toFixed(1); }
+    slider.addEventListener('input', update);
+    document.getElementById('reset').addEventListener('click', function () { slider.value = '1'; update(); });
+    window.addEventListener('resize', resize);
+    controls.disabled = false;
+    status.textContent = '拖動滑桿改變振幅；亦可拖動畫面旋轉視角。';
+  } catch (error) { failed(error); }
+})();
+</script>
+</body>
+</html>

@@ -84,7 +84,7 @@ Pages 不會自動添加這些欄位。只有校驗成功才移除配對標記�
 
 - [靜態範例](../examples/static.zh-TW.md)、[互動範例](../examples/interactive.zh-TW.md)：自行編寫的通用內容，不是私人資料或實際 Pages 匯出證據。
 - `tests/fixtures/`：輸入與獨立預期輸出；v2 escaped fixture 使用通用測試 ID，依觀察到的 UI 格式編寫，並非新下載檔。
-- [GPT Pages → Obsidian 技能（skill）](../skills/gpt-pages-obsidian-visualizations/SKILL.md)：製作同時保留原生視覺化與完整可攜式 HTML（portable HTML）之 Page 的主要技能。可安裝的完整技能資料夾包含 v2／v3 配對標記生成器、頁尾版型、自包含互動範例與匯出原碼驗證工具。匯入前可用它產製及核對 Page；依附帶驗收指引分別確認實際下載與 Obsidian 呈現。
+- [GPT Pages → Obsidian 技能（skill）](../skills/gpt-pages-obsidian-visualizations/SKILL.md)：一般圖表預設用 Plotly.js，數學概念動畫用 MathBox，允許固定版本 CDN。完整資料夾包含強制 v3 配對生成器、頁尾版型、CDN 與自包含互動範例，以及只列出依賴、不下載執行的匯出驗證器。CDN 圖表需要網絡；HTML 雜湊不涵蓋遠端程式庫內容。依附帶指引分別確認實際下載與 Obsidian 呈現。
 - `src/convert.ts`：純轉換、非同步 v2／v3 校驗及資產候選掃描；`src/hash.ts`：UTF-8 摘要；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/cleanup.ts`：原地清理、備份與事件佇列；`src/cleanup-settings.ts`：監看設定；`src/main.ts`：Obsidian 命令／modal／事件；`src/preview.ts`：不執行內容的預覽。
 
 本外掛不包含 Pages 雲端同步或雙向同步、renderer 重作、任意 HTML 安全執行保證或所有 Pages 視覺化的相容性保證。其他匯出版本與平台仍需依相容性文件補測。

@@ -68,7 +68,7 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 可直接使用以下提示詞（prompt）：
 
 ```text
-使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。正文保留原生視覺化與只含短 ID 的 v3 精簡標記，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼、原生參照與 SHA-256；不得回退 v2。
+使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。一般圖表預設用 Plotly.js，數學概念動畫用 MathBox；允許固定相容版本的 CDN，並標明需要網絡。正文保留原生視覺化與只含短 ID 的 v3 精簡標記，頁尾集中放置完整 HTML 原始碼、依賴網址、原生參照與 SHA-256；不得回退 v2。
 有圖片時加入可攜圖片來源區塊，匯出前解析跨 Page 連結，需在 Obsidian 渲染的公式使用 $…$／$$…$$。
 ```
 

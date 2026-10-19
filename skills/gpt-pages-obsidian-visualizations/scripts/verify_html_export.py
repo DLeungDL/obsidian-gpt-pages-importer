@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare/extract fenced HTML bytes and optionally check JS syntax; never execute JS."""
+"""Compare/extract HTML, inventory dependency hints and check inline JS syntax; never fetch or execute."""
 import argparse
 import hashlib
 import json
@@ -46,11 +46,22 @@ class Scripts(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=False)
         self.inline, self.external, self.current = [], [], None
+        self.resources, self.styles, self.style = [], [], None
 
     def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'link' and 'stylesheet' in (attrs.get('rel') or '').lower().split() and attrs.get('href'):
+            self.resources.append(('stylesheet', attrs['href']))
+        if tag in ('img', 'video', 'audio', 'source', 'track', 'iframe', 'embed'):
+            for name in ('src', 'poster'):
+                if attrs.get(name):
+                    self.resources.append((tag + '-' + name, attrs[name]))
+        if attrs.get('style'):
+            self.styles.append(attrs['style'])
+        if tag == 'style':
+            self.style = []
         if tag != 'script':
             return
-        attrs = dict(attrs)
         if 'src' in attrs:
             self.external.append(attrs['src'])
         kind = (attrs.get('type') or '').strip().lower()
@@ -61,12 +72,17 @@ class Scripts(HTMLParser):
     def handle_data(self, data):
         if self.current is not None:
             self.current[1].append(data)
+        if self.style is not None:
+            self.style.append(data)
 
     def handle_endtag(self, tag):
         if tag == 'script' and self.current is not None:
             kind, chunks = self.current
             self.inline.append((kind, ''.join(chunks)))
             self.current = None
+        if tag == 'style' and self.style is not None:
+            self.styles.append(''.join(self.style))
+            self.style = None
 
     def finish(self, source):
         self.feed(source)
@@ -75,14 +91,42 @@ class Scripts(HTMLParser):
             raise ValueError('unclosed inline script')
 
 
+def dependency_report(blocks):
+    """Static hints only: computed loads, nested CSS dependencies and remote bytes are not resolved."""
+    dependencies = []
+    for index, block in enumerate(blocks, 1):
+        parser = Scripts()
+        parser.finish(block.decode('utf-8'))
+        resources = [('script', url) for url in parser.external] + parser.resources
+        for css in parser.styles:
+            for match in re.finditer(r'''url\(\s*(?:'([^']*)'|"([^"]*)"|([^\s)]+))\s*\)''', css, re.I):
+                resources.append(('css-url', next(part for part in match.groups() if part is not None)))
+            for match in re.finditer(r'''@import\s+(['"])([^'"]+)\1''', css, re.I):
+                resources.append(('css-import', match[2]))
+        for _, script in parser.inline:
+            # Report literal URLs even in dynamic loaders; no claim to fully parse JavaScript.
+            for match in re.finditer(r'''(['"])((?:https?:)?//[^'"\s<>]+)\1''', script):
+                resources.append(('script-url-literal', match[2]))
+            for match in re.finditer(r'''\b(?:import|export)\s+(?:[^;\n]*?\s+from\s*)?(['"])([^'"\n]+)\1''', script):
+                resources.append(('module-specifier', match[2]))
+            for match in re.finditer(r'''\b(import|fetch|Worker)\s*\(\s*(['"])([^'"\n]+)\2''', script):
+                resources.append((match[1] + '-literal', match[3]))
+        seen = set()
+        for kind, value in resources:
+            url = (value or '').strip()
+            if not url or url.startswith('#') or url.lower().startswith('data:') or (kind, url) in seen:
+                continue
+            seen.add((kind, url))
+            dependencies.append({'block': index, 'kind': kind, 'url': url, 'verified': False})
+    return dependencies
+
+
 def node_check(blocks, node):
     checks = []
     with tempfile.TemporaryDirectory(prefix='html-syntax-') as temp:
         for index, block in enumerate(blocks, 1):
             parser = Scripts()
             parser.finish(block.decode('utf-8'))
-            for src in parser.external:
-                checks.append({'block': index, 'external_script': src, 'passed': False})
             for script_index, (kind, source) in enumerate(parser.inline, 1):
                 suffix = '.mjs' if kind == 'module' else '.js'
                 path = Path(temp) / f'block-{index}-script-{script_index}{suffix}'
@@ -104,6 +148,8 @@ def main():
     cli.add_argument('--out', type=Path, help='New or empty extraction directory; never overwrite')
     cli.add_argument('--node-check', action='store_true', help='Syntax only, not execution')
     cli.add_argument('--node', default='node', help='Node executable for --node-check')
+    cli.add_argument('--require-self-contained', action='store_true',
+                     help='Reject detected external resources; static scan cannot prove offline operation')
     args = cli.parse_args()
     try:
         blocks = html_blocks(args.markdown, args.language)
@@ -113,6 +159,10 @@ def main():
                                    'sha256': hashlib.sha256(block).hexdigest()}
                                   for i, block in enumerate(blocks, 1)],
                   'source_match': None, 'js_syntax': None,
+                  'external_dependencies': dependency_report(blocks),
+                  'dependencies_fetched': False,
+                  'dependency_scan': 'Static resource attributes, CSS references, module specifiers and literal URLs; computed loads need manual inspection.',
+                  'self_contained_check': None,
                   'runtime_tested': False}
         if args.expected:
             expected = html_blocks(args.expected)
@@ -123,6 +173,10 @@ def main():
                                             or blocks[i] != expected[i]]
         if args.node_check:
             report['js_syntax'] = node_check(blocks, args.node)
+        if args.require_self_contained:
+            report['self_contained_check'] = {
+                'passed': not report['external_dependencies'],
+                'scope': 'Detected dependencies only; not an offline runtime test.'}
         if args.out:
             if args.out.exists() and (not args.out.is_dir() or any(args.out.iterdir())):
                 raise ValueError('--out must be a new or empty directory')
@@ -131,8 +185,9 @@ def main():
                 with (args.out / f'visual-{index:03d}.html').open('xb') as output:
                     output.write(block)
         print(json.dumps(report, ensure_ascii=True, indent=2))
-        failed = report['source_match'] is False or any(
+        failed = (report['source_match'] is False or any(
             not item['passed'] for item in report['js_syntax'] or [])
+            or args.require_self_contained and bool(report['external_dependencies']))
         return 1 if failed else 0
     except (OSError, UnicodeError, ValueError, subprocess.SubprocessError) as error:
         print(json.dumps({'error': str(error)}, ensure_ascii=True), file=sys.stderr)

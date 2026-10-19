@@ -127,7 +127,7 @@ Only explicit trust for the entire document enables `html` output, including unp
 
 ## Asset limitations
 
-Prefer self-contained HTML/CSS/JavaScript/data; images can use data URIs. Relative assets are checked against the destination note's directory. The importer **does not copy or download** attachments located beside the source file. A separate [image asset v1 contract](images.md) supports explicitly embedded Base64 PNG/JPEG/GIF/WebP sources in the Markdown itself; it does not rewrite images inside HTML or change the v1/v2/v3 figure contracts.
+Keep chart data and initialization in the complete HTML. The authoring skill allows fixed-version CDN libraries such as Plotly.js and MathBox; these require network access and the HTML checksum does not validate fetched library bytes. Use measured self-contained HTML/CSS/JavaScript/data when offline operation is requested; images can use data URIs. Relative assets are checked against the destination note's directory. The importer **does not copy or download** attachments located beside the source file. A separate [image asset v1 contract](images.md) supports explicitly embedded Base64 PNG/JPEG/GIF/WebP sources in the Markdown itself; it does not rewrite images inside HTML or change the v1/v2/v3 figure contracts.
 
 Static scanning includes HTML src/href/poster, CSS url/@import, Markdown images, Obsidian embeds and URL candidates. It reports external, missing, special-protocol and unsafe-to-resolve references. Paths escaping the directory with `..` are rejected, and root-relative URLs are not interpreted as vault paths.
 

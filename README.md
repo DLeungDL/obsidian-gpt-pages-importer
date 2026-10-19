@@ -66,7 +66,7 @@ Install the skill helper's locked parser dependencies with `npm ci --ignore-scri
 Ask the agent:
 
 ```text
-Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Keep native visualizations with compact v3 ID-only markers in the body and matching complete, self-contained HTML sources, native references and SHA-256 in the footer. Do not fall back to v2.
+Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Default to Plotly.js for charts and MathBox for mathematical animations, with fixed compatible CDN versions and explicit network requirements. Keep compact v3 ID-only markers in the body and matching complete HTML sources, dependency URLs, native references and SHA-256 in the footer. Do not fall back to v2.
 Include portable image source blocks for any images, resolve cross-Page links before export, and use $…$ / $$…$$ for math intended to render in Obsidian.
 ```
 
