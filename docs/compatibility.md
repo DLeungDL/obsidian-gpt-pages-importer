@@ -237,7 +237,7 @@ A fresh real Obsidian 1.14.4 Linux vault verified manual import pairing (2 figur
 
 The tag workflow now prepares only the supported three assets and requires GitHub build provenance before publication. No new tag, release, attestation or external scanner result is claimed yet. See the [release process](releasing.md) and [public summary](evidence/validation-summary.json).
 
-## Simplified Chinese interface (development)
+## Simplified Chinese interface (0.2.1)
 
 On 2026-10-20 (Hong Kong), the post-0.2.0 source passed all 441 Vitest tests, 10 Python export-verifier tests, TypeScript, the build smoke check and zero-warning Obsidian ESLint. Coverage includes Simplified Chinese locale aliases, complete translation keys/placeholders, all three UI languages, legacy/declarative settings trust flows, and unchanged imported bytes/hashes.
 

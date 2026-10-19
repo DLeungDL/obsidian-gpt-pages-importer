@@ -235,7 +235,7 @@ Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 
 
 標籤工作流程只準備三個支援的安裝檔，發布前須通過 GitHub 建置來源證明（build provenance）。尚未建立新標籤、發布版本或宣稱外部掃描結果更新；詳見[發行流程](releasing.md)及[公開摘要](evidence/validation-summary.json)。
 
-## 簡體中文介面（開發版）
+## 簡體中文介面（0.2.1）
 
 2026-10-20（香港），0.2.0 之後的原始碼通過全部 441 項 Vitest 測試、10 項 Python 匯出驗證、TypeScript、建置載入檢查與零警告的 Obsidian ESLint。測試涵蓋簡體語言代碼、完整翻譯鍵值與佔位符（placeholders）、三種介面語言、舊版／宣告式設定（declarative settings）的信任流程，以及匯入 bytes／hash 不變。
 

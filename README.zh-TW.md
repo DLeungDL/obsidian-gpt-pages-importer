@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-8b5cf6?style=flat-square" alt="Version 0.2.0"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1"><img src="https://img.shields.io/badge/version-0.2.1-8b5cf6?style=flat-square" alt="Version 0.2.1"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,9 +30,11 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前發行版本為 [0.2.0](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.1](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
 
-**開發版介面（Development interface）**：原始碼建置已新增簡體中文（Simplified Chinese），與既有英文、繁體中文並存。Obsidian 1.8.7 起，在應用程式選擇「简体中文」並依提示重新載入即可套用；支援 `zh`、`zh-CN`、`zh-Hans`。未支援語言與舊版主程式回退英文。此功能尚未包含於已發布的 0.2.0。
+## 0.2.1 新功能（What's new）
+
+- **簡體中文介面（Simplified Chinese）**：命令、匯入表單、預覽、設定、渲染器狀態與診斷訊息會跟隨 Obsidian 的「简体中文」設定。Obsidian 1.8.7 起，選擇「简体中文」並依提示重新載入即可套用；支援 `zh`、`zh-CN`、`zh-Hans`、`zh-SG`，並保留原有英文及繁體中文支援。
 
 ## 0.2.0 新功能（What's new）
 
@@ -44,7 +46,7 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 ## 為什麼使用它？
 
-提供中英文介面：Obsidian 1.8.7 起跟隨應用程式語言，繁體中文使用 `zh-TW`，英文及未支援語言使用英文。切換 Obsidian 語言並依提示重新載入後套用。Obsidian 1.5.0–1.8.6 使用英文介面；最低支援版本仍為 1.5.0。
+提供英文、繁體中文與簡體中文介面：Obsidian 1.8.7 起跟隨應用程式語言，繁體中文使用 `zh-TW`／`zh-Hant`，簡體中文使用 `zh`／`zh-CN`／`zh-Hans`（亦支援 `zh-SG`），未支援語言使用英文。切換 Obsidian 語言並依提示重新載入後套用。Obsidian 1.5.0–1.8.6 使用英文介面；最低支援版本仍為 1.5.0。
 
 | | 能帶走的內容與工作流程 |
 | :--- | :--- |

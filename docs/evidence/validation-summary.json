@@ -231,7 +231,7 @@
     ]
   },
   "simplified_chinese_interface": {
-    "source_status": "Development after 0.2.0; not released",
+    "source_status": "Development build after 0.2.0, validated before the 0.2.1 release",
     "vitest_tests": 441,
     "python_tests": 10,
     "obsidian_eslint_warnings": 0,
@@ -256,6 +256,7 @@
     "limitations": [
       "No renderer execution validation in this run",
       "No new older-host, mobile or Pages-export validation"
-    ]
+    ],
+    "included_in_release": "0.2.1"
   }
 }
