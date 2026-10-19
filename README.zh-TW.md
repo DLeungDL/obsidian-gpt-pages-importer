@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-8b5cf6?style=flat-square" alt="Version 0.2.3"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4"><img src="https://img.shields.io/badge/version-0.2.4-8b5cf6?style=flat-square" alt="Version 0.2.4"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,12 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前發行版本為 [0.2.3](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.4](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 0.2.4 新功能（What's new）
+
+- **公式清理修正**：自動清理現在支援圍欄符號與 `latex` 之間的 CommonMark 空格／Tab，與手動匯入一致。保留原有完整備份、重複處理及 HTML 信任行為。
+- **匯出指引**：公式檢查清單確認技能產生的裸 `latex` 區塊，再於匯入時加入 Obsidian 數學分隔符。
 
 ## 0.2.3 新功能（What's new）
 

@@ -90,6 +90,27 @@ class MemoryStorage implements Storage {
 }
 
 describe('formula-only import and cleanup writes', () => {
+  it.each([
+    [fence + ' latex', fence],
+    [fence + '\tlatex', fence],
+    ['~~~ latex', '~~~'],
+    ['~~~ \t LATEX', '~~~'],
+    ['  ' + fence + ' latex', '  ' + fence]
+  ])('cleans spaced latex openers with HTML rendering off: %s', async (opener, closer) => {
+    const storage = new MemoryStorage();
+    const path = 'Inbox/spaced-formula.md';
+    const source = opener + '\n' + formula + '\n' + closer + '\n';
+    storage.files.set(path, source);
+    expect((await convertVerified(source)).markdown).toBe(output);
+    const result = await cleanFile(storage, path);
+    expect(result.mathBlocks).toBe(1);
+    expect(storage.files.get(path)).toBe(output);
+    expect(storage.files.get(result.backup!)).toBe(source);
+    const before = new Map(storage.files);
+    expect((await cleanFile(storage, path)).backup).toBeUndefined();
+    expect(storage.files).toEqual(before);
+  });
+
   it('previews the conversion, writes once and protects local edits on reimport', async () => {
     const storage = new MemoryStorage();
     const initial = readState(null);
