@@ -1,0 +1,9 @@
+{
+  "name": "gpt-pages-obsidian-visualizations-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mdast-util-from-markdown": "2.1.0",
+    "micromark": "4.0.3"
+  }
+}

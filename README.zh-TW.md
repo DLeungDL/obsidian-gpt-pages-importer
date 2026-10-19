@@ -55,6 +55,8 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 將完整的 [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) 資料夾加入代理的技能庫，包含 scripts、references 與 assets。如果代理透過檔案讀取指引，請指定其中的 [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md)，並保留其連結的資源供代理使用。匯出前，先搭配 Pages 使用技能準備 Page。
 
+以 `npm ci --ignore-scripts --prefix <skill-dir>` 安裝技能工具鎖定版本的解析器依賴（parser dependencies）。[跨 Page 連結檢查](skills/gpt-pages-obsidian-visualizations/references/page-links.md)會在匯出前，將可解析的內部連結改為 Pages 工具確認的 HTTPS 網址，保留連結文字並列出未解決項目。連結仍需帳號存取權，匯入外掛維持離線運作。
+
 可直接使用以下提示詞（prompt）：
 
 ```text
