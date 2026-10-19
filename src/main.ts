@@ -20,6 +20,21 @@ class VaultStorage implements Storage {
     return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
   }
   async exists(path: string): Promise<boolean> { return this.vault.getAbstractFileByPath(path) !== null; }
+  async readBinary(path: string): Promise<ArrayBuffer | null> {
+    const file = this.vault.getAbstractFileByPath(path);
+    if (file === null) return null;
+    if (!(file instanceof TFile)) throw new Error(t('storage.notFile', { path }));
+    if (file.stat.size > 1024 * 1024) throw new Error(t('image.conflict', { path }));
+    const bytes = await this.vault.readBinary(file);
+    if (bytes.byteLength > 1024 * 1024) throw new Error(t('image.conflict', { path }));
+    return bytes;
+  }
+  async createBinary(path: string, bytes: ArrayBuffer): Promise<void> {
+    if (this.allowed && !this.allowed()) throw new Error(t('storage.settingsChanged'));
+    await this.folders(path);
+    if (this.allowed && !this.allowed()) throw new Error(t('storage.settingsChanged'));
+    await this.vault.createBinary(path, bytes);
+  }
   private async folders(path: string): Promise<void> {
     let folder = '';
     for (const segment of path.split('/').slice(0, -1)) {
@@ -253,7 +268,7 @@ export default class GPTPagesImporter extends Plugin {
   }
   private async cleanPaths(paths: string[]): Promise<void> {
     const revision = this.cleanupRevision;
-    let cleaned = 0; let figures = 0;
+    let cleaned = 0; let figures = 0; let images = 0;
     const problems: string[] = [];
     for (const path of paths) {
       try {
@@ -261,14 +276,14 @@ export default class GPTPagesImporter extends Plugin {
           const allowed = () => revision === this.cleanupRevision && this.canClean(path) && this.app.vault.getAbstractFileByPath(path) instanceof TFile;
           if (!allowed()) return;
           const result = await cleanFile(new VaultStorage(this.app.vault, 20 * 1024 * 1024, allowed), path, allowed, this.cleanupSettings.renderHtml);
-          if (result.backup) { cleaned++; figures += result.figures; }
+          if (result.backup) { cleaned++; figures += result.figures; images += result.images ?? 0; }
           const warnings = result.warnings.filter(warning => !['asset-references', 'trusted-rendering'].includes(warning.code));
           if (warnings.length) problems.push(t('cleanup.problem', { path, message: warnings[0]!.message }));
         });
       } catch (error) { problems.push(t('cleanup.problem', { path, message: errorMessage(error) })); }
     }
     if (!cleaned && !problems.length) return;
-    this.cleanupStatus = t('cleanup.summary', { cleaned, figures, details: problems.length ? t('cleanup.problems', { count: problems.length, problems: problems.slice(0, 3).join('; ') }) : t('cleanup.backedUp') });
+    this.cleanupStatus = t('cleanup.summary', { cleaned, figures, details: (images ? t('image.cleaned', { count: images }) : '') + (problems.length ? t('cleanup.problems', { count: problems.length, problems: problems.slice(0, 3).join('; ') }) : t('cleanup.backedUp')) });
     new Notice(this.cleanupStatus, problems.length ? 15000 : 10000);
   }
   private isSource(file: TFile | null): file is TFile {

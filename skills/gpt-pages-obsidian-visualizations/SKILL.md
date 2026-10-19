@@ -1,11 +1,13 @@
 ---
 name: gpt-pages-obsidian-visualizations
-description: "Generate standard GPT Pages for Markdown export to Obsidian using the required Pages plugin: native visualizations, mandatory compact v3 pairing, complete footer HTML sources, and separate export and rendering-trust validation. Use when creating or updating portable Page visualizations or reusable export layouts; not for live sync or general Obsidian configuration."
+description: "Prepare GPT Pages for Markdown export to Obsidian using Pages: native visualizations with mandatory v3 HTML pairing, portable raster image sources, and separate export and rendering validation. Use for portable Page visuals, images or reusable export layouts; not for live sync or general Obsidian configuration."
 ---
 
 # GPT Pages to Obsidian: Standard Export Template
 
 Keep readable, interactive native visualizations in the GPT Page body and complete HTML sources at the bottom for manual Markdown export to Obsidian. The importer uses pairing markers to move HTML back to each chart position and remove verified markers and native image references.
+
+For native PNG/JPEG/GIF/WebP images requested in a single Markdown export, also follow [references/images.md](references/images.md). It defines a separate image asset v1 source fence, original-byte acquisition, programmatic Base64 generation and export verification. Ordinary native image references alone do not export the image bytes. Image source support requires an importer that implements this new contract; do not infer installed support from a checkout.
 
 ## Required dependency: Pages
 
@@ -19,7 +21,7 @@ The [Pages plugin](https://chatgpt.com/plugins/plugin_connector_1p_4a72ddeef4c48
 
 - **Two representations per figure:** include both a native Page visualization and a fenced code block labeled `html`. Do not replace the native chart with code, or deliver only a local HTML file while omitting the source from the Page.
 - Maintain one canonical source per figure, including its data, formulas, labels and interaction logic. Submit the same complete HTML to the native visualization tool and place it unchanged in the footer. Generate markers only after receiving the tool's actual reference. Host colors may differ; data, calculations and event behavior must agree.
-- **Clean layout:** the body contains subject headings, necessary explanations, figure markers and native visuals. The footer contains only source markers and complete HTML fences. Do not add an "Exportable HTML source" appendix heading, per-chart "HTML source" subheadings, empty sections or export instructions. Preserve meaningful existing prose and user-requested content.
+- **Clean layout:** the body contains subject headings, necessary explanations, figure markers and native visuals. The footer contains source markers and complete HTML fences, plus explicitly requested portable image source fences. Do not add an "Exportable HTML source" appendix heading, per-chart "HTML source" subheadings, empty sections or export instructions. Preserve meaningful existing prose and user-requested content.
 - **Mandatory v3:** every figure pair created or updated by this skill must use compact v3 markers. Keep only the short ID in the body and put `ref` and `sha256` in the footer. Never fall back to v1/v2, including when target support is unknown. If the installed importer is unknown or lacks v3 support, report compatibility as unverified or requiring an update; do not claim successful import or change the installed plugin without authorization. New checkout code does not establish the installed version. SHA-256 verifies source consistency, not trust to execute code.
 - Standalone HTML must be self-contained: a complete UTF-8 document with HTML/SVG, embedded data, CSS and any required inline JavaScript. Set fonts, background and text colors explicitly, with defaults for CSS variables. Do not depend on CDNs, remote fonts, external images, host CSS, private Page references or network APIs.
 - Preserve existing content and user edits. Invoking this skill does not itself authorize Page edits, vault configuration changes, plugin installation, publishing or synchronization. Follow the current task's authorization.

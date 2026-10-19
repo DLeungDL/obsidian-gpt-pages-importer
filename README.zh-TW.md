@@ -167,6 +167,8 @@ flowchart LR
 
 HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／JavaScript 若包含外部圖片、字型、函式庫或請求，可能由 renderer 存取相應遠端服務。請在啟用信任前檢查完整內容。
 
+原始碼版本新增[單一 Markdown 可攜圖片](docs/images.zh-TW.md)：skill 將原圖 Base64 放入明確的 `gpt-pages-asset` 來源區塊，插件驗證後保存到筆記旁的 `GPT Pages Assets/` 並改寫成本地圖片連結。支援 PNG、JPEG、GIF、WebP，不需要 ZIP；只有原生圖片參照而沒有來源資料時無法還原。容量與復原規則見格式文件，尚不代表已發布版本具有此功能。
+
 ## 文件與資源
 
 | 想完成的事 | 從這裡開始 |

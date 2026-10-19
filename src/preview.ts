@@ -6,6 +6,7 @@ export function renderPreview(container: HTMLElement, plan: Plan, assets: string
   append('h2', t('preview.title'));
   append('p', t('preview.destination', { destination: plan.destination }));
   append('p', t('preview.status', { status: t(`preview.${plan.status}`), count: plan.conversion.figures }));
+  if (plan.conversion.images?.length) append('p', t('image.count', { count: plan.conversion.images.length }));
   const actions = append('div', '');
   actions.classList.add('gpt-pages-preview-actions');
   append('p', t('preview.safety'));
