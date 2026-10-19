@@ -53,6 +53,8 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 Add the complete [`skills/gpt-pages-obsidian-visualizations/`](skills/gpt-pages-obsidian-visualizations/) folder to your agent's skill library, including its scripts, references and assets. If your agent loads instructions from files, point it to the folder's [SKILL.md](skills/gpt-pages-obsidian-visualizations/SKILL.md) and keep the linked resources available. Use the skill with Pages to prepare the Page before exporting.
 
+Install the skill helper's locked parser dependencies with `npm ci --ignore-scripts --prefix <skill-dir>`. Its [cross-Page link preflight](skills/gpt-pages-obsidian-visualizations/references/page-links.md) replaces resolvable internal Page links with tool-confirmed HTTPS destinations before export, preserving labels and reporting unresolved targets. Links still require account access; the importer remains offline.
+
 Ask the agent:
 
 ```text
