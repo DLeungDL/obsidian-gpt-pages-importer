@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1"><img src="https://img.shields.io/badge/version-0.2.1-8b5cf6?style=flat-square" alt="Version 0.2.1"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2"><img src="https://img.shields.io/badge/version-0.2.2-8b5cf6?style=flat-square" alt="Version 0.2.2"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,12 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前發行版本為 [0.2.1](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.2](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 0.2.2 新功能（What's new）
+
+- **視覺化技能（Visualization skill）**：一般圖表預設用 Plotly.js，數學幾何與概念動畫用 MathBox，允許固定版本 CDN。新範例提供載入／錯誤提示及可調控制項；CDN 圖表需要網絡，離線依賴檢查仍可選用。
+- **技能整理（Skill cleanup）**：移除舊 `generate-portable-page` 別名。請使用 `$gpt-pages-obsidian-visualizations`，並在 AI 代理端分別更新技能。新範例已通過自動化靜態／模擬測試，尚未重新在 Pages 與 Obsidian 實際運行。
 
 ## 0.2.1 新功能（What's new）
 
