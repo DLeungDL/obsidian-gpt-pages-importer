@@ -21,12 +21,14 @@ export class TestVault {
     }
   };
   files = new Map<string, string>();
+  binaries = new Map<string, ArrayBuffer>();
   folders = new Set<string>();
   handlers = new Map<string, ((file: TAbstractFile, oldPath?: string) => void)[]>();
   on(name: string, callback: (file: TAbstractFile, oldPath?: string) => void) { const handlers = this.handlers.get(name) ?? []; handlers.push(callback); this.handlers.set(name, handlers); return {}; }
   emit(name: string, file: TAbstractFile, oldPath?: string) { for (const handler of this.handlers.get(name) ?? []) handler(file, oldPath); }
   getFiles() { return [...this.files].map(([path, text]) => new TFile(path, new TextEncoder().encode(text).length)); }
   getAbstractFileByPath(path: string): TAbstractFile | null {
+    if (this.binaries.has(path)) return new TFile(path, this.binaries.get(path)!.byteLength);
     if (this.files.has(path)) return new TFile(path, new TextEncoder().encode(this.files.get(path)!).length);
     if (!this.folders.has(path)) return null;
     return this.folder(path);
@@ -44,7 +46,8 @@ export class TestVault {
   }
   // Real Vault.read strips the opening BOM; readBinary and process preserve it.
   async read(file: TFile) { return new TextDecoder().decode(await this.readBinary(file)); }
-  async readBinary(file: TFile) { return new TextEncoder().encode(this.files.get(file.path)!).buffer; }
+  async readBinary(file: TFile) { return this.binaries.get(file.path)?.slice(0) ?? new TextEncoder().encode(this.files.get(file.path)!).buffer; }
+  async createBinary(path: string, bytes: ArrayBuffer) { if (this.getAbstractFileByPath(path)) throw new Error('exists'); this.binaries.set(path, bytes.slice(0)); const file = new TFile(path, bytes.byteLength); this.emit('create', file); return file; }
   async createFolder(path: string) { this.folders.add(path); }
   async create(path: string, content: string) { if (this.getAbstractFileByPath(path)) throw new Error('exists'); this.files.set(path, content); const file = new TFile(path, new TextEncoder().encode(content).length); this.emit('create', file); return file; }
   async modify(file: TFile, content: string) { this.files.set(file.path, content); this.emit('modify', file); }

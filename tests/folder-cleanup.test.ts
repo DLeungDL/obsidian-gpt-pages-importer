@@ -6,6 +6,7 @@ import GPTPagesImporter from '../src/main';
 import { digest, type State } from '../src/importer';
 import type { CleanupSettings } from '../src/cleanup';
 import { Modal, Notice, TFolder, type Plugin } from './obsidian-stub';
+import { png, source } from './image-fixture';
 
 const input = readFileSync('tests/fixtures/v2-escaped.input.md', 'utf8');
 const expected = readFileSync('tests/fixtures/v2-escaped.expected.md', 'utf8').replaceAll('```html-source', '```html');
@@ -43,6 +44,20 @@ function settingsControls(plugin: HostPlugin) {
 function toggle(control: HTMLInputElement, value: boolean) { control.checked = value; control.dispatchEvent(new Event('change')); }
 function setFolder(control: HTMLInputElement, value: string) { control.value = value; control.dispatchEvent(new Event('change')); }
 function confirmTrust() { [...Modal.opened[0]!.contentEl.querySelectorAll('button')].find(button => button.textContent === '我信任此資料夾內容，啟用')!.click(); }
+
+it('restores an image in a watched nested folder without granting HTML trust', async () => {
+  const plugin = await setup(); await enable(plugin);
+  const input = source();
+  await plugin.app.vault.createFolder('Inbox/nested');
+  await plugin.app.vault.create('Inbox/nested/images.md', input);
+  await tick();
+  await vi.waitFor(() => expect(plugin.app.vault.binaries.size).toBe(1));
+  await vi.waitFor(() => expect(plugin.app.vault.files.get('Inbox/nested/images.md')).toContain('GPT%20Pages%20Assets/'));
+  expect([...plugin.app.vault.binaries.keys()][0]).toMatch(/^Inbox\/nested\/GPT Pages Assets\//);
+  expect(Buffer.from([...plugin.app.vault.binaries.values()][0]!)).toEqual(png);
+  expect(backups(plugin).map(([, text]) => text)).toEqual([input]);
+  expect(plugin.getCleanupSettings().renderHtml).toBe(false);
+});
 
 it('defaults to no automatic mutation until explicitly enabled', async () => {
   const plugin = await setup(); await plugin.app.vault.create('Inbox/a.md', input); await tick();

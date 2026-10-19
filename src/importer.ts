@@ -1,10 +1,11 @@
 import { t } from './i18n';
 import { convertVerified, type Conversion } from './convert';
 import { digest } from './hash';
+import { prepareImages, writeImages, type ImageStorage } from './images';
 export { digest } from './hash';
 export interface Entry { destination: string; outputHash: string }
 export interface State { version: 1; entries: Record<string, Entry> }
-export interface Storage {
+export interface Storage extends ImageStorage {
   read(path: string): Promise<string | null>;
   create(path: string, content: string): Promise<void>;
   /** Atomically replace only when current content equals expected; throw otherwise. */
@@ -37,7 +38,7 @@ export async function planImport(storage: Storage, state: State, sourceId: strin
   const base = normalizedId.replace(/\.md$/i, '').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'page';
   const destination = state.entries[key]?.destination ?? `${vaultPath(folder)}/${base}-${key.slice(0, 16)}.md`;
   const before = await storage.read(destination);
-  const conversion = await convertVerified(source, trusted);
+  const conversion = await prepareImages(await convertVerified(source, trusted), destination);
   const outputHash = await digest(conversion.markdown);
   const previous = state.entries[key];
   // Equality does not establish ownership of an unrelated existing file.
@@ -51,6 +52,7 @@ export async function planImport(storage: Storage, state: State, sourceId: strin
 export async function assetReport(storage: Storage, plan: Plan): Promise<string[]> {
   const folder = plan.destination.slice(0, plan.destination.lastIndexOf('/'));
   return Promise.all(plan.conversion.assets.map(async ref => {
+    if (plan.conversion.images?.some(image => ref === `GPT%20Pages%20Assets/${image.path.split('/').at(-1)!}`)) return t('image.planned', { ref });
     if (/^(?:https?:)?\/\//i.test(ref)) return t('asset.external', { ref });
     if (/^[a-z][a-z\d+.-]*:/i.test(ref)) return t('asset.protocol', { ref });
     let path: string;
@@ -66,13 +68,20 @@ export async function applyImport(storage: Storage, state: State, plan: Plan, pe
   if (plan.status === 'conflict') throw new Error(t('error.conflict'));
   const current = await storage.read(plan.destination);
   if (current !== plan.before) throw new Error(t('error.previewChanged'));
-  if (plan.status === 'unchanged') return { state };
+  if (plan.status === 'unchanged') {
+    await writeImages(storage, plan.conversion.images ?? []);
+    return { state };
+  }
   let backup: string | undefined;
   if (current !== null) {
     backup = `GPT Pages Backups/${plan.key.slice(0, 16)}/${Date.now()}-${window.crypto.randomUUID()}.md`;
     await storage.create(backup, current);
+    await writeImages(storage, plan.conversion.images ?? []);
     await storage.replace(plan.destination, current, plan.conversion.markdown);
-  } else await storage.create(plan.destination, plan.conversion.markdown);
+  } else {
+    await writeImages(storage, plan.conversion.images ?? []);
+    await storage.create(plan.destination, plan.conversion.markdown);
+  }
   const next: State = { version: 1, entries: { ...state.entries, [plan.key]: { destination: plan.destination, outputHash: plan.outputHash } } };
   try { await persist(next); }
   catch { throw new Error(t('error.persist', { backup: backup ? t('error.backup', { path: backup }) : '' })); }

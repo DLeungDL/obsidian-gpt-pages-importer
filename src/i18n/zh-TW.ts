@@ -1,6 +1,12 @@
 import type { en } from './en';
 
 export const zhTW = {
+  'image.invalid': '可攜圖片來源無效、配對不明、不支援或超出限制，已保留原文。',
+  'image.storageUnavailable': '無法使用二進位圖片儲存功能，筆記尚未修改。',
+  'image.conflict': '圖片內容衝突或驗證失敗：{path}。筆記尚未修改。',
+  'image.planned': '已驗證，將保存或重用圖片：{ref}',
+  'image.count': '已驗證，將保存或重用的圖片：{count}',
+  'image.cleaned': '；已還原 {count} 張圖片',
   'common.cancel': '取消',
   'import.back': '返回設定',
   'import.done': '完成（無變更）',
