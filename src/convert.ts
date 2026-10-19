@@ -2,10 +2,11 @@ import { t } from './i18n';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import type { RootContent } from 'mdast';
 import { digest } from './hash';
+import type { PortableImage } from './images';
 
 /** Pure conversion: never executes source or parses HTML into a live DOM. */
 export interface Warning { code: string; message: string; line?: number }
-export interface Conversion { markdown: string; warnings: Warning[]; figures: number; assets: string[] }
+export interface Conversion { markdown: string; warnings: Warning[]; figures: number; assets: string[]; images?: PortableImage[] }
 interface Line { text: string; start: number; end: number }
 interface Fence { first: number; last: number; language: string; closed: boolean }
 interface Edit { start: number; end: number; text: string }

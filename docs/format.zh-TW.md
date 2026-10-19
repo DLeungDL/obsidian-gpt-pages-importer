@@ -129,6 +129,8 @@ HTML/CSS/JS、所有必要資料須完整放在 fence，不能只留下 `visuali
 
 建議每個文件自包含 HTML/CSS/JS／資料，可用 data URI 放圖片。相對資產以目的筆記目錄為檢查基準，**不複製或下載**來源檔旁的附件。
 
+獨立的[圖片來源 v1 合約](images.zh-TW.md) 支援將 PNG／JPEG／GIF／WebP 原圖 Base64 明確內嵌於 Markdown，並還原成 vault 圖片；不處理 HTML 內部圖片，也不改變既有 v1／v2／v3 圖表合約。
+
 靜態掃描包含 HTML src/href/poster、CSS url/@import、Markdown 圖片、Obsidian embeds 及 URL 候選，報告外部、缺失、特殊協定、無法安全解析的參照。禁止跨出目錄的 `..`，不把 root-relative URL 當 vault 路徑。
 
 這不是完整依賴解析：JavaScript 動態 URL、srcset、CSS escaping、特殊 HTML entities 等需人工檢查；一般超連結也可能列入。vault 中存在不代表 iframe 可載入；opaque origin、CORS、renderer 相對 URL 基準仍需實測。不能宣稱所有資產可用、離線或任意 HTML 可安全執行。

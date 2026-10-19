@@ -1,6 +1,7 @@
 import { t } from './i18n';
 import { cleanVerified, type Warning } from './convert';
 import { digest, vaultPath, type Storage } from './importer';
+import { prepareImages, writeImages } from './images';
 
 export interface CleanupSettings { enabled: boolean; folder: string; renderHtml?: boolean }
 export function cleanupFolder(value: string): string {
@@ -21,13 +22,13 @@ export function cleanupCandidate(path: string, settings: CleanupSettings, destin
   return settings.enabled && !!settings.folder && inFolder(path, settings.folder) && /\.(md|markdown)$/i.test(path)
     && !inFolder(path, 'GPT Pages Backups') && !destinations.includes(path);
 }
-export interface CleanupResult { figures: number; warnings: Warning[]; backup?: string }
+export interface CleanupResult { figures: number; images?: number; warnings: Warning[]; backup?: string }
 export async function cleanFile(storage: Storage, path: string, allowed: () => boolean = () => true, renderHtml = false): Promise<CleanupResult> {
   const safePath = vaultPath(path);
   if (inFolder(safePath, 'GPT Pages Backups')) throw new Error(t('error.cleanBackup'));
   const source = await storage.read(safePath);
-  if (source === null || !allowed() || (!renderHtml && !/gpt-pages\\?:figure/.test(source))) return { figures: 0, warnings: [] };
-  const output = await cleanVerified(source, renderHtml);
+  if (source === null || !allowed() || (!renderHtml && !/gpt-pages(?:\\?:figure|-asset)/.test(source))) return { figures: 0, warnings: [] };
+  const output = await prepareImages(await cleanVerified(source, renderHtml), safePath);
   if (source === output.markdown || !allowed()) return { figures: 0, warnings: output.warnings };
   // Back up exact UTF-8 text; the adapter's atomic replace rejects concurrent edits.
   if (await storage.read(safePath) !== source) throw new Error(t('error.sourceChanged'));
@@ -36,8 +37,10 @@ export async function cleanFile(storage: Storage, path: string, allowed: () => b
   const backup = `GPT Pages Backups/cleanup/${key.slice(0, 16)}/${Date.now()}-${window.crypto.randomUUID()}.md`;
   await storage.create(backup, source);
   if (!allowed()) return { figures: 0, warnings: [] };
+  await writeImages(storage, output.images ?? [], allowed);
+  if (!allowed()) return { figures: 0, warnings: [] };
   await storage.replace(safePath, source, output.markdown);
-  return { figures: output.figures, warnings: output.warnings, backup };
+  return { figures: output.figures, images: output.images?.length ?? 0, warnings: output.warnings, backup };
 }
 
 /** Debounce copy/save bursts, process serially, and retain changes arriving mid-run. */

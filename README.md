@@ -166,7 +166,7 @@ The plugin is free, requires no account, payment or API key, collects no telemet
 
 HTML rendering is provided by the separately installed Polyglot Renderer. If trusted HTML or JavaScript includes external images, fonts, libraries or requests, the renderer may contact those services. Inspect the complete source before enabling trust.
 
-The importer does not download Page assets or provide cloud or bidirectional sync.
+The importer does not download Page assets or provide cloud or bidirectional sync. In source builds with [portable image support](docs/images.md), the authoring skill can include original PNG/JPEG/GIF/WebP bytes as Base64 in a single Markdown file. Verified images are saved beside the note in `GPT Pages Assets/` and linked locally. This requires explicit `gpt-pages-asset` sources; plain native image references cannot be reconstructed. Limits and recovery behavior are documented in the linked contract; this is not a published-release compatibility claim.
 
 ## Documentation and resources
 

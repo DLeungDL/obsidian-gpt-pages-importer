@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import GPTPagesImporter from '../src/main';
 import type { State } from '../src/importer';
 import { Menu, Modal, Notice, TFolder, type Plugin } from './obsidian-stub';
+import { png, source } from './image-fixture';
 
 const input = readFileSync('tests/fixtures/interactive.input.md', 'utf8');
 const expected = readFileSync('tests/fixtures/interactive.expected.md', 'utf8');
@@ -51,6 +52,31 @@ async function confirm(modal: Modal) {
   button(modal, '確認寫入').click();
   await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
 }
+
+it('previews images as text then creates verified binary files through the vault adapter', async () => {
+  const plugin = await setup(); plugin.commands[0]!.callback();
+  const form = Modal.opened[0]!; choose(form, file('images.md', source()));
+  const plan = await preview(form);
+  expect(plan.contentEl.textContent).toContain('已驗證，將保存或重用的圖片：1');
+  expect(plan.contentEl.querySelector('img,iframe,script')).toBeNull();
+  expect(plugin.app.vault.binaries.size).toBe(0);
+  await confirm(plan);
+  expect(plugin.app.vault.binaries.size).toBe(1);
+  expect(Buffer.from([...plugin.app.vault.binaries.values()][0]!)).toEqual(png);
+  expect([...plugin.app.vault.files.values()].join()).toContain('GPT%20Pages%20Assets/');
+  expect([...plugin.app.vault.files.values()].join()).not.toContain('gpt-pages-asset');
+});
+
+it('keeps the original source and destination absent when the vault binary write fails', async () => {
+  const plugin = await setup(); plugin.commands[0]!.callback();
+  const form = Modal.opened[0]!; choose(form, file('images.md', source()));
+  const plan = await preview(form);
+  vi.spyOn(plugin.app.vault, 'createBinary').mockRejectedValue(new Error('disk full'));
+  button(plan, '確認寫入').click();
+  await vi.waitFor(() => expect(Notice.messages.join()).toContain('disk full'));
+  expect(plugin.app.vault.files.size).toBe(0);
+  expect(plugin.app.vault.binaries.size).toBe(0);
+});
 
 it.each(['未安裝', '未啟用', '已啟用', '無法確認'])('shows renderer status %s without granting trust or blocking imports', async status => {
   const plugin = await setup();

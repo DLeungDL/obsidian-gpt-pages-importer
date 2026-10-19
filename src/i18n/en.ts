@@ -1,5 +1,11 @@
 /** English is the source language and fallback for missing translations. */
 export const en = {
+  'image.invalid': 'Portable image source is invalid, ambiguous, unsupported or exceeds limits; original content retained.',
+  'image.storageUnavailable': 'Binary image storage is unavailable; the note has not been changed.',
+  'image.conflict': 'Image bytes conflict or failed verification: {path}. The note has not been changed.',
+  'image.planned': 'Verified image to save or reuse: {ref}',
+  'image.count': 'Verified images to save or reuse: {count}',
+  'image.cleaned': '; {count} image(s) restored',
   'common.cancel': 'Cancel',
   'import.back': 'Back to settings',
   'import.done': 'Done (no changes)',
