@@ -121,7 +121,7 @@ visualize:example-chart
 
 HTML/CSS/JS、所有必要資料須完整放在 fence，不能只留下 `visualize:` URI。code body bytes、中文、emoji、數學公式、反斜線、HTML entities、BOM 與換行形式均保留。不猜測將 `&lt;` 改成 `<`。
 
-預設將所有 CommonMark HTML fences（含引用、清單、未配對、未知版本的內容）改成 `html-source`，只修改 opener 語言 token，不改 source body／delimiter。其他 code fences 保留。這項安全修改不等於配對成功。
+預設將所有 CommonMark HTML fences（含引用、清單、未配對、未知版本的內容）改成 `html-source`，只修改 opener 語言 token，不改 source body／delimiter。其他 code fences 保留；符合下方規則的獨立 Pages latex 公式會另行轉換。這項安全修改不等於配對成功。
 
 明確信任整份內容後才輸出 `html` fences，包含未配對的 HTML 區塊。**校驗成功不代表安全或數位簽章，也不會自動啟用執行。** Polyglot Renderer 可立即執行 scripts。預覽永遠用 `textContent`，沒有執行式預覽。raw HTML 保留原文；importer 不是通用 sanitizer，也不能控制其他外掛的執行行為。
 
@@ -134,3 +134,9 @@ HTML/CSS/JS、所有必要資料須完整放在 fence，不能只留下 `visuali
 靜態掃描包含 HTML src/href/poster、CSS url/@import、Markdown 圖片、Obsidian embeds 及 URL 候選，報告外部、缺失、特殊協定、無法安全解析的參照。禁止跨出目錄的 `..`，不把 root-relative URL 當 vault 路徑。
 
 這不是完整依賴解析：JavaScript 動態 URL、srcset、CSS escaping、特殊 HTML entities 等需人工檢查；一般超連結也可能列入。vault 中存在不代表 iframe 可載入；opaque origin、CORS、renderer 相對 URL 基準仍需實測。不能宣稱所有資產可用、離線或任意 HTML 可安全執行。
+
+## Pages 公式區塊
+
+此來源更新尚未包含於已發行的 0.2.2。新版技能使用獨立、非空的 `latex` 圍欄，內含裸 TeX，不加 `$`、`$$`、`\(` 或 `\[` 包裹；對照測試由使用者回報此格式可在 Pages 渲染。匯入器將符合條件的圍欄改成獨立 `$$` 行，保留公式內容與換行。手動預覽顯示轉換數量；資料夾清理即使關閉 HTML 轉換，亦支援只有公式的筆記，沿用原有備份及衝突保護。
+
+僅完整、頂層且沒有額外資訊的區塊符合條件。空白、未關閉、巢狀、已有錢符號／括號分隔，以及辨識到的完整文件／前置指令會保留。`tex`、`math`、`latex source` 仍為程式碼，可用於刻意展示原始碼；既有圍欄外行內／獨立公式不變。此為保守的來源轉換，不代表 TeX 驗證或實際渲染通過。Obsidian 使用內建 MathJax，不需要 Polyglot Renderer 或 HTML 信任。詳見[公式流程](../skills/gpt-pages-obsidian-visualizations/references/math.md)。

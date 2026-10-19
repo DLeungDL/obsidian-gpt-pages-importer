@@ -21,9 +21,11 @@ This is the default workflow for creating a Page or an unspecified import demo. 
 
 ## Mathematics
 
-Use the bundled [math-example.md](../assets/math-example.md) when testing math export. Inline formulas must retain their single-dollar delimiters; each display formula must retain both standalone `$$` lines. Compare the exact TeX source in the actual download, especially `\\` row separators in matrices and aligned equations. Escaped dollars or a `latex`/`math` code fence do not establish rendered formulas.
+Use the bundled [math-example.md](../assets/math-example.md) and the [math workflow](math.md). In Pages, formulas use bare top-level `latex` fences with no dollar wrappers. First inspect actual Page rendering; a user-reported comparison rendered only this form, while plain `$$` and `latex` with `$$` did not. The current Pages catalog does not document this preview, so do not generalize beyond observed evidence.
 
-After import and automatic cleanup, check that the same delimiters and TeX bytes remain. In Obsidian Reading view, verify inline superscripts/subscripts, a mean of 1.5 m, an integral of 0, the matrix result (5, 11), and aligned equations ending in 25. Built-in MathJax handles these expressions without HTML trust or Polyglot Renderer. Record actual runtime evidence separately from source-preservation tests. If Pages tools cannot author/preserve the math format, report that limitation instead of claiming a successful Page export from a repaired local copy.
+Compare the downloaded fence language and exact TeX bytes against the canonical source, especially `\\` matrix/alignment row separators. After import and automatic cleanup, eligible fences should become standalone `$$` lines, retaining the original formula bytes. Existing inline `$…$` and display `$$…$$` outside code remain unchanged. A source comparison or simulated import is not a real UI download or rendering test.
+
+In Obsidian Reading view, verify superscripts/subscripts, a mean of 1.5 m, an integral of 0, the matrix result (5, 11), and aligned equations ending in 25. Built-in MathJax handles these expressions without HTML trust or Polyglot Renderer. Confirm installed support: 0.2.2 and earlier do not convert `latex` fences. Record actual download and Obsidian runtime evidence separately. Do not substitute a repaired local file for the unmodified Page export.
 
 Primary reference: [Obsidian's official math syntax](https://help.obsidian.md/Editing+and+formatting/Advanced+formatting+syntax#Math).
 

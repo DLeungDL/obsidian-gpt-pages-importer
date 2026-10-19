@@ -1,6 +1,8 @@
 import type { en } from './en';
 
 export const zhTW = {
+  'math.count': '將轉換的公式區塊：{count}',
+  'math.cleaned': '；已轉換 {count} 個公式區塊',
   'image.invalid': '可攜圖片來源無效、配對不明、不支援或超出限制，已保留原文。',
   'image.storageUnavailable': '無法使用二進位圖片儲存功能，筆記尚未修改。',
   'image.conflict': '圖片內容衝突或驗證失敗：{path}。筆記尚未修改。',

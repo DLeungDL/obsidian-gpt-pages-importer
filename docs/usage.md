@@ -92,3 +92,9 @@ CommonMark parsing identifies markers/URIs and removes only verified metadata. S
 - `src/convert.ts`: pure conversion, asynchronous v2/v3 verification and asset scanning; `src/hash.ts`: UTF-8 hashes; `src/importer.ts`: storage-independent planning/writing; `src/cleanup.ts`: in-place cleanup, backups and event queue; `src/cleanup-settings.ts`: watched-folder settings; `src/main.ts`: Obsidian commands/modals/events; `src/preview.ts`: non-executing previews.
 
 This plugin does not provide cloud/bidirectional Pages sync, replace a renderer, guarantee safe execution of arbitrary HTML or guarantee compatibility with every Pages visualization. Other export versions and platforms require additional compatibility testing.
+
+## Pages formula blocks
+
+This source update is not yet in released 0.2.2. The updated skill authors standalone, nonempty `latex` fences with bare TeX and no `$`, `$$`, `\(` or `\[` wrappers. A controlled comparison was user-reported to render this form in Pages. The importer converts eligible fences to standalone `$$` lines, preserving formula bytes and line endings. Manual preview reports the count; folder cleanup also handles formula-only notes with HTML conversion off, using the existing backup and conflict checks.
+
+Only complete top-level blocks with no extra info qualify. Empty, unclosed, nested, dollar/bracket-wrapped and recognized document/preamble blocks stay unchanged. `tex`, `math` and `latex source` remain code; use them for intentional source examples. Existing inline/display math outside code is unchanged. This is a conservative source transformation, not TeX validation or proof of rendering. Obsidian uses built-in MathJax, without Polyglot Renderer or HTML trust. See the [math workflow](../skills/gpt-pages-obsidian-visualizations/references/math.md).

@@ -1,5 +1,7 @@
 /** English is the source language and fallback for missing translations. */
 export const en = {
+  'math.count': 'Formula blocks to convert: {count}',
+  'math.cleaned': '; {count} formula block(s) converted',
   'image.invalid': 'Portable image source is invalid, ambiguous, unsupported or exceeds limits; original content retained.',
   'image.storageUnavailable': 'Binary image storage is unavailable; the note has not been changed.',
   'image.conflict': 'Image bytes conflict or failed verification: {path}. The note has not been changed.',

@@ -121,7 +121,7 @@ Literal `visualize:` text does not create a native chart. Original UI samples wi
 
 Include complete HTML/CSS/JavaScript and all required data in the fence; a `visualize:` URI alone is insufficient. Preserve code body bytes, localized text, emoji, formulas, backslashes, HTML entities, BOM and line endings. Do not guess that `&lt;` should become `<`.
 
-By default, manual conversion changes every CommonMark HTML fence to `html-source`, including blocks in lists/quotes, unpaired blocks and unknown-version content. Only the opening language token changes; payloads and delimiters remain intact. Other code fences are preserved. This safety transformation does not imply successful pairing. Automatic folder cleanup preserves existing fence languages unless folder rendering trust is explicitly enabled.
+By default, manual conversion changes every CommonMark HTML fence to `html-source`, including blocks in lists/quotes, unpaired blocks and unknown-version content. Only the opening language token changes; payloads and delimiters remain intact. Other code fences are preserved except eligible standalone Pages `latex` formulas, described below. This safety transformation does not imply successful pairing. Automatic folder cleanup preserves existing fence languages unless folder rendering trust is explicitly enabled.
 
 Only explicit trust for the entire document enables `html` output, including unpaired HTML blocks. **Successful verification is not a safety guarantee or digital signature, and does not automatically enable execution.** Polyglot Renderer may run scripts immediately. Previews always use `textContent` and never execute content. Raw HTML stays unchanged; the importer is not a general sanitizer and cannot control execution by other plugins.
 
@@ -132,3 +132,9 @@ Keep chart data and initialization in the complete HTML. The authoring skill all
 Static scanning includes HTML src/href/poster, CSS url/@import, Markdown images, Obsidian embeds and URL candidates. It reports external, missing, special-protocol and unsafe-to-resolve references. Paths escaping the directory with `..` are rejected, and root-relative URLs are not interpreted as vault paths.
 
 This is not complete dependency resolution. Dynamic JavaScript URLs, srcset, CSS escaping and special HTML entities need manual inspection; ordinary hyperlinks may also be reported. Existence in the vault does not prove an iframe can load an asset. Opaque origins, CORS and the renderer's relative-URL base require real tests. Do not claim universal asset availability, offline operation or safe execution of arbitrary HTML.
+
+## Pages formula blocks
+
+This source update is not yet in released 0.2.2. The updated skill authors standalone, nonempty `latex` fences with bare TeX and no `$`, `$$`, `\(` or `\[` wrappers. A controlled comparison was user-reported to render this form in Pages. The importer converts eligible fences to standalone `$$` lines, preserving formula bytes and line endings. Manual preview reports the count; folder cleanup also handles formula-only notes with HTML conversion off, using the existing backup and conflict checks.
+
+Only complete top-level blocks with no extra info qualify. Empty, unclosed, nested, dollar/bracket-wrapped and recognized document/preamble blocks stay unchanged. `tex`, `math` and `latex source` remain code; use them for intentional source examples. Existing inline/display math outside code is unchanged. This is a conservative source transformation, not TeX validation or proof of rendering. Obsidian uses built-in MathJax, without Polyglot Renderer or HTML trust. See the [math workflow](../skills/gpt-pages-obsidian-visualizations/references/math.md).

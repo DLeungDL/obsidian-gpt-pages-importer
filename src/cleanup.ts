@@ -22,12 +22,12 @@ export function cleanupCandidate(path: string, settings: CleanupSettings, destin
   return settings.enabled && !!settings.folder && inFolder(path, settings.folder) && /\.(md|markdown)$/i.test(path)
     && !inFolder(path, 'GPT Pages Backups') && !destinations.includes(path);
 }
-export interface CleanupResult { figures: number; images?: number; warnings: Warning[]; backup?: string }
+export interface CleanupResult { figures: number; images?: number; mathBlocks?: number; warnings: Warning[]; backup?: string }
 export async function cleanFile(storage: Storage, path: string, allowed: () => boolean = () => true, renderHtml = false): Promise<CleanupResult> {
   const safePath = vaultPath(path);
   if (inFolder(safePath, 'GPT Pages Backups')) throw new Error(t('error.cleanBackup'));
   const source = await storage.read(safePath);
-  if (source === null || !allowed() || (!renderHtml && !/gpt-pages(?:\\?:figure|-asset)/.test(source))) return { figures: 0, warnings: [] };
+  if (source === null || !allowed() || (!renderHtml && !/gpt-pages(?:\\?:figure|-asset)|^[\uFEFF ]{0,4}(?:`{3,}|~{3,})latex[ \t]*(?:\r?\n|\r|$)/im.test(source))) return { figures: 0, warnings: [] };
   const output = await prepareImages(await cleanVerified(source, renderHtml), safePath);
   if (source === output.markdown || !allowed()) return { figures: 0, warnings: output.warnings };
   // Back up exact UTF-8 text; the adapter's atomic replace rejects concurrent edits.
@@ -40,7 +40,7 @@ export async function cleanFile(storage: Storage, path: string, allowed: () => b
   await writeImages(storage, output.images ?? [], allowed);
   if (!allowed()) return { figures: 0, warnings: [] };
   await storage.replace(safePath, source, output.markdown);
-  return { figures: output.figures, images: output.images?.length ?? 0, warnings: output.warnings, backup };
+  return { figures: output.figures, images: output.images?.length ?? 0, ...(output.mathBlocks ? { mathBlocks: output.mathBlocks } : {}), warnings: output.warnings, backup };
 }
 
 /** Debounce copy/save bursts, process serially, and retain changes arriving mid-run. */

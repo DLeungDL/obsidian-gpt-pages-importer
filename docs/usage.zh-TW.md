@@ -88,3 +88,9 @@ Pages 不會自動添加這些欄位。只有校驗成功才移除配對標記�
 - `src/convert.ts`：純轉換、非同步 v2／v3 校驗及資產候選掃描；`src/hash.ts`：UTF-8 摘要；`src/importer.ts`：storage-independent 匯入計畫及寫入；`src/cleanup.ts`：原地清理、備份與事件佇列；`src/cleanup-settings.ts`：監看設定；`src/main.ts`：Obsidian 命令／modal／事件；`src/preview.ts`：不執行內容的預覽。
 
 本外掛不包含 Pages 雲端同步或雙向同步、renderer 重作、任意 HTML 安全執行保證或所有 Pages 視覺化的相容性保證。其他匯出版本與平台仍需依相容性文件補測。
+
+## Pages 公式區塊
+
+此來源更新尚未包含於已發行的 0.2.2。新版技能使用獨立、非空的 `latex` 圍欄，內含裸 TeX，不加 `$`、`$$`、`\(` 或 `\[` 包裹；對照測試由使用者回報此格式可在 Pages 渲染。匯入器將符合條件的圍欄改成獨立 `$$` 行，保留公式內容與換行。手動預覽顯示轉換數量；資料夾清理即使關閉 HTML 轉換，亦支援只有公式的筆記，沿用原有備份及衝突保護。
+
+僅完整、頂層且沒有額外資訊的區塊符合條件。空白、未關閉、巢狀、已有錢符號／括號分隔，以及辨識到的完整文件／前置指令會保留。`tex`、`math`、`latex source` 仍為程式碼，可用於刻意展示原始碼；既有圍欄外行內／獨立公式不變。此為保守的來源轉換，不代表 TeX 驗證或實際渲染通過。Obsidian 使用內建 MathJax，不需要 Polyglot Renderer 或 HTML 信任。詳見[公式流程](../skills/gpt-pages-obsidian-visualizations/references/math.md)。
