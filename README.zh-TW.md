@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="manifest.json"><img src="https://img.shields.io/badge/version-0.1.7-8b5cf6?style=flat-square" alt="Version 0.1.7"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-8b5cf6?style=flat-square" alt="Version 0.2.0"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,15 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前版本為 0.1.7 MVP。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.0](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 0.2.0 新功能（What's new）
+
+- **可攜圖片（Portable images）**：從單一 Markdown 匯出檔中的圖片來源區塊還原 PNG、JPEG、GIF、WebP。驗證後保存至筆記旁的 `GPT Pages Assets/`，改為本地連結；重複匯入會復用相同圖片。支援手動匯入與資料夾清理，限制為**每張 1 MiB、合計 4 MiB、最多 32 個圖片來源區塊**。[圖片製作與復原指南](docs/images.zh-TW.md)。
+- **跨 Page 連結（Cross-Page links）**：新版技能在匯出前，將內部連結解析為工具確認的 HTTPS 網址。連結仍指向線上 Page，需要目標存取權，不會變成本地筆記；未解決的連結保留並報告。[連結檢查指南](skills/gpt-pages-obsidian-visualizations/references/page-links.md)。
+- **公式製作（Math authoring）**：技能要求行內公式使用 `$…$`、獨立公式使用 `$$…$$`。既有 `latex`／`math` 程式碼區塊仍保留為程式碼，不會自動轉換。[公式範例](skills/gpt-pages-obsidian-visualizations/assets/math-example.md)。
+
+**Obsidian 外掛與 AI 代理中的技能需分別更新。** 圖片與原生數學公式不需要 HTML 信任或 Polyglot Renderer。跨 Page 與多圖片範例已通過手動驗證；公式渲染已在修正後的本地筆記驗證，未修改的 Page 公式匯出仍需另做端到端驗證（end-to-end validation）。
 
 ## 為什麼使用它？
 
@@ -61,6 +69,7 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 ```text
 使用 @Pages 與 $gpt-pages-obsidian-visualizations，建立或更新一個以［你的主題］為內容、可匯出 Markdown 至 Obsidian 的 GPT Page。請透過 Pages 工具寫入 Page 並建立原生視覺化。正文保留原生視覺化與只含短 ID 的 v3 精簡標記，頁尾集中放置每張圖對應的完整、自包含 HTML 原始碼、原生參照與 SHA-256；不得回退 v2。
+有圖片時加入可攜圖片來源區塊，匯出前解析跨 Page 連結，需在 Obsidian 渲染的公式使用 $…$／$$…$$。
 ```
 
 技能會準備原生圖表、簡短圖表 ID，以及含對應參照（reference）與 SHA-256 校驗資訊的頁尾 HTML。這是本流程必要的製作步驟：一般 Page 匯出可能只有原生圖片參照，未包含可攜式 HTML，外掛無法還原缺少的來源。技能在 AI 代理中使用，GPT Pages Importer 則在 Obsidian 中處理產生的 Markdown。
@@ -116,6 +125,8 @@ npm run check
 
 確認下載的 Markdown 包含圖表標記（markers），且各圖完整的 `html` 程式碼區塊已包含在頁尾。若缺少來源，請讓 AI 代理使用技能補齊 Page，再重新匯出。
 
+有圖片時，另確認匯出包含 `gpt-pages-asset` 來源區塊，因為原生圖片參照不含圖片位元組。公式則應以 `$…$`／`$$…$$` 放在程式碼圍欄之外。請先檢查實際匯出檔，再啟用 HTML 渲染。
+
 ### 5 · 匯入第一份筆記
 
 1. 執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入下載的檔案。
@@ -169,7 +180,7 @@ flowchart LR
 
 HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／JavaScript 若包含外部圖片、字型、函式庫或請求，可能由 renderer 存取相應遠端服務。請在啟用信任前檢查完整內容。
 
-原始碼版本新增[單一 Markdown 可攜圖片](docs/images.zh-TW.md)：skill 將原圖 Base64 放入明確的 `gpt-pages-asset` 來源區塊，插件驗證後保存到筆記旁的 `GPT Pages Assets/` 並改寫成本地圖片連結。支援 PNG、JPEG、GIF、WebP，不需要 ZIP；只有原生圖片參照而沒有來源資料時無法還原。容量與復原規則見格式文件，尚不代表已發布版本具有此功能。
+0.2.0 起支援[單一 Markdown 可攜圖片](docs/images.zh-TW.md)：技能將原圖 Base64 放入明確的 `gpt-pages-asset` 來源區塊，外掛驗證後保存到筆記旁的 `GPT Pages Assets/` 並改寫成本地圖片連結。支援 PNG、JPEG、GIF、WebP，不需要 ZIP；只有原生圖片參照而沒有來源資料時無法還原。容量與復原規則見格式文件。此外掛不會連線 Pages 下載資產，也不提供雲端或雙向同步。
 
 ## 文件與資源
 
@@ -180,6 +191,13 @@ HTML 渲染由獨立安裝的 Polyglot Renderer 提供；你信任的 HTML／Jav
 | 生成可匯出至 Obsidian 的 Page | [完整技能與工具](skills/gpt-pages-obsidian-visualizations/SKILL.md) |
 | 核對原生圖與 Markdown 匯出的實測範圍 | [相容性紀錄](docs/compatibility.zh-TW.md) · [往返驗證摘要](docs/pages-roundtrip.zh-TW.md) |
 | 試讀通用、自行編寫的資料 | [靜態範例](examples/static.zh-TW.md) · [互動範例](examples/interactive.zh-TW.md) |
+| 準備圖片、跨 Page 連結與公式 | [可攜圖片](docs/images.zh-TW.md) · [跨 Page 連結](skills/gpt-pages-obsidian-visualizations/references/page-links.md) · [公式範例](skills/gpt-pages-obsidian-visualizations/assets/math-example.md) |
+
+## 社群與回饋（Community and feedback）
+
+歡迎在 [Obsidian 英文論壇展示主題](https://forum.obsidian.md/t/gpt-pages-importer-bring-pages-charts-and-interactive-html-into-obsidian-feedback-welcome/119527/3) 分享使用經驗，尤其是技能設定、首次匯入、圖片重匯與資料夾信任流程。簡體中文介紹文也已提交中文論壇，目前等待版主審核。
+
+可重現的問題請至 [GitHub Issues](https://github.com/DLeungDL/obsidian-gpt-pages-importer/issues)，附上作業系統、Obsidian／外掛／renderer 版本、重現步驟與已去除隱私的小型範例。請勿在公開回報中附上私人 Page 或個人資料。
 
 <a id="development"></a>
 
