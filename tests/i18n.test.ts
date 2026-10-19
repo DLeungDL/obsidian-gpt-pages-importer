@@ -21,11 +21,14 @@ it.each(['zh-TW', 'zh-tw', ' zh_TW ', 'zh-Hant', 'zh-Hant-TW'])('recognizes Trad
   expect(t('import.preview')).toBe('Preview');
 });
 
-it('prefers the public API, including an unsupported app language, over stale legacy storage', () => {
-  const legacy = vi.fn(() => 'zh-TW');
-  expect(appLanguage({ getLanguage: () => 'fr' }, legacy)).toBe('fr');
-  expect(legacy).not.toHaveBeenCalled();
-  setLanguage(appLanguage({ getLanguage: () => 'fr' }, legacy));
+it.each(['en', 'zh-TW', 'fr', 'ja'])('reads the configured app language %s through the public API', language => {
+  const getLanguage = vi.fn(() => language);
+  expect(appLanguage({ getLanguage })).toBe(language);
+  expect(getLanguage).toHaveBeenCalledOnce();
+});
+
+it('uses English display text for an unsupported app language', () => {
+  setLanguage(appLanguage({ getLanguage: () => 'fr' }));
   expect(t('settings.heading')).toBe('Automatic folder cleanup');
 });
 
@@ -34,19 +37,12 @@ it.each([
   { getLanguage: () => undefined },
   { getLanguage: () => null },
   { getLanguage: () => 42 },
+  { getLanguage: () => '' },
   { getLanguage: () => ' ' },
-  { getLanguage: () => { throw new Error('Unavailable'); } }
-])('uses legacy language storage when the host API is unavailable: %j', api => {
-  expect(appLanguage(api, () => 'zh-TW')).toBe('zh-TW');
-  expect(appLanguage(api, () => 'en')).toBe('en');
-});
-
-it.each([undefined, null, 42, '', ' '])('defaults to English when legacy storage is unusable: %s', value => {
-  expect(appLanguage({}, () => value)).toBe('en');
-});
-
-it('survives blocked legacy storage on old hosts', () => {
-  expect(appLanguage({}, () => { throw new Error('SecurityError'); })).toBe('en');
+  { getLanguage: () => { throw new Error('Unavailable'); } },
+  { get getLanguage(): () => string { throw new Error('Unavailable getter'); } }
+])('defaults to English when the public API is missing, invalid or fails (case %#)', api => {
+  expect(appLanguage(api)).toBe('en');
 });
 
 it('keeps translation keys and placeholders complete in both languages', () => {

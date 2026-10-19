@@ -23,7 +23,7 @@ npm run check
 
 ## 手動匯出／匯入
 
-0.1.5 起提供中英文介面：跟隨 Obsidian 語言（language），繁體中文為 `zh-TW`，其他未支援語言回退英文。切換語言後依 Obsidian 提示重新載入即可套用。Obsidian 1.8.7 起使用公開 `getLanguage()`，較舊版本讀取既有語言設定，無法讀取時使用英文；最低支援版本仍為 1.5.0。匯入筆記、HTML、路徑及雜湊不會翻譯。
+提供中英文介面：Obsidian 1.8.7 起跟隨應用程式語言（language），繁體中文為 `zh-TW`，其他未支援語言回退英文。切換語言後依 Obsidian 提示重新載入即可套用。外掛使用公開 `getLanguage()`；Obsidian 1.5.0–1.8.6 使用英文。語言 API 不存在、回傳無效值或發生錯誤時，也回退英文，過程不存取瀏覽器儲存空間（browser storage）。最低支援版本仍為 1.5.0。匯入筆記、HTML、路徑及雜湊不會翻譯。
 
 1. 在 Pages 手動匯出 Markdown。本外掛不做同步、OAuth、scraping 或未公開 API 存取。
 2. 已把原始匯出檔放進 vault 時，可右鍵檔案選 **使用 GPT Pages Importer 匯入**，或開啟該筆記後執行 **GPT Pages Importer: 匯入目前筆記**，直接帶入檔案。檔案還在 vault 外時，點側邊欄匯入圖示或執行 **GPT Pages Importer: 匯入 Pages Markdown**，選取或拖入一個 UTF-8 `.md`／`.markdown` 檔（最多 20 MiB）。非法 UTF-8 停止匯入，不猜測其他編碼。
