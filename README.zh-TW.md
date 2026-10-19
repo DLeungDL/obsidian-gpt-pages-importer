@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2"><img src="https://img.shields.io/badge/version-0.2.2-8b5cf6?style=flat-square" alt="Version 0.2.2"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-8b5cf6?style=flat-square" alt="Version 0.2.3"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,12 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前發行版本為 [0.2.2](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.3](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 0.2.3 新功能（What's new）
+
+- **Pages 公式匯入 Obsidian**：將完整、獨立且內含裸 TeX 的 `latex` 區塊轉成原生 `$$` 數學公式。支援手動匯入與資料夾清理；關閉 HTML 渲染時，亦可處理只有公式的筆記。預覽及清理摘要顯示轉換數量，沿用原有備份與衝突保護。
+- **修正公式技能**：Page 公式使用不加錢符號包裹的裸 `latex` 區塊。刻意展示原始碼時可用 `tex`、`text` 或 `latex source`；巢狀、未關閉、已有數學分隔符及辨識到的完整文件／前置指令會保留。[公式流程與驗證範圍](skills/gpt-pages-obsidian-visualizations/references/math.md)。
 
 ## 0.2.2 新功能（What's new）
 
@@ -45,7 +50,7 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 - **可攜圖片（Portable images）**：從單一 Markdown 匯出檔中的圖片來源區塊還原 PNG、JPEG、GIF、WebP。驗證後保存至筆記旁的 `GPT Pages Assets/`，改為本地連結；重複匯入會復用相同圖片。支援手動匯入與資料夾清理，限制為**每張 1 MiB、合計 4 MiB、最多 32 個圖片來源區塊**。[圖片製作與復原指南](docs/images.zh-TW.md)。
 - **跨 Page 連結（Cross-Page links）**：新版技能在匯出前，將內部連結解析為工具確認的 HTTPS 網址。連結仍指向線上 Page，需要目標存取權，不會變成本地筆記；未解決的連結保留並報告。[連結檢查指南](skills/gpt-pages-obsidian-visualizations/references/page-links.md)。
-- **公式製作（Math authoring）**：目前來源中的技能使用裸 `latex` 公式區塊供 Pages 顯示，再將符合條件的區塊轉為 Obsidian 數學公式。此流程需要下一版匯入器；已發行的 0.2.2 及以前仍保留為程式碼。[公式流程](skills/gpt-pages-obsidian-visualizations/references/math.md)。
+- **公式製作（Math authoring）**：目前來源中的技能使用裸 `latex` 公式區塊供 Pages 顯示，再將符合條件的區塊轉為 Obsidian 數學公式。此流程需要 0.2.3 或更新的匯入器；0.2.2 及以前仍保留為程式碼。[公式流程](skills/gpt-pages-obsidian-visualizations/references/math.md)。
 
 **Obsidian 外掛與 AI 代理中的技能需分別更新。** 圖片與原生數學公式不需要 HTML 信任或 Polyglot Renderer。跨 Page 與多圖片範例已通過手動驗證；公式渲染已在修正後的本地筆記驗證，未修改的 Page 公式匯出仍需另做端到端驗證（end-to-end validation）。
 
@@ -134,7 +139,7 @@ npm run check
 
 確認下載的 Markdown 包含圖表標記（markers），且各圖完整的 `html` 程式碼區塊已包含在頁尾。若缺少來源，請讓 AI 代理使用技能補齊 Page，再重新匯出。
 
-有圖片時，另確認匯出包含 `gpt-pages-asset` 來源區塊，因為原生圖片參照不含圖片位元組。新版來源流程在 Pages 使用不含 `$`／`$$` 包裹的獨立 `latex` 區塊，再由支援此功能的匯入器轉為 Obsidian 公式；已發行 0.2.2 尚未支援。請先檢查實際匯出檔，再啟用 HTML 渲染。
+有圖片時，另確認匯出包含 `gpt-pages-asset` 來源區塊，因為原生圖片參照不含圖片位元組。0.2.3 流程在 Pages 使用不含 `$`／`$$` 包裹的獨立 `latex` 區塊，再由支援此功能的匯入器轉為 Obsidian 公式；0.2.2 及以前不支援。請先檢查實際匯出檔，再啟用 HTML 渲染。
 
 ### 5 · 匯入第一份筆記
 
