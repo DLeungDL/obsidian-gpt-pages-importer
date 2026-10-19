@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2"><img src="https://img.shields.io/badge/version-0.2.2-8b5cf6?style=flat-square" alt="Version 0.2.2"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-8b5cf6?style=flat-square" alt="Version 0.2.3"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,12 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Current release: [0.2.2](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.2).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English, Traditional Chinese and Simplified Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+> **Current release: [0.2.3](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.3).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English, Traditional Chinese and Simplified Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+
+## New in 0.2.3
+
+- **Pages formulas in Obsidian:** convert complete standalone `latex` blocks containing bare TeX into native `$$` display math. Supports manual import and folder cleanup, including formula-only notes with HTML rendering off. Preview and cleanup summaries show the converted count; source backups and conflict protection remain in place.
+- **Corrected math skill:** author Page formulas as bare `latex` blocks without dollar wrappers. Intentional source examples can use `tex`, `text` or `latex source`. Nested, unclosed, wrapped and recognized document/preamble blocks are preserved. [Math workflow and validation limits](skills/gpt-pages-obsidian-visualizations/references/math.md).
 
 ## New in 0.2.2
 
@@ -45,7 +50,7 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 - **Portable images:** restore PNG, JPEG, GIF and WebP from image source blocks included in a single Markdown export. Verified files are saved beside the note in `GPT Pages Assets/` and linked locally; matching images are reused on repeat imports. Supports manual import and folder cleanup, with limits of **1 MiB per image, 4 MiB total and 32 image source blocks**. [Image authoring and recovery guide](docs/images.md).
 - **Cross-Page links:** the updated skill resolves internal Page links to tool-confirmed HTTPS destinations before export. These remain online links requiring access to the target Page; they do not become local notes. Unresolved links are preserved and reported. [Link preflight guide](skills/gpt-pages-obsidian-visualizations/references/page-links.md).
-- **Math authoring:** the current source skill uses bare `latex` formula blocks for Pages and converts eligible blocks to Obsidian display math. This requires the upcoming importer update; released 0.2.2 and earlier retain these blocks as code. [Math workflow](skills/gpt-pages-obsidian-visualizations/references/math.md).
+- **Math authoring:** the current source skill uses bare `latex` formula blocks for Pages and converts eligible blocks to Obsidian display math. This requires importer 0.2.3 or later; 0.2.2 and earlier retain these blocks as code. [Math workflow](skills/gpt-pages-obsidian-visualizations/references/math.md).
 
 **Update the Obsidian plugin and your AI agent's skill separately.** Images and native math need neither HTML trust nor Polyglot Renderer. Manual tests passed for the linked-Page and multi-image examples. Formula rendering was checked in a corrected local note; an unmodified Page math export still needs separate end-to-end validation.
 

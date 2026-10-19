@@ -2,7 +2,7 @@
 
 ## Pages formula comparison and source conversion update
 
-On 2026-10-19 UTC, a user reported that only a bare `latex` fence rendered the simple fraction in a controlled Pages comparison. Plain `$$` and a `latex` block containing `$$` did not. This is user-reported display evidence, not independent agent visual verification; longer formulas, matrices and cases remain unverified by this comparison. The source update adds conversion to Obsidian display math; no actual Markdown download or new Obsidian runtime check has yet established end-to-end success. Released 0.2.2 does not contain this conversion.
+On 2026-10-19 UTC, a user reported that only a bare `latex` fence rendered the simple fraction in a controlled Pages comparison. Plain `$$` and a `latex` block containing `$$` did not. This is user-reported display evidence, not independent agent visual verification; longer formulas, matrices and cases remain unverified by this comparison. Importer 0.2.3 adds conversion to Obsidian display math; no actual Markdown download or new Obsidian runtime check has yet established end-to-end success. Released 0.2.2 does not contain this conversion.
 
 **English** · [繁體中文](compatibility.zh-TW.md)
 

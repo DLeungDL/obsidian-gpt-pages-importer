@@ -6,7 +6,7 @@ Use this form for a Pages formula, with no dollar or bracket delimiters inside:
 \frac{2}{3}+\frac{1}{6}=\frac{5}{6}
 ```
 
-The importer in this source branch turns that complete top-level block into:
+Importer 0.2.3 turns that complete top-level block into:
 
 $$
 \frac{2}{3}+\frac{1}{6}=\frac{5}{6}
@@ -18,7 +18,7 @@ Only closed, nonempty, top-level `latex` fences with no extra info qualify (lang
 
 Manual imports use this conversion with HTML trust both off and on. Automatic cleanup also handles formula-only notes in the configured folder without enabling HTML rendering, backs up exact source bytes before replacement, and retains the existing conflict and cancellation checks. This does not authorize changing vault settings or accepting trust prompts.
 
-Published importer 0.2.2 and earlier keep `latex` as code. A new skill installation or a source build does not establish the user's installed plugin version. Report missing/unverified conversion support rather than claiming working Obsidian output.
+Use importer 0.2.3 for this conversion; 0.2.2 and earlier keep `latex` as code. A new skill installation or a source build does not establish the user's installed plugin version. Report missing/unverified conversion support rather than claiming working Obsidian output.
 
 ## Evidence and limits
 

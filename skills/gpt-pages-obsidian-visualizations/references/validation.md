@@ -25,7 +25,7 @@ Use the bundled [math-example.md](../assets/math-example.md) and the [math workf
 
 Compare the downloaded fence language and exact TeX bytes against the canonical source, especially `\\` matrix/alignment row separators. After import and automatic cleanup, eligible fences should become standalone `$$` lines, retaining the original formula bytes. Existing inline `$…$` and display `$$…$$` outside code remain unchanged. A source comparison or simulated import is not a real UI download or rendering test.
 
-In Obsidian Reading view, verify superscripts/subscripts, a mean of 1.5 m, an integral of 0, the matrix result (5, 11), and aligned equations ending in 25. Built-in MathJax handles these expressions without HTML trust or Polyglot Renderer. Confirm installed support: 0.2.2 and earlier do not convert `latex` fences. Record actual download and Obsidian runtime evidence separately. Do not substitute a repaired local file for the unmodified Page export.
+In Obsidian Reading view, verify superscripts/subscripts, a mean of 1.5 m, an integral of 0, the matrix result (5, 11), and aligned equations ending in 25. Built-in MathJax handles these expressions without HTML trust or Polyglot Renderer. Confirm importer 0.2.3 or later is installed: 0.2.2 and earlier do not convert `latex` fences. Record actual download and Obsidian runtime evidence separately. Do not substitute a repaired local file for the unmodified Page export.
 
 Primary reference: [Obsidian's official math syntax](https://help.obsidian.md/Editing+and+formatting/Advanced+formatting+syntax#Math).
 
