@@ -229,5 +229,34 @@
       "Malware/build-verification availability disclosures are controlled by the external review service",
       "Publication and actual review-service rescanning remain required"
     ]
+  },
+  "simplified_chinese_interface": {
+    "source_status": "Development build after 0.2.0, validated before the 0.2.1 release",
+    "vitest_tests": 441,
+    "python_tests": 10,
+    "obsidian_eslint_warnings": 0,
+    "desktop": {
+      "validation_date_hong_kong": "2026-10-20",
+      "obsidian": "1.14.4",
+      "os": "Debian 13.6 with Xorg virtual display",
+      "bundle_sha256": "5bbe7d67ed2dc27467262a87a2484829733fe16c3c3af7bd4f25a673d1c06679",
+      "checks": {
+        "manual_import_pairing": 2,
+        "plain_text_preview": true,
+        "exact_import_bytes_and_hash": true,
+        "unchanged_reimport": true,
+        "native_settings_and_search": true,
+        "trust_cancellation_keeps_rendering_disabled": true,
+        "explicit_save_required": true,
+        "localized_save_status": true,
+        "real_host_reload_switches_all_three_languages": true
+      },
+      "renderer_installed": false
+    },
+    "limitations": [
+      "No renderer execution validation in this run",
+      "No new older-host, mobile or Pages-export validation"
+    ],
+    "included_in_release": "0.2.1"
   }
 }

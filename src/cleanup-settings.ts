@@ -50,7 +50,7 @@ export class CleanupSettingTab extends PluginSettingTab {
       {
         name: t('settings.folder'),
         desc: t('settings.folderDescription'),
-        aliases: ['folder', 'watch', '資料夾'],
+        aliases: ['folder', 'watch', '資料夾', '文件夹'],
         render: setting => {
           setting.addText(text => text.setValue(draft.folder).onChange(folder => {
             if (draft.folder !== folder) { draft.renderHtml = false; trustedFolder = undefined; setRendering(false); trustDialog?.close(); }
@@ -61,7 +61,7 @@ export class CleanupSettingTab extends PluginSettingTab {
       {
         name: t('settings.enabled'),
         desc: t('settings.enabledDescription'),
-        aliases: ['automatic cleanup', '自動清理'],
+        aliases: ['automatic cleanup', '自動清理', '自动清理'],
         render: setting => { setting.addToggle(toggle => toggle.setValue(draft.enabled).onChange(enabled => { draft.enabled = enabled; })); }
       },
       {
@@ -95,7 +95,7 @@ export class CleanupSettingTab extends PluginSettingTab {
       {
         name: t('settings.actions'),
         desc: t('settings.actionsDescription'),
-        aliases: ['save', 'scan', 'backup', '儲存', '備份'],
+        aliases: ['save', 'scan', 'backup', '儲存', '備份', '保存', '备份'],
         render: setting => {
           setting.setClass('gpt-pages-cleanup-actions');
           status = setting.controlEl.createEl('p', { cls: 'gpt-pages-cleanup-status', text: this.controller.cleanupStatus });

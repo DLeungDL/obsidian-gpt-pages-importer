@@ -5,6 +5,8 @@ import { expect, it } from 'vitest';
 it.each([
   { name: 'modern English API', getLanguage: () => 'en', storage: 'stale', expected: 'Import Pages Markdown' },
   { name: 'modern Traditional Chinese API', getLanguage: () => 'zh-TW', storage: 'blocked', expected: '匯入 Pages Markdown' },
+  { name: 'modern Simplified Chinese API', getLanguage: () => 'zh', storage: 'blocked', expected: '导入 Pages Markdown' },
+  { name: 'modern Simplified Chinese region API', getLanguage: () => 'zh-CN', storage: 'stale', expected: '导入 Pages Markdown' },
   { name: 'unsupported French API', getLanguage: () => 'fr', storage: 'stale', expected: 'Import Pages Markdown' },
   { name: 'unsupported Japanese API', getLanguage: () => 'ja', storage: 'stale', expected: 'Import Pages Markdown' },
   { name: 'legacy host with stale language storage', storage: 'stale', expected: 'Import Pages Markdown' },

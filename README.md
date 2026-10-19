@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0"><img src="https://img.shields.io/badge/version-0.2.0-8b5cf6?style=flat-square" alt="Version 0.2.0"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1"><img src="https://img.shields.io/badge/version-0.2.1-8b5cf6?style=flat-square" alt="Version 0.2.1"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,11 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Current release: [0.2.0](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English and Traditional Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+> **Current release: [0.2.1](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.1).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English, Traditional Chinese and Simplified Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+
+## New in 0.2.1
+
+- **Simplified Chinese interface:** commands, import forms, previews, settings, renderer status and diagnostics now follow Obsidian’s 简体中文 setting. On Obsidian 1.8.7 or later, select 简体中文 and reload as prompted. The plugin recognizes `zh`, `zh-CN`, `zh-Hans` and `zh-SG`, alongside existing English and Traditional Chinese support.
 
 ## New in 0.2.0
 

@@ -31,27 +31,29 @@ function click(container: HTMLElement, label: string) {
 }
 
 it.each([
-  ['en', 'Import Pages Markdown', 'Import GPT Pages Markdown', 'Automatic folder cleanup'],
-  ['de', 'Import Pages Markdown', 'Import GPT Pages Markdown', 'Automatic folder cleanup'],
-  ['zh-TW', '匯入 Pages Markdown', '匯入 GPT Pages Markdown', '指定資料夾自動清理']
-])('uses the app language %s for commands, menus, settings, forms and renderer status', async (language, command, title, heading) => {
+  ['en', 'Import Pages Markdown', 'Import GPT Pages Markdown', 'Automatic folder cleanup', 'Import with GPT Pages Importer', 'Select a Markdown file', 'not installed'],
+  ['de', 'Import Pages Markdown', 'Import GPT Pages Markdown', 'Automatic folder cleanup', 'Import with GPT Pages Importer', 'Select a Markdown file', 'not installed'],
+  ['zh-TW', '匯入 Pages Markdown', '匯入 GPT Pages Markdown', '指定資料夾自動清理', '使用 GPT Pages Importer 匯入', '選取 Markdown 檔案', '未安裝'],
+  ['zh', '导入 Pages Markdown', '导入 GPT Pages Markdown', '指定文件夹自动清理', '使用 GPT Pages Importer 导入', '选择 Markdown 文件', '未安装'],
+  ['zh-CN', '导入 Pages Markdown', '导入 GPT Pages Markdown', '指定文件夹自动清理', '使用 GPT Pages Importer 导入', '选择 Markdown 文件', '未安装']
+])('uses the app language %s for commands, menus, settings, forms and renderer status', async (language, command, title, heading, context, fileLabel, missing) => {
   const plugin = await load(language);
   expect(plugin.commands[0]!.name).toBe(command);
   expect(plugin.ribbonIcons[0]!.title).toBe(command);
   const source = await plugin.app.vault.create('example.md', '# Example');
   const menu = new Menu(); plugin.app.workspace.fileMenuHandlers[0]!(menu, source);
-  expect(menu.items[0]!.title).toBe(language === 'zh-TW' ? '使用 GPT Pages Importer 匯入' : 'Import with GPT Pages Importer');
+  expect(menu.items[0]!.title).toBe(context);
   plugin.commands[0]!.callback();
   const form = Modal.opened[0]!.contentEl;
   expect(form.querySelector('h2')!.textContent).toBe(title);
-  expect(form.querySelector('input[type=file]')!.getAttribute('aria-label')).toBe(language === 'zh-TW' ? '選取 Markdown 檔案' : 'Select a Markdown file');
+  expect(form.querySelector('input[type=file]')!.getAttribute('aria-label')).toBe(fileLabel);
   expect(form.querySelector<HTMLInputElement>('input[type=checkbox]')!.checked).toBe(false);
-  await vi.waitFor(() => expect(form.querySelector('[aria-live=polite]')!.textContent).toContain(language === 'zh-TW' ? '未安裝' : 'not installed'));
+  await vi.waitFor(() => expect(form.querySelector('[aria-live=polite]')!.textContent).toContain(missing));
   const tab = plugin.settingTabs[0] as unknown as CleanupSettingTab;
   tab.display();
   expect(tab.containerEl.querySelector('.setting-item-heading')!.textContent).toBe(heading);
   expect(tab.getSettingDefinitions()[0]).toMatchObject({ heading });
-  if (language !== 'zh-TW') {
+  if (language === 'en' || language === 'de') {
     expect(form.textContent).not.toMatch(/[\u3400-\u9fff]/);
     expect(tab.containerEl.textContent).not.toMatch(/[\u3400-\u9fff]/);
     expect(plugin.cleanupStatus).toBe('Automatic cleanup is not enabled.');
@@ -62,6 +64,9 @@ it('reinitializes language when the plugin loads again after an Obsidian languag
   const chinese = await load('zh-TW');
   expect(chinese.commands[0]!.name).toBe('匯入 Pages Markdown');
   chinese.onunload();
+  const simplified = await load('zh');
+  expect(simplified.commands[0]!.name).toBe('导入 Pages Markdown');
+  simplified.onunload();
   const english = await load('en');
   expect(english.commands[0]!.name).toBe('Import Pages Markdown');
   english.commands[0]!.callback();
@@ -79,8 +84,17 @@ it('uses English through the actual initializer without reading stale storage wh
   expect(storageRead).not.toHaveBeenCalled();
 });
 
-it.each(['legacy', 'declarative'])('keeps the English %s folder trust confirmation and save requirement intact', async mode => {
-  await load('en');
+it.each([['en', 'legacy'], ['en', 'declarative'], ['zh', 'legacy'], ['zh', 'declarative']])('keeps the %s %s folder trust confirmation and save requirement intact', async (language, mode) => {
+  await load(language);
+  const labels = language === 'zh' ? {
+    names: ['自动清理文件夹', '启用自动清理', '清理后启用 HTML 渲染', '清理状态与操作'],
+    title: '确认信任文件夹内容', scope: '现有及日后新增或修改的所有 HTML',
+    cancel: '取消', confirm: '我信任此文件夹内容，启用渲染', save: '保存设置'
+  } : {
+    names: ['Watched folder', 'Enable automatic cleanup', 'Enable HTML rendering after cleanup', 'Cleanup status and actions'],
+    title: 'Confirm trust in folder contents', scope: 'existing and future HTML',
+    cancel: 'Cancel', confirm: 'I trust this folder; enable rendering', save: 'Save settings'
+  };
   const configure = vi.fn(async () => {});
   const tab = new CleanupSettingTab(new TestApp() as never, {} as never, {
     getCleanupSettings: () => ({ enabled: false, folder: 'Inbox', renderHtml: false }),
@@ -90,23 +104,23 @@ it.each(['legacy', 'declarative'])('keeps the English %s folder trust confirmati
   else {
     const group = tab.getSettingDefinitions()[0]!;
     if (!('items' in group)) throw new Error('Missing group');
-    expect(group.items?.map(item => 'name' in item ? item.name : '')).toEqual(['Watched folder', 'Enable automatic cleanup', 'Enable HTML rendering after cleanup', 'Cleanup status and actions']);
+    expect(group.items?.map(item => 'name' in item ? item.name : '')).toEqual(labels.names);
     for (const item of group.items ?? []) if ('render' in item && item.render) item.render(new Setting(tab.containerEl) as never, {} as never);
   }
   const rendering = tab.containerEl.querySelectorAll<HTMLInputElement>('input[type=checkbox]')[1]!;
   rendering.checked = true; rendering.dispatchEvent(new Event('change'));
   expect(rendering.checked).toBe(false);
   const dialog = Modal.opened[0]!;
-  expect(dialog.contentEl.querySelector('h2')!.textContent).toBe('Confirm trust in folder contents');
-  expect(dialog.contentEl.textContent).toContain('existing and future HTML');
-  expect(dialog.contentEl.textContent).not.toMatch(/[\u3400-\u9fff]/);
-  click(dialog.contentEl, 'Cancel');
+  expect(dialog.contentEl.querySelector('h2')!.textContent).toBe(labels.title);
+  expect(dialog.contentEl.textContent).toContain(labels.scope);
+  if (language === 'en') expect(dialog.contentEl.textContent).not.toMatch(/[\u3400-\u9fff]/);
+  click(dialog.contentEl, labels.cancel);
   expect(rendering.checked).toBe(false);
   rendering.checked = true; rendering.dispatchEvent(new Event('change'));
-  click(Modal.opened[0]!.contentEl, 'I trust this folder; enable rendering');
+  click(Modal.opened[0]!.contentEl, labels.confirm);
   expect(rendering.checked).toBe(true);
   expect(configure).not.toHaveBeenCalled();
-  click(tab.containerEl, 'Save settings');
+  click(tab.containerEl, labels.save);
   await vi.waitFor(() => expect(configure).toHaveBeenCalledWith({ enabled: false, folder: 'Inbox', renderHtml: true }, 'Inbox'));
 });
 
@@ -125,8 +139,17 @@ it.each(['not installed', 'disabled', 'enabled', 'unable to determine'])('render
   expect(form.querySelector<HTMLInputElement>('input[type=checkbox]')!.checked).toBe(false);
 });
 
-it('imports and re-imports from the English UI with exact bytes, hashes, warnings and notices', async () => {
-  const plugin = await load('en');
+it.each(['en', 'zh'])('imports and re-imports from the %s UI with exact bytes, hashes, warnings and notices', async language => {
+  const plugin = await load(language);
+  const labels = language === 'zh' ? {
+    selected: '已选择：example.md', preview: '预览', title: '导入预览', paired: '成功配对：1',
+    warning: 'HTML 已保留为 html-source', done: '完成（无更改）', confirm: '确认导入',
+    unchanged: '内容相同，未写入', imported: '已导入：'
+  } : {
+    selected: 'Selected: example.md', preview: 'Preview', title: 'Import preview', paired: 'paired figures: 1',
+    warning: 'HTML was preserved as html-source', done: 'Done (no changes)', confirm: 'Confirm import',
+    unchanged: 'Content unchanged; nothing written', imported: 'Imported:'
+  };
   const source = '\uFEFF' + readFileSync('tests/fixtures/interactive.input.md', 'utf8').replace(/\r?\n/g, '\r\n');
   const expected = '\uFEFF' + readFileSync('tests/fixtures/interactive.expected.md', 'utf8').replace(/\r?\n/g, '\r\n');
   const original = await plugin.app.vault.create('exports/example.md', source);
@@ -134,20 +157,20 @@ it('imports and re-imports from the English UI with exact bytes, hashes, warning
     await plugin.app.workspace.getLeaf(false).openFile(original);
     plugin.commands.find(command => command.id === 'import-current-note')!.callback();
     const form = Modal.opened[0]!.contentEl;
-    expect(form.textContent).toContain('Selected: example.md');
-    click(form, 'Preview');
-    await vi.waitFor(() => expect(Modal.opened[0]!.contentEl.querySelector('h2')!.textContent).toBe('Import preview'));
+    expect(form.textContent).toContain(labels.selected);
+    click(form, labels.preview);
+    await vi.waitFor(() => expect(Modal.opened[0]!.contentEl.querySelector('h2')!.textContent).toBe(labels.title));
     const preview = Modal.opened[0]!.contentEl;
-    expect(preview.textContent).toContain('paired figures: 1');
-    expect(preview.textContent).toContain('HTML was preserved as html-source');
+    expect(preview.textContent).toContain(labels.paired);
+    expect(preview.textContent).toContain(labels.warning);
     expect(preview.querySelector('script,img,iframe')).toBeNull();
-    click(preview, unchanged ? 'Done (no changes)' : 'Confirm import');
+    click(preview, unchanged ? labels.done : labels.confirm);
     await vi.waitFor(() => expect(Modal.opened).toHaveLength(0));
     const entry = Object.values((plugin.data as State).entries)[0]!;
     expect(plugin.app.vault.files.get(entry.destination)).toBe(expected);
     expect(entry.outputHash).toBe(await digest(expected));
     expect(plugin.app.vault.files.get(original.path)).toBe(source);
-    expect(Notice.messages.at(-1)).toContain(unchanged ? 'Content unchanged; nothing written' : 'Imported:');
+    expect(Notice.messages.at(-1)).toContain(unchanged ? labels.unchanged : labels.imported);
   }
   expect(plugin.app.vault.files.size).toBe(2);
 });
