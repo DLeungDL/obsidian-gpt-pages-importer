@@ -68,13 +68,15 @@ it('reinitializes language when the plugin loads again after an Obsidian languag
   expect(Modal.opened[0]!.contentEl.querySelector('h2')!.textContent).toBe('Import GPT Pages Markdown');
 });
 
-it('uses the legacy app setting through the actual initializer when the modern API is unavailable', () => {
-  vi.spyOn(obsidian, 'getLanguage').mockImplementation(undefined as never);
+it('uses English through the actual initializer without reading stale storage when the API returns no language', () => {
+  vi.spyOn(obsidian, 'getLanguage').mockReturnValue(undefined as never);
   window.localStorage.setItem('language', 'zh-TW');
+  const storageRead = vi.spyOn(Storage.prototype, 'getItem');
   initializeLanguage();
   const setting = new Setting(document.createElement('div'));
   addRendererStatus(setting as never, new TestApp() as never);
-  expect(setting.element.querySelector('button')!.textContent).toBe('重新檢查 renderer');
+  expect(setting.element.querySelector('button')!.textContent).toBe('Recheck renderer');
+  expect(storageRead).not.toHaveBeenCalled();
 });
 
 it.each(['legacy', 'declarative'])('keeps the English %s folder trust confirmation and save requirement intact', async mode => {

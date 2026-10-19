@@ -1,6 +1,6 @@
 {
   "name": "obsidian-gpt-pages-importer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -28,9 +28,10 @@
     "eslint": "9.39.5",
     "eslint-plugin-obsidianmd": "0.4.2",
     "jsdom": "26.1.0",
-    "obsidian": "1.13.1",
+    "obsidian": "1.14.4",
     "typescript": "5.9.3",
     "typescript-eslint": "8.71.2",
-    "vitest": "3.2.7"
+    "vite": "7.3.7",
+    "vitest": "5.0.5"
   }
 }
