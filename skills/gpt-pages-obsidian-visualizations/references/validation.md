@@ -19,6 +19,14 @@ Passing one layer does not establish a later layer. For untested or blocked laye
 
 This is the default workflow for creating a Page or an unspecified import demo. The Page and its downloaded Markdown contain native visuals, compact v3 figure markers and complete `html` sources in the footer. Verify those bytes first. A manual import defaults to `html-source`; trusting a manual import and testing its renderer does not test the watched folder's trust setting.
 
+## Mathematics
+
+Use the bundled [math-example.md](../assets/math-example.md) when testing math export. Inline formulas must retain their single-dollar delimiters; each display formula must retain both standalone `$$` lines. Compare the exact TeX source in the actual download, especially `\\` row separators in matrices and aligned equations. Escaped dollars or a `latex`/`math` code fence do not establish rendered formulas.
+
+After import and automatic cleanup, check that the same delimiters and TeX bytes remain. In Obsidian Reading view, verify inline superscripts/subscripts, a mean of 1.5 m, an integral of 0, the matrix result (5, 11), and aligned equations ending in 25. Built-in MathJax handles these expressions without HTML trust or Polyglot Renderer. Record actual runtime evidence separately from source-preservation tests. If Pages tools cannot author/preserve the math format, report that limitation instead of claiming a successful Page export from a repaired local copy.
+
+Primary reference: [Obsidian's official math syntax](https://help.obsidian.md/Editing+and+formatting/Advanced+formatting+syntax#Math).
+
 ## Automatic-cleanup trust test
 
 Use this workflow when the user requests validation of watched-folder cleanup and rendering trust:

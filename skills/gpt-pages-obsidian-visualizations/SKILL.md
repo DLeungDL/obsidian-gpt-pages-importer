@@ -27,6 +27,14 @@ The [Pages plugin](https://chatgpt.com/plugins/plugin_connector_1p_4a72ddeef4c48
 - Preserve existing content and user edits. Invoking this skill does not itself authorize Page edits, vault configuration changes, plugin installation, publishing or synchronization. Follow the current task's authorization.
 - Write Page prose, labels and accessibility text in the user's requested language. English skill instructions do not require English output.
 
+## Mathematics for Obsidian
+
+- **Required delimiters:** formulas intended to render in Obsidian must use `$…$` for inline math or `$$…$$` for display math. Put display delimiters on separate lines, with blank lines around the block. Use [assets/math-example.md](assets/math-example.md) as a portable example covering subscripts, fractions, sums, integrals, matrices and aligned equations.
+- Do not substitute fenced `latex` or `math` code blocks for rendered formulas. Those fences remain source code in Obsidian; retain them only when the user actually wants a code example. The importer preserves them and does not automatically convert them to math.
+- Preserve TeX bytes, including `\frac`, `\begin`, subscripts and `\\` matrix/alignment row separators. When generating edits with JavaScript, use a replacement callback (`text.replace(anchor, () => replacement)`) for literal math: a replacement string interprets `$$` as a single `$`. Do not globally unescape Markdown.
+- Check the current Pages tool's supported formats before writing. If it cannot preserve the required math delimiters, report that Page-to-Obsidian math export is blocked; do not silently fall back to code fences or present a separately repaired Markdown copy as a successful Page export. Preserve unrelated existing content.
+- Compare formulas and delimiters in the actual Page download against the canonical source, then verify Obsidian Reading view separately. A preserved code block is not rendered-math evidence. Obsidian uses its built-in MathJax for these formulas; Polyglot Renderer and HTML trust are not required.
+
 ## Choose the workflow
 
 | Purpose | Source fence and expected behavior |
