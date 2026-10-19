@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二次函數參數探索</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 12px; color: #17243a; background: #fff; font: 15px system-ui, sans-serif; }
+main { max-width: 760px; margin: auto; }
+fieldset { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border: 0; padding: 0; margin: 12px 0; }
+input { max-width: 100%; }
+button { padding: 6px 12px; font: inherit; cursor: pointer; }
+#chart { min-height: 280px; width: 100%; }
+#status { overflow-wrap: anywhere; }
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+<p aria-label="函數公式">y = a·x²</p>
+<p id="status" role="status">正在載入 Plotly.js…</p>
+<fieldset id="controls" disabled>
+<label for="amplitude">參數 a</label>
+<input id="amplitude" type="range" min="-2" max="2" step="0.1" value="1">
+<output id="value" for="amplitude">1.0</output>
+<button id="reset" type="button">重設</button>
+</fieldset>
+<div id="chart" role="img" aria-label="可調整參數的二次函數圖"></div>
+</main>
+<script>
+(async function () {
+  'use strict';
+  const status = document.getElementById('status');
+  const controls = document.getElementById('controls');
+  const slider = document.getElementById('amplitude');
+  const value = document.getElementById('value');
+  const chart = document.getElementById('chart');
+  function failed(error) {
+    controls.disabled = true;
+    status.setAttribute('role', 'alert');
+    status.textContent = '圖表載入或更新失敗：' + String(error.message || error);
+  }
+  function loadScript(url) {
+    return new Promise(function (resolve, reject) {
+      const script = document.createElement('script');
+      const timer = setTimeout(function () { script.remove(); reject(new Error('程式庫載入逾時，請檢查網絡。')); }, 18000);
+      script.src = url;
+      script.crossOrigin = 'anonymous';
+      script.onload = function () { clearTimeout(timer); resolve(); };
+      script.onerror = function () { clearTimeout(timer); reject(new Error('無法載入程式庫，請檢查網絡或顯示環境限制。')); };
+      document.head.appendChild(script);
+    });
+  }
+  try {
+    await loadScript('https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3.1.0/plotly.min.js');
+    if (!window.Plotly) throw new Error('Plotly.js 尚未初始化。');
+    const xs = Array.from({ length: 121 }, function (_, i) { return (i - 60) / 20; });
+    function ys() { const a = Number(slider.value); return xs.map(function (x) { return a * x * x; }); }
+    await window.Plotly.newPlot(chart, [{ x: xs, y: ys(), type: 'scatter', mode: 'lines', line: { color: '#2563eb', width: 3 } }],
+      { height: 280, margin: { l: 45, r: 12, t: 12, b: 40 }, xaxis: { title: { text: 'x' } }, yaxis: { title: { text: 'y' } }, paper_bgcolor: '#fff', plot_bgcolor: '#fff' },
+      { responsive: true, displayModeBar: false });
+    async function update() {
+      value.textContent = Number(slider.value).toFixed(1);
+      await window.Plotly.restyle(chart, { y: [ys()] });
+    }
+    slider.addEventListener('input', function () { update().catch(failed); });
+    document.getElementById('reset').addEventListener('click', function () { slider.value = '1'; update().catch(failed); });
+    controls.disabled = false;
+    status.textContent = '拖動滑桿，觀察開口方向與曲線變化。';
+  } catch (error) { failed(error); }
+})();
+</script>
+</body>
+</html>

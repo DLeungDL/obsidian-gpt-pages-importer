@@ -127,7 +127,7 @@ HTML/CSS/JS、所有必要資料須完整放在 fence，不能只留下 `visuali
 
 ## 資產限制
 
-建議每個文件自包含 HTML/CSS/JS／資料，可用 data URI 放圖片。相對資產以目的筆記目錄為檢查基準，**不複製或下載**來源檔旁的附件。
+完整 HTML 須包含圖表資料與初始化程式。生成 skill 允許 Plotly.js／MathBox 等固定版本 CDN，需標明網絡要求；HTML 雜湊不驗證遠端程式庫內容。使用者要求離線時才選擇經量度大小的自包含 HTML/CSS/JS／資料，圖片可用 data URI。相對資產以目的筆記目錄為檢查基準，**不複製或下載**來源檔旁的附件。
 
 獨立的[圖片來源 v1 合約](images.zh-TW.md) 支援將 PNG／JPEG／GIF／WebP 原圖 Base64 明確內嵌於 Markdown，並還原成 vault 圖片；不處理 HTML 內部圖片，也不改變既有 v1／v2／v3 圖表合約。
 

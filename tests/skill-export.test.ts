@@ -17,6 +17,20 @@ beforeEach(() => {
 afterAll(() => unlinkSync(path));
 
 describe('published portable Page skill', () => {
+  it.each(['plotly-function.html', 'mathbox-curve.html'])('preserves CDN template %s through v3 pairing and conversion', async name => {
+    const bytes = readFileSync(root + '/assets/' + name);
+    writeFileSync(path, bytes);
+    const result = run(['cdn-example', 'native-cdn-example', path]);
+    expect(result.status, result.stderr).toBe(0);
+    const pair = JSON.parse(result.stdout);
+    expect(pair.sha256).toBe(createHash('sha256').update(bytes).digest('hex'));
+    const output = await convertVerified(pair.figure_marker + '\n\n![圖](visualize:native-cdn-example)\n\n' + pair.source_markdown);
+    expect(output.figures).toBe(1);
+    expect(output.markdown).toContain(bytes.toString('utf8'));
+    expect(output.markdown).toContain('```html-source');
+    expect(output.markdown).not.toMatch(/gpt-pages:|visualize:/);
+  });
+
   it.each([
     ['default invocation', []],
     ['explicit --v3', ['--v3']]
