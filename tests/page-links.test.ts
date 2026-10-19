@@ -5,14 +5,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import { convertVerified } from '../src/convert.ts';
+import { convertVerified } from '../src/convert';
 import { applyPageLinkPlan, planPageLinks } from '../skills/gpt-pages-obsidian-visualizations/scripts/page_links.mjs';
+import type { PageLinkPlan } from '../skills/gpt-pages-obsidian-visualizations/scripts/page_links.mjs';
 
 const alpha = 'https://example.invalid/pages/alpha';
 const beta = 'https://example.invalid/pages/beta';
-const receipt = (pageId, url) => ({ metadata: { page_id: pageId, url } });
+const receipt = (pageId: string, url: string) => ({ metadata: { page_id: pageId, url } });
 const receipts = { page_ALPHA: receipt('page_ALPHA', alpha), page_BETA: receipt('page_BETA', beta) };
-const rewrite = (source, resolutions = receipts) => applyPageLinkPlan(source, planPageLinks(source, resolutions));
+const rewrite = (source: string, resolutions: Record<string, unknown> = receipts) => applyPageLinkPlan(source, planPageLinks(source, resolutions));
 
 describe('cross-Page link preflight', () => {
   it('supports both Page URI forms, Markdown escapes, entities and repeated targets without changing labels or titles', () => {
@@ -132,14 +133,14 @@ describe('cross-Page link preflight', () => {
   it('reports a failed lookup without losing the original destination', () => {
     const source = '[Read](page:page_ALPHA)';
     const plan = planPageLinks(source, { get page_ALPHA() { throw new Error('Tool unavailable'); } });
-    expect(plan.unresolved[0].reason).toBe('read-failed');
+    expect(plan.unresolved[0]?.reason).toBe('read-failed');
     expect(applyPageLinkPlan(source, plan)).toBe(source);
   });
 
   it.each(['page:///page_ALPHA', 'page:page_ALPHA#section', 'page://page_ALPHA?mode=read', 'page:missing-prefix'])('reports unsupported URI %s without guessing a target', url => {
     const source = `[Keep](${url})`;
     const plan = planPageLinks(source, receipts);
-    expect(plan.unresolved[0].reason).toBe('unsupported-page-uri');
+    expect(plan.unresolved[0]?.reason).toBe('unsupported-page-uri');
     expect(plan.targets).toEqual([]);
     expect(applyPageLinkPlan(source, plan)).toBe(source);
   });
@@ -149,7 +150,7 @@ describe('cross-Page link preflight', () => {
     ['[Read][shared]\n\n[shared]: page:page_ALPHA\n[SHARED]: page:page_BETA', 'ambiguous-definition']
   ])('preserves an ambiguous/shared reference definition (case %#)', (source, reason) => {
     const plan = planPageLinks(source, receipts);
-    expect(plan.unresolved[0].reason).toBe(reason);
+    expect(plan.unresolved[0]?.reason).toBe(reason);
     expect(plan.edits).toEqual([]);
     expect(applyPageLinkPlan(source, plan)).toBe(source);
   });
@@ -158,20 +159,26 @@ describe('cross-Page link preflight', () => {
     const url = 'https://example.invalid/a(b)?label=&copy;&mode=[read]';
     const result = rewrite('[Read](page:page_ALPHA)\n\n[Ref][r]\n\n[r]: <page:page_ALPHA>\n\n<page:page_ALPHA>', { page_ALPHA: receipt('page_ALPHA', url) });
     const tree = fromMarkdown(result);
-    const inline = tree.children[0].children[0];
+    const first = tree.children[0];
+    const last = tree.children.at(-1);
+    if (first?.type !== 'paragraph' || last?.type !== 'paragraph') throw new Error('Expected link paragraphs');
+    const inline = first.children[0];
     const definition = tree.children.find(node => node.type === 'definition');
-    const autolink = tree.children.at(-1).children[0];
+    const autolink = last.children[0];
+    if (inline?.type !== 'link' || autolink?.type !== 'link') throw new Error('Expected inline link and autolink');
     expect(inline.url).toBe(url);
-    expect(definition.url).toBe(url);
+    expect(definition?.url).toBe(url);
     expect(autolink.url).toBe(url);
   });
 
   it('rejects stale source, stale spans and overlapping edits', () => {
     const source = '[One](page:page_ALPHA) [Two](page:page_BETA)';
     const plan = planPageLinks(source, receipts);
+    const firstEdit = plan.edits[0];
+    if (!firstEdit) throw new Error('Expected a planned link edit');
     expect(() => applyPageLinkPlan(source + '\n', plan)).toThrow('Source changed');
-    expect(() => applyPageLinkPlan(source, { ...plan, edits: [{ ...plan.edits[0], oldText: 'wrong' }] })).toThrow('stale link edit');
-    expect(() => applyPageLinkPlan(source, { ...plan, edits: [plan.edits[0], plan.edits[0]] })).toThrow('Overlapping');
+    expect(() => applyPageLinkPlan(source, { ...plan, edits: [{ ...firstEdit, oldText: 'wrong' }] })).toThrow('stale link edit');
+    expect(() => applyPageLinkPlan(source, { ...plan, edits: [firstEdit, firstEdit] })).toThrow('Overlapping');
   });
 
   it.each([null, [], 'https://example.invalid/page'])('rejects an invalid receipt collection (case %#)', value => {
@@ -200,7 +207,7 @@ describe('portable preflight CLI', () => {
   const resolutions = prefix + '.json';
   const output = prefix + '-output.md';
   const cli = 'skills/gpt-pages-obsidian-visualizations/scripts/page_links.mjs';
-  const run = args => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8' });
+  const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8' });
   beforeEach(() => {
     writeFileSync(input, '\uFEFF[Read](page\\:page_ALPHA)\r\n');
     writeFileSync(resolutions, JSON.stringify(receipts));
@@ -216,9 +223,9 @@ describe('portable preflight CLI', () => {
     const source = readFileSync(input);
     const result = run(['scan', input]);
     expect(result.status, result.stderr).toBe(0);
-    const report = JSON.parse(result.stdout);
+    const report: PageLinkPlan = JSON.parse(result.stdout);
     expect(report.targets).toEqual([{ pageId: 'page_ALPHA', occurrences: 1 }]);
-    expect(report.unresolved[0].reason).toBe('not-resolved');
+    expect(report.unresolved[0]?.reason).toBe('not-resolved');
     expect(report.sourceSha256).toBe(createHash('sha256').update(source).digest('hex'));
     expect(readFileSync(input)).toEqual(source);
     expect(existsSync(output)).toBe(false);
@@ -227,7 +234,8 @@ describe('portable preflight CLI', () => {
   it('writes a new verified copy with the BOM and CRLF preserved', () => {
     const result = run(['rewrite', input, resolutions, '--out', output]);
     expect(result.status, result.stderr).toBe(0);
-    expect(JSON.parse(result.stdout).edits).toHaveLength(1);
+    const report: PageLinkPlan = JSON.parse(result.stdout);
+    expect(report.edits).toHaveLength(1);
     expect(readFileSync(output)).toEqual(Buffer.from(`\uFEFF[Read](${alpha})\r\n`));
     expect(readFileSync(input, 'utf8')).toBe('\uFEFF[Read](page\\:page_ALPHA)\r\n');
   });
@@ -236,7 +244,8 @@ describe('portable preflight CLI', () => {
     writeFileSync(resolutions, JSON.stringify({ page_ALPHA: { error: { code: 'not_found' } } }));
     const result = run(['rewrite', input, resolutions, '--out', output]);
     expect(result.status).toBe(2);
-    expect(JSON.parse(result.stdout).unresolved[0].reason).toBe('read-failed');
+    const report: PageLinkPlan = JSON.parse(result.stdout);
+    expect(report.unresolved[0]?.reason).toBe('read-failed');
     expect(readFileSync(output)).toEqual(readFileSync(input));
   });
 
