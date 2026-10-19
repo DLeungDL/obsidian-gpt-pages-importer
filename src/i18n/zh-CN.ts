@@ -1,6 +1,8 @@
 import type { en } from './en';
 
 export const zhCN = {
+  'math.count': '将转换的公式块：{count}',
+  'math.cleaned': '；已转换 {count} 个公式块',
   'image.invalid': '可移植图片来源无效、配对不明确、不受支持或超出限制，已保留原文。',
   'image.storageUnavailable': '无法使用二进制图片存储功能，笔记尚未修改。',
   'image.conflict': '图片内容冲突或验证失败：{path}。笔记尚未修改。',

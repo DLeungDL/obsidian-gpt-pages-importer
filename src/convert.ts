@@ -6,7 +6,7 @@ import type { PortableImage } from './images';
 
 /** Pure conversion: never executes source or parses HTML into a live DOM. */
 export interface Warning { code: string; message: string; line?: number }
-export interface Conversion { markdown: string; warnings: Warning[]; figures: number; assets: string[]; images?: PortableImage[] }
+export interface Conversion { markdown: string; warnings: Warning[]; figures: number; assets: string[]; images?: PortableImage[]; mathBlocks?: number }
 interface Line { text: string; start: number; end: number }
 interface Fence { first: number; last: number; language: string; closed: boolean }
 interface Edit { start: number; end: number; text: string }
@@ -18,7 +18,7 @@ interface Prepared {
   markdown: string; lines: Line[]; warnings: Warning[]; edits: Edit[];
   protectedLines: Set<number>; referenceLines: Set<number>; pairedReferences: Set<number>;
   sources: SourceMarker[]; pairedSources: Set<number>;
-  figures: number; candidates: Candidate[];
+  figures: number; candidates: Candidate[]; mathBlocks: number;
 }
 
 /** Synchronous v1 API. Unverified v2/v3 references are retained. */
@@ -35,7 +35,7 @@ export async function convertVerified(markdown: string, trusted = false): Promis
   return verify(prepare(markdown, trusted));
 }
 
-/** In-place cleanup preserves fence languages unless rendering is explicitly trusted. */
+/** HTML fence conversion requires trust; standalone Pages math uses Obsidian math. */
 export async function cleanVerified(markdown: string, renderHtml = false): Promise<Conversion> {
   return verify(prepare(markdown, renderHtml ? true : null));
 }
@@ -95,6 +95,7 @@ function prepare(markdown: string, trusted: boolean | null): Prepared {
   const protectedLines = new Set<number>();
   const warnings: Warning[] = [];
   const edits: Edit[] = [];
+  let mathBlocks = 0;
   const standalone = new Map<number, Token>();
   const referenceLines = new Set<number>();
   const imageCounts = new Map<string, number>();
@@ -133,6 +134,20 @@ function prepare(markdown: string, trusted: boolean | null): Prepared {
         const closing = new RegExp(`^ {0,3}${delimiter[0]}{${delimiter.length},}[ \\t]*$`);
         const closed = last > first && closing.test(lines[last]!.text);
         if (topLevel) fences.push({ first, last, language, closed });
+        if (topLevel && closed && language === 'latex' && opener[4]!.toLowerCase() === 'latex' && !opener[5]!.trim()) {
+          const source = markdown.slice(lines[first]!.end, lines[last]!.start);
+          // Convert the bare formula form used by Pages. Preserve wrapped math,
+          // document/preamble code, empty blocks and ambiguous forms.
+          if (source.trim() && !/\$|\\(?:\(|\)|\[|\])|\\(?:documentclass|usepackage|newcommand|renewcommand|def|input|include)\b|\\(?:begin|end)\s*\{document\}/.test(source)) {
+            const newline = markdown.slice(lines[first]!.start + lines[first]!.text.length, lines[first]!.end);
+            const prefix = first > 0 && lines[first - 1]!.text.trim() ? newline : '';
+            const suffix = last + 1 < lines.length && lines[last + 1]!.text.trim() ? newline : '';
+            const bom = first === 0 ? lines[first]!.text.match(/^\uFEFF+/)?.[0] ?? '' : '';
+            edits.push({ start: lines[first]!.start, end: lines[first]!.end - newline.length, text: bom + prefix + '$$' });
+            edits.push({ start: lines[last]!.start, end: lines[last]!.start + lines[last]!.text.length, text: '$$' + suffix });
+            mathBlocks++;
+          }
+        }
         if (['html', 'html-source'].includes(language)) {
           const desired = trusted === null ? opener[4]! : trusted ? 'html' : 'html-source';
           const tokenStart = offset + opener[1]!.length + delimiter.length + opener[3]!.length;
@@ -175,7 +190,7 @@ function prepare(markdown: string, trusted: boolean | null): Prepared {
     }
     else if (/gpt-pages\\?:source/.test(line.text)) warnings.push({ code: 'malformed-source', message: t('warning.malformedSource'), line: index + 1 });
   });
-  const prepared: Prepared = { markdown, lines, warnings, edits, protectedLines, referenceLines, pairedReferences: new Set(), sources, pairedSources: new Set(), figures: 0, candidates: [] };
+  const prepared: Prepared = { markdown, lines, warnings, edits, protectedLines, referenceLines, pairedReferences: new Set(), sources, pairedSources: new Set(), figures: 0, candidates: [], mathBlocks };
   const nextNonBlank = (index: number): number => {
     while (index < lines.length && !lines[index]!.text.trim()) index++;
     return index;
@@ -250,7 +265,7 @@ function finish(prepared: Prepared): Conversion {
   for (const edit of edits.sort((a, b) => b.start - a.start)) output = output.slice(0, edit.start) + edit.text + output.slice(edit.end);
   const assets = assetReferences(output);
   if (assets.length) warnings.push({ code: 'asset-references', message: t('warning.assets') });
-  return { markdown: output, warnings, figures, assets };
+  return { markdown: output, warnings, figures, assets, ...(prepared.mathBlocks ? { mathBlocks: prepared.mathBlocks } : {}) };
 }
 
 export function assetReferences(text: string): string[] {

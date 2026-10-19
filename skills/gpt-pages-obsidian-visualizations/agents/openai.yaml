@@ -1,7 +1,7 @@
 interface:
   display_name: "GPT Pages Export to Obsidian"
   short_description: "Create v3 Pages with Plotly.js and MathBox visualizations"
-  default_prompt: "Use $gpt-pages-obsidian-visualizations with @Pages to create or update a Page. Default to Plotly.js for charts and MathBox for mathematical animations, with fixed compatible CDN versions and explicit network requirements. Preserve native visuals, compact v3 markers and complete footer HTML sources. Keep math delimiters and verified HTTPS links; prepare a separate html-source copy only for rendering-trust tests."
+  default_prompt: "Use $gpt-pages-obsidian-visualizations with @Pages to create or update a Page. Default to Plotly.js for charts and MathBox for mathematical animations, with fixed compatible CDN versions and explicit network requirements. Preserve native visuals, compact v3 markers and complete footer HTML sources. Use bare standalone latex blocks for Page formulas and confirm importer math-conversion support; preserve verified HTTPS links; prepare a separate html-source copy only for rendering-trust tests."
 
 dependencies:
   tools:

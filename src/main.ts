@@ -268,7 +268,7 @@ export default class GPTPagesImporter extends Plugin {
   }
   private async cleanPaths(paths: string[]): Promise<void> {
     const revision = this.cleanupRevision;
-    let cleaned = 0; let figures = 0; let images = 0;
+    let cleaned = 0; let figures = 0; let images = 0; let mathBlocks = 0;
     const problems: string[] = [];
     for (const path of paths) {
       try {
@@ -276,14 +276,14 @@ export default class GPTPagesImporter extends Plugin {
           const allowed = () => revision === this.cleanupRevision && this.canClean(path) && this.app.vault.getAbstractFileByPath(path) instanceof TFile;
           if (!allowed()) return;
           const result = await cleanFile(new VaultStorage(this.app.vault, 20 * 1024 * 1024, allowed), path, allowed, this.cleanupSettings.renderHtml);
-          if (result.backup) { cleaned++; figures += result.figures; images += result.images ?? 0; }
+          if (result.backup) { cleaned++; figures += result.figures; images += result.images ?? 0; mathBlocks += result.mathBlocks ?? 0; }
           const warnings = result.warnings.filter(warning => !['asset-references', 'trusted-rendering'].includes(warning.code));
           if (warnings.length) problems.push(t('cleanup.problem', { path, message: warnings[0]!.message }));
         });
       } catch (error) { problems.push(t('cleanup.problem', { path, message: errorMessage(error) })); }
     }
     if (!cleaned && !problems.length) return;
-    this.cleanupStatus = t('cleanup.summary', { cleaned, figures, details: (images ? t('image.cleaned', { count: images }) : '') + (problems.length ? t('cleanup.problems', { count: problems.length, problems: problems.slice(0, 3).join('; ') }) : t('cleanup.backedUp')) });
+    this.cleanupStatus = t('cleanup.summary', { cleaned, figures, details: (images ? t('image.cleaned', { count: images }) : '') + (mathBlocks ? t('math.cleaned', { count: mathBlocks }) : '') + (problems.length ? t('cleanup.problems', { count: problems.length, problems: problems.slice(0, 3).join('; ') }) : t('cleanup.backedUp')) });
     new Notice(this.cleanupStatus, problems.length ? 15000 : 10000);
   }
   private isSource(file: TFile | null): file is TFile {

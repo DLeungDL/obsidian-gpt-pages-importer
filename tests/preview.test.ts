@@ -14,10 +14,11 @@ it('shows hostile source and warning text without creating executable DOM', () =
 });
 it('keeps summary actions outside collapsed source and asset details', () => {
   const container = document.createElement('div');
-  const plan: Plan = { key: '', sourceId: '', destination: 'GPT Pages/example.md', before: 'Before', conversion: { markdown: 'After', warnings: [], figures: 4, assets: [] }, outputHash: '', status: 'update' };
+  const plan: Plan = { key: '', sourceId: '', destination: 'GPT Pages/example.md', before: 'Before', conversion: { markdown: 'After', warnings: [], figures: 4, assets: [], mathBlocks: 2 }, outputHash: '', status: 'update' };
   const actions = renderPreview(container, plan, []);
   const details = [...container.querySelectorAll('details')];
   expect(container.textContent).toContain('成功配對：4');
+  expect(container.textContent).toContain('將轉換的公式區塊：2');
   expect(details).toHaveLength(3);
   expect(details.every(section => !section.open)).toBe(true);
   expect(actions.closest('details')).toBeNull();

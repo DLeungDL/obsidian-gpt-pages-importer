@@ -45,7 +45,7 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 - **Portable images:** restore PNG, JPEG, GIF and WebP from image source blocks included in a single Markdown export. Verified files are saved beside the note in `GPT Pages Assets/` and linked locally; matching images are reused on repeat imports. Supports manual import and folder cleanup, with limits of **1 MiB per image, 4 MiB total and 32 image source blocks**. [Image authoring and recovery guide](docs/images.md).
 - **Cross-Page links:** the updated skill resolves internal Page links to tool-confirmed HTTPS destinations before export. These remain online links requiring access to the target Page; they do not become local notes. Unresolved links are preserved and reported. [Link preflight guide](skills/gpt-pages-obsidian-visualizations/references/page-links.md).
-- **Math authoring:** the skill requires `$…$` for inline math and `$$…$$` for display math. Existing `latex`/`math` code blocks remain code and are not automatically converted. [Formula example](skills/gpt-pages-obsidian-visualizations/assets/math-example.md).
+- **Math authoring:** the current source skill uses bare `latex` formula blocks for Pages and converts eligible blocks to Obsidian display math. This requires the upcoming importer update; released 0.2.2 and earlier retain these blocks as code. [Math workflow](skills/gpt-pages-obsidian-visualizations/references/math.md).
 
 **Update the Obsidian plugin and your AI agent's skill separately.** Images and native math need neither HTML trust nor Polyglot Renderer. Manual tests passed for the linked-Page and multi-image examples. Formula rendering was checked in a corrected local note; an unmodified Page math export still needs separate end-to-end validation.
 
@@ -76,7 +76,7 @@ Ask the agent:
 
 ```text
 Use @Pages and $gpt-pages-obsidian-visualizations to create or update a GPT Page about [your topic] for Markdown export to Obsidian. Use Pages tools to write the Page and create its native visualizations. Default to Plotly.js for charts and MathBox for mathematical animations, with fixed compatible CDN versions and explicit network requirements. Keep compact v3 ID-only markers in the body and matching complete HTML sources, dependency URLs, native references and SHA-256 in the footer. Do not fall back to v2.
-Include portable image source blocks for any images, resolve cross-Page links before export, and use $…$ / $$…$$ for math intended to render in Obsidian.
+Include portable image source blocks for any images, resolve cross-Page links before export, and use standalone latex blocks containing bare TeX formulas, with no dollar wrappers. Confirm that the installed importer supports converting them to Obsidian math.
 ```
 
 The skill prepares native charts, short figure IDs and footer HTML with matching references and SHA-256 checksums. This is the required authoring step in this workflow: a normal Page export may contain only native image references, which do not carry portable HTML. The importer cannot reconstruct missing sources. The skill runs in your AI agent; GPT Pages Importer handles the resulting Markdown in Obsidian.
