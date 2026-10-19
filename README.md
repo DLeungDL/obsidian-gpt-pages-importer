@@ -32,6 +32,8 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 > **Current release: [0.2.0](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English and Traditional Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
 
+**Development interface:** Simplified Chinese is now supported in source builds, alongside English and Traditional Chinese. On Obsidian 1.8.7 or later, select 简体中文 in Obsidian and reload as prompted. The plugin recognizes `zh`, `zh-CN` and `zh-Hans`; unsupported languages and older hosts use English. This addition is not included in the published 0.2.0 release.
+
 ## New in 0.2.0
 
 - **Portable images:** restore PNG, JPEG, GIF and WebP from image source blocks included in a single Markdown export. Verified files are saved beside the note in `GPT Pages Assets/` and linked locally; matching images are reused on repeat imports. Supports manual import and folder cleanup, with limits of **1 MiB per image, 4 MiB total and 32 image source blocks**. [Image authoring and recovery guide](docs/images.md).

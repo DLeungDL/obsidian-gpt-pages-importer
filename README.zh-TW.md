@@ -32,6 +32,8 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 > **目前發行版本為 [0.2.0](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.0)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
 
+**開發版介面（Development interface）**：原始碼建置已新增簡體中文（Simplified Chinese），與既有英文、繁體中文並存。Obsidian 1.8.7 起，在應用程式選擇「简体中文」並依提示重新載入即可套用；支援 `zh`、`zh-CN`、`zh-Hans`。未支援語言與舊版主程式回退英文。此功能尚未包含於已發布的 0.2.0。
+
 ## 0.2.0 新功能（What's new）
 
 - **可攜圖片（Portable images）**：從單一 Markdown 匯出檔中的圖片來源區塊還原 PNG、JPEG、GIF、WebP。驗證後保存至筆記旁的 `GPT Pages Assets/`，改為本地連結；重複匯入會復用相同圖片。支援手動匯入與資料夾清理，限制為**每張 1 MiB、合計 4 MiB、最多 32 個圖片來源區塊**。[圖片製作與復原指南](docs/images.zh-TW.md)。

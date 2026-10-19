@@ -236,3 +236,9 @@ On 2026-10-17, the prepared 0.1.3 source passed Obsidian ESLint with zero warnin
 A fresh real Obsidian 1.14.4 Linux vault verified manual import pairing (2 figures), plain-text preview, native settings-search results, confirmation/cancellation before rendering, save-before-application, nested watched-folder cleanup, exact backup and an unchanged outside-folder note. No renderer was installed for this run. The legacy settings UI remains covered by host-double tests; an older Obsidian desktop version was not newly tested.
 
 The tag workflow now prepares only the supported three assets and requires GitHub build provenance before publication. No new tag, release, attestation or external scanner result is claimed yet. See the [release process](releasing.md) and [public summary](evidence/validation-summary.json).
+
+## Simplified Chinese interface (development)
+
+On 2026-10-20 (Hong Kong), the post-0.2.0 source passed all 441 Vitest tests, 10 Python export-verifier tests, TypeScript, the build smoke check and zero-warning Obsidian ESLint. Coverage includes Simplified Chinese locale aliases, complete translation keys/placeholders, all three UI languages, legacy/declarative settings trust flows, and unchanged imported bytes/hashes.
+
+A fresh real Obsidian 1.14.4 vault on Debian 13.6 with an Xorg virtual display verified the app's `zh` language, Simplified Chinese commands/forms/renderer status, text-only preview, two paired figures, exact fixture output/hash and an unchanged re-import. Native settings search, cancelled rendering trust, explicit save and localized success status passed. Reloading the actual host switched between Traditional Chinese, English and Simplified Chinese. Screenshots and raw runtime evidence remain outside Git; only aggregate results are published. No renderer, older-host, mobile or new Pages-export validation is claimed. This feature is not part of the published 0.2.0 release.

@@ -234,3 +234,9 @@ Polyglot Renderer 公開 [README](https://github.com/Nimaapr/polyglot-renderer) 
 獨立的真正 Obsidian 1.14.4 Linux vault 已驗證手動匯入兩圖配對、純文字預覽、原生設定搜尋、確認／取消信任、儲存後才套用、指定資料夾巢狀清理、完整備份與外部筆記不變。本次未安裝 renderer。舊版設定頁以 host double 驗證，未新增舊 Obsidian 桌面版本實測。
 
 標籤工作流程只準備三個支援的安裝檔，發布前須通過 GitHub 建置來源證明（build provenance）。尚未建立新標籤、發布版本或宣稱外部掃描結果更新；詳見[發行流程](releasing.md)及[公開摘要](evidence/validation-summary.json)。
+
+## 簡體中文介面（開發版）
+
+2026-10-20（香港），0.2.0 之後的原始碼通過全部 441 項 Vitest 測試、10 項 Python 匯出驗證、TypeScript、建置載入檢查與零警告的 Obsidian ESLint。測試涵蓋簡體語言代碼、完整翻譯鍵值與佔位符（placeholders）、三種介面語言、舊版／宣告式設定（declarative settings）的信任流程，以及匯入 bytes／hash 不變。
+
+在 Debian 13.6 與 Xorg 虛擬顯示器的獨立真正 Obsidian 1.14.4 vault 中，已驗證應用程式的 `zh` 語言、簡體命令／表單／渲染器狀態、純文字預覽、兩圖配對、精確 fixture 輸出／雜湊與相同內容重匯。原生設定搜尋、取消渲染信任、明確儲存及簡體成功訊息均通過；重新載入真正主程式，可在繁體、英文與簡體間切換。截圖與原始執行證據保留於 Git 外，只公開彙整結果。本次未驗證 renderer、舊版主程式、行動裝置或新的 Pages 匯出。此功能尚未包含於已發布的 0.2.0。
