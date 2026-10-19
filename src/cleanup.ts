@@ -27,7 +27,7 @@ export async function cleanFile(storage: Storage, path: string, allowed: () => b
   const safePath = vaultPath(path);
   if (inFolder(safePath, 'GPT Pages Backups')) throw new Error(t('error.cleanBackup'));
   const source = await storage.read(safePath);
-  if (source === null || !allowed() || (!renderHtml && !/gpt-pages(?:\\?:figure|-asset)|^[\uFEFF ]{0,4}(?:`{3,}|~{3,})latex[ \t]*(?:\r?\n|\r|$)/im.test(source))) return { figures: 0, warnings: [] };
+  if (source === null || !allowed() || (!renderHtml && !/gpt-pages(?:\\?:figure|-asset)|^[\uFEFF ]{0,4}(?:`{3,}|~{3,})[ \t]*latex[ \t]*(?:\r?\n|\r|$)/im.test(source))) return { figures: 0, warnings: [] };
   const output = await prepareImages(await cleanVerified(source, renderHtml), safePath);
   if (source === output.markdown || !allowed()) return { figures: 0, warnings: output.warnings };
   // Back up exact UTF-8 text; the adapter's atomic replace rejects concurrent edits.
