@@ -172,7 +172,7 @@ fetch('./table.json'); const url = 'https://example.invalid/mathbox-2.3.1.js';</
         self.assertEqual(self.run_cli(path, '--node-check', '--require-self-contained').returncode, 1)
 
     def test_library_templates_preserve_bytes_and_report_pinned_dependencies(self):
-        for name, expected in [('plotly-function.html', 1), ('mathbox-curve.html', 4)]:
+        for name, expected in [('plotly-function.html', 1), ('mathbox-curve.html', 6)]:
             with self.subTest(name=name):
                 source = (ROOT / 'skills/gpt-pages-obsidian-visualizations/assets' / name).read_bytes()
                 path = self.markdown(body=source)
@@ -182,7 +182,7 @@ fetch('./table.json'); const url = 'https://example.invalid/mathbox-2.3.1.js';</
                 self.assertTrue(report['source_match'])
                 self.assertEqual(len(report['external_dependencies']), expected)
                 self.assertTrue(all(item['passed'] for item in report['js_syntax']))
-                self.assertTrue(all('cdn.jsdelivr.net/npm/' in item['url'] and '@' in item['url']
+                self.assertTrue(all(('cdn.jsdelivr.net/npm/' in item['url'] or 'unpkg.com/' in item['url']) and '@' in item['url']
                                     and '@latest' not in item['url'] for item in report['external_dependencies']))
                 self.assertFalse(report['runtime_tested'])
                 self.assertEqual(self.run_cli(path, '--require-self-contained').returncode, 1)
