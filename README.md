@@ -254,6 +254,10 @@ Import and cleanup use Markdown you provide. They do not connect to Pages to dow
 
 </details>
 
+## Support development
+
+If GPT Pages Importer is useful to you, you can [☕ buy me a coffee](https://buymeacoffee.com/dleung) to support maintenance, compatibility improvements, documentation and examples. Support is entirely optional; the plugin remains free and open source.
+
 ## License
 
 This project uses the [MIT License](LICENSE), covering the plugin source, documentation and bundled Page authoring skill. Bundled dependencies retain their own licenses. Complete third-party notices are embedded in `main.js`; source builds and CI installation artifacts also include readable license files.

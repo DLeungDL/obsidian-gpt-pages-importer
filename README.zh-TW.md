@@ -254,6 +254,10 @@ python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
 
 </details>
 
+## 支持開發（Support development）
+
+如果 GPT Pages Importer 對你有幫助，歡迎[☕ 請我喝杯咖啡（Buy Me a Coffee）](https://buymeacoffee.com/dleung)，支持外掛維護、相容性改善、文件與範例。贊助完全自願，外掛仍維持免費與開源。
+
 ## 授權（License）
 
 本專案採 [MIT 授權](LICENSE)，包含外掛原始碼、文件與附帶的 Page 生成技能。打包依賴保留各自授權，完整聲明（third-party notices）隨發行檔提供，並嵌入 `main.js`。
