@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4"><img src="https://img.shields.io/badge/version-0.2.4-8b5cf6?style=flat-square" alt="Version 0.2.4"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.5"><img src="https://img.shields.io/badge/version-0.2.5-8b5cf6?style=flat-square" alt="Version 0.2.5"></a>
   <a href="docs/format.zh-TW.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,16 @@
 
 Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯出的 Markdown 與完整、可攜的 HTML 原始碼（portable HTML source）接起來：驗證圖表配對，將頁尾來源移回圖表位置，清除已確認的標記與原生圖片參照。
 
-> **目前發行版本為 [0.2.4](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+> **目前發行版本為 [0.2.5](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.5)。** 已上架 [Obsidian 社群目錄（Community directory）](https://community.obsidian.md/plugins/gpt-pages-importer)，亦可手動安裝；已完成的桌面驗證與其他平台的實測範圍，見[相容性紀錄](docs/compatibility.zh-TW.md)。互動 HTML 需選用的 Polyglot Renderer，並由使用者明確確認信任。
+
+## 0.2.5 新功能（What's new）
+
+- **更可靠的 MathBox 匯出**：生成技能將完整、版本相符的 MathBox CSS 與授權聲明內嵌至 HTML，圖表不再依賴額外的樣式表請求。
+- **JavaScript CDN 備援（fallback）**：相容且固定版本的 Three.js、OrbitControls 與 MathBox 先從主要 CDN 載入，失敗時再嘗試備援來源；設有逾時與明確錯誤訊息。JavaScript 依賴仍需要網絡，使用 WebGL 的圖表亦需要環境支援。
+- **技能亦需更新（Skill update）**：請更新 AI 代理中的技能，才能使用改善後的版型。只更新 Obsidian 外掛不會重寫既有 Page 或已匯出的 HTML；受影響圖表需用新版技能重新產生，再匯出及匯入。
+
+<details>
+<summary>較早更新 · 0.2.0–0.2.4</summary>
 
 ## 0.2.4 新功能（What's new）
 
@@ -59,6 +68,8 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 
 **Obsidian 外掛與 AI 代理中的技能需分別更新。** 圖片與原生數學公式不需要 HTML 信任或 Polyglot Renderer。跨 Page 與多圖片範例已通過手動驗證；公式渲染已在修正後的本地筆記驗證，未修改的 Page 公式匯出仍需另做端到端驗證（end-to-end validation）。
 
+</details>
+
 ## 為什麼使用它？
 
 提供英文、繁體中文與簡體中文介面：Obsidian 1.8.7 起跟隨應用程式語言，繁體中文使用 `zh-TW`／`zh-Hant`，簡體中文使用 `zh`／`zh-CN`／`zh-Hans`（亦支援 `zh-SG`），未支援語言使用英文。切換 Obsidian 語言並依提示重新載入後套用。Obsidian 1.5.0–1.8.6 使用英文介面；最低支援版本仍為 1.5.0。
@@ -75,6 +86,14 @@ Pages 負責呈現想法，Obsidian 負責收藏與延伸。這個外掛把匯�
 <a id="quick-start"></a>
 
 ## 快速開始（Quick start）
+
+互動圖表流程需要以下三個部分：
+
+| 元件（Component） | 用途 |
+| :--- | :--- |
+| **Pages ＋ 生成技能（Authoring skill）** | 匯出前準備完整 HTML、v3 配對與可攜來源。 |
+| **GPT Pages Importer** | 在 Obsidian 資料庫中驗證並還原匯出內容。 |
+| **Polyglot Renderer** | 顯示已信任的互動 HTML；還原圖片與原生公式不需要它。 |
 
 ### 1 · 在 AI 代理中使用生成技能
 

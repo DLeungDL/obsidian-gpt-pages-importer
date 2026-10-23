@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml"><img src="https://github.com/DLeungDL/obsidian-gpt-pages-importer/actions/workflows/check.yml/badge.svg?branch=main" alt="Build and tests"></a>
-  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4"><img src="https://img.shields.io/badge/version-0.2.4-8b5cf6?style=flat-square" alt="Version 0.2.4"></a>
+  <a href="https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.5"><img src="https://img.shields.io/badge/version-0.2.5-8b5cf6?style=flat-square" alt="Version 0.2.5"></a>
   <a href="docs/format.md"><img src="https://img.shields.io/badge/pairing-v3_%2B_v2_%2B_v1-14b8a6?style=flat-square" alt="Pairing formats v3, v2 and v1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-38bdf8?style=flat-square" alt="MIT License"></a>
   <a href="#development"><img src="https://img.shields.io/badge/Node.js-24-334155?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js 24"></a>
@@ -30,7 +30,16 @@
 
 Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages Importer connects exported Markdown with complete, portable HTML sources: it verifies figure pairings, moves footer sources back to their chart positions, and removes verified markers and native image references.
 
-> **Current release: [0.2.4](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.4).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English, Traditional Chinese and Simplified Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+> **Current release: [0.2.5](https://github.com/DLeungDL/obsidian-gpt-pages-importer/releases/tag/0.2.5).** Available in the [Obsidian Community directory](https://community.obsidian.md/plugins/gpt-pages-importer) and through manual installation. See the [compatibility record](docs/compatibility.md) for the actual scope of device testing. Interactive HTML requires the optional Polyglot Renderer and explicit user trust. On Obsidian 1.8.7 and later, the English, Traditional Chinese and Simplified Chinese interface follows Obsidian's language. Unsupported languages and older supported Obsidian versions use English; the minimum supported version remains 1.5.0.
+
+## New in 0.2.5
+
+- **More reliable MathBox exports:** the authoring skill embeds the complete matching MathBox CSS, including its license, in the exported HTML. Charts no longer depend on a separate stylesheet request.
+- **JavaScript CDN fallback:** compatible, version-pinned Three.js, OrbitControls and MathBox scripts load from a primary CDN, then a backup if needed. Finite timeouts and clear failure messages replace indefinite loading. JavaScript dependencies still require network access and WebGL where used.
+- **Update the skill too:** update the skill in your AI agent to generate charts with the improved template. Updating the Obsidian plugin alone does not rewrite existing Pages or exported HTML. Regenerate affected charts with the updated skill, then export and import again.
+
+<details>
+<summary>Earlier updates · 0.2.0–0.2.4</summary>
 
 ## New in 0.2.4
 
@@ -59,6 +68,8 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 
 **Update the Obsidian plugin and your AI agent's skill separately.** Images and native math need neither HTML trust nor Polyglot Renderer. Manual tests passed for the linked-Page and multi-image examples. Formula rendering was checked in a corrected local note; an unmodified Page math export still needs separate end-to-end validation.
 
+</details>
+
 ## Why use it?
 
 | | Features |
@@ -73,6 +84,14 @@ Keep your ideas in Pages and bring their visualizations into Obsidian. GPT Pages
 <a id="quick-start"></a>
 
 ## Quick start
+
+You need three components for interactive charts:
+
+| Component | Purpose |
+| :--- | :--- |
+| **Pages + authoring skill** | Prepare the Page with complete HTML, v3 pairing and portable sources before export. |
+| **GPT Pages Importer** | Verify and restore the exported content in your Obsidian vault. |
+| **Polyglot Renderer** | Render trusted interactive HTML. Not required for restored images or native math. |
 
 ### 1 · Use the authoring skill in your AI agent
 
