@@ -256,7 +256,16 @@ Import and cleanup use Markdown you provide. They do not connect to Pages to dow
 
 ## Support development
 
-If GPT Pages Importer is useful to you, you can [☕ buy me a coffee](https://buymeacoffee.com/dleung) to support maintenance, compatibility improvements, documentation and examples. Support is entirely optional; the plugin remains free and open source.
+<p align="center">
+  <strong>Enjoying GPT Pages Importer?</strong><br>
+  Your support helps with maintenance, compatibility, documentation and examples.
+</p>
+
+<p align="center">
+  <a href="https://buymeacoffee.com/dleung"><img src="docs/assets/buy-me-a-coffee.svg" alt="Buy me a coffee" width="224" height="56"></a>
+</p>
+
+<p align="center"><sub>Always free and open source. Support is entirely optional. Thank you!</sub></p>
 
 ## License
 

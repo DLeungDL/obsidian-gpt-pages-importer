@@ -256,7 +256,16 @@ python -B -m unittest discover -s tests -p 'test_skill_export.py' -v
 
 ## 支持開發（Support development）
 
-如果 GPT Pages Importer 對你有幫助，歡迎[☕ 請我喝杯咖啡（Buy Me a Coffee）](https://buymeacoffee.com/dleung)，支持外掛維護、相容性改善、文件與範例。贊助完全自願，外掛仍維持免費與開源。
+<p align="center">
+  <strong>喜歡 GPT Pages Importer 嗎？</strong><br>
+  請我喝杯咖啡，支持外掛維護、相容性改善、文件與範例。
+</p>
+
+<p align="center">
+  <a href="https://buymeacoffee.com/dleung"><img src="docs/assets/buy-me-a-coffee.svg" alt="請我喝杯咖啡（Buy Me a Coffee）" width="224" height="56"></a>
+</p>
+
+<p align="center"><sub>外掛維持免費與開源，贊助完全自願。謝謝你的支持！</sub></p>
 
 ## 授權（License）
 
