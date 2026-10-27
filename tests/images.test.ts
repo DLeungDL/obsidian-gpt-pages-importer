@@ -32,6 +32,93 @@ const persist = async () => {};
 const prepare = async (text: string) => prepareImages(await convertVerified(text), 'Inbox/nested/note.md');
 
 describe('portable image conversion', () => {
+  const dataUri = `data:image/png;base64,${png.toString('base64')}`;
+  it.each([
+    ['image/jpeg', Buffer.from([255, 216, 255, 217]), 'jpg'],
+    ['image/gif', Buffer.concat([Buffer.from('GIF89a'), Buffer.alloc(7)]), 'gif'],
+    ['image/webp', Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBPVP8 ')]), 'webp']
+  ] as const)('restores %s reference-style data exports with a matching payload', async (mime, bytes, ext) => {
+    const payload = { ...asset('image-a', 'library-file:fixture-image', bytes), mime };
+    const input = `[image1]: data:${mime};base64,${bytes.toString('base64')}\n\n![image][image1]\n\n` + source(payload).split('\n\n')[1];
+    const output = await prepare(input);
+    expect(output.images).toHaveLength(1);
+    expect(Buffer.from(output.images![0]!.bytes)).toEqual(bytes);
+    expect(output.markdown).toContain(`${payload.sha256}.${ext}`);
+    expect(output.markdown).not.toMatch(/data:|gpt-pages-asset/);
+  });
+  it.each(['library-file', 'project-file'])('pairs only the known display fragment for %s images', async scheme => {
+    const input = source(asset('image-a', `${scheme}:fixture-image`)).replace('<' + scheme + ':fixture-image>', '<' + scheme + ':fixture-image#display=full>');
+    expect((await prepare(input)).images).toHaveLength(1);
+    for (const fragment of ['#other', '#display=full&other=1', '?display=full']) {
+      const unknown = input.replace('#display=full', fragment);
+      expect((await prepare(unknown)).markdown).toBe(unknown);
+    }
+  });
+  it.each(['inline', 'reference', 'collapsed', 'shortcut'])('restores standalone %s data images with exact bytes', async kind => {
+    const image = kind === 'inline' ? `![圖片](<${dataUri}> "caption")` : kind === 'reference' ? '![圖片][image1]' : kind === 'collapsed' ? '![image1][]' : '![image1]';
+    const input = kind === 'inline' ? image : `[image1]: ${dataUri} "caption"\n\n${image}`;
+    const output = await prepare(input);
+    expect(output.images).toHaveLength(1);
+    expect(Buffer.from(output.images![0]!.bytes)).toEqual(png);
+    expect(output.markdown).toContain('GPT%20Pages%20Assets/');
+    expect(output.markdown).toContain('"caption"');
+    expect(output.markdown).not.toContain('data:');
+  });
+  it('matches exported data bytes to a unique verified footer and removes only unused definitions', async () => {
+    const input = `[image1]: ${dataUri}\n\n![圖片][image1]\n\n` + source().split('\n\n')[1];
+    const output = await prepare(input);
+    expect(output.images).toHaveLength(1);
+    expect(output.markdown).not.toMatch(/data:|gpt-pages-asset/);
+    const shared = input + '\n\n[download][image1]\n';
+    const result = await prepare(shared);
+    expect(result.images).toHaveLength(1);
+    expect(result.markdown).toContain(`[image1]: ${dataUri}`);
+    expect(result.markdown).toContain('[download][image1]');
+  });
+  it('preserves ambiguous data images, invalid footers and conflicting bytes', async () => {
+    for (const input of [
+      `![a](${dataUri})\n\n![b](${dataUri})`,
+      `text ![a](${dataUri})`,
+      `![a](${dataUri})\n\n` + source({ ...asset(), sha256: '0'.repeat(64) }).split('\n\n')[1],
+      `![a](${dataUri})\n\n` + source(asset('image-a', 'library-file:fixture-image', Buffer.concat([png, Buffer.from([0])]))).split('\n\n')[1],
+      `![a](${dataUri})\n\n` + source().split('\n\n')[1] + '\n' + source(asset('other', 'library-file:other')).split('\n\n')[1]
+    ]) {
+      const output = await prepare(input);
+      expect(output.markdown).toBe(input);
+      expect(output.images).toHaveLength(0);
+    }
+  });
+  it.each(['data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=', 'data:image/png;base64,!!!!', 'data:image/jpeg;base64,aGVsbG8=', 'data:image/png;base64,aA==', 'data:image/png,hello'])('preserves invalid or unsupported data URI %s', async uri => {
+    const input = `![image](${uri})`;
+    const result = await prepare(input);
+    expect(result.markdown).toBe(input);
+    expect(result.images).toHaveLength(0);
+    expect(result.warnings.some(w => w.code === 'invalid-image-asset')).toBe(true);
+  });
+  it('preserves BOM/CRLF, code examples and shared nested image definitions', async () => {
+    const input = `\uFEFF[image1]: ${dataUri}\r\n\r\n![圖片][image1]\r\n\r\n保留 \\alpha\r\n`;
+    const output = await prepare(input);
+    expect(output.images).toHaveLength(1);
+    expect(output.markdown.startsWith('\uFEFF')).toBe(true);
+    expect(output.markdown.endsWith('保留 \\alpha\r\n')).toBe(true);
+    expect(output.markdown.replaceAll('\r\n', '')).not.toContain('\n');
+    for (const text of ['```markdown\n' + input.slice(1) + '```', input + '\r\ntext ![nested][image1]']) expect((await prepare(text)).markdown).toBe(text);
+  });
+  it('preserves duplicate definitions instead of choosing one silently', async () => {
+    const input = `[image1]: ${dataUri}\n[image1]: https://example.com/image.png\n\n![image][image1]`;
+    expect((await prepare(input)).markdown).toBe(input);
+  });
+  it('enforces count, individual and aggregate budgets for data images', async () => {
+    const uri = (bytes: Buffer) => `data:image/png;base64,${bytes.toString('base64')}`;
+    const many = Array.from({ length: 33 }, (_, i) => `![${i}](${uri(Buffer.concat([png, Buffer.from([i])]))})`).join('\n\n');
+    expect((await prepare(many)).images).toHaveLength(0);
+    const huge = `![large](${uri(Buffer.concat([png, Buffer.alloc(MAX_IMAGE_BYTES)]))})`;
+    expect((await prepare(huge)).markdown).toBe(huge);
+    const total = Array.from({ length: 5 }, (_, i) => `![${i}](${uri(Buffer.concat([png, Buffer.alloc(900000, i)]))})`).join('\n\n');
+    const result = await prepare(total);
+    expect(result.images).toHaveLength(4);
+    expect(result.markdown).toContain('data:');
+  }, 20000);
   it('restores exact image bytes, preserves alt/title and uses a deterministic relative path', async () => {
     const p = asset();
     const result = await prepare(source(p, true));
@@ -104,6 +191,23 @@ describe('portable image conversion', () => {
 });
 
 describe('binary write lifecycle', () => {
+  it('imports and cleans data URI exports with exact backups and repeat-import stability', async () => {
+    const input = `[image1]: data:image/png;base64,${png.toString('base64')}\n\n![image][image1]\n`;
+    const storage = new ImageMemory();
+    const plan = await planImport(storage, empty(), 'data.md', input, 'Inbox');
+    expect(storage.binaries.size).toBe(0);
+    const { state } = await applyImport(storage, empty(), plan, persist);
+    expect(storage.binaries.size).toBe(1);
+    expect((await planImport(storage, state, 'data.md', input, 'Inbox')).status).toBe('unchanged');
+    storage.files.set('Inbox/cleanup.md', input);
+    const clean = await cleanFile(storage, 'Inbox/cleanup.md');
+    expect(storage.files.get(clean.backup!)).toBe(input);
+    expect(storage.files.get('Inbox/cleanup.md')).not.toContain('data:');
+    expect((await cleanFile(storage, 'Inbox/cleanup.md')).backup).toBeUndefined();
+    const failed = new ImageMemory(); failed.files.set('Inbox/cleanup.md', input); failed.failImage = true;
+    await expect(cleanFile(failed, 'Inbox/cleanup.md')).rejects.toThrow();
+    expect(failed.files.get('Inbox/cleanup.md')).toBe(input);
+  });
   it('plans without writes, commits exact binaries, and repeats without backups or duplicate files', async () => {
     const storage = new ImageMemory();
     const plan = await planImport(storage, empty(), 'page.md', source(), 'Inbox');

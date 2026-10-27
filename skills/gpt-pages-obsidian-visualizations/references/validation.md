@@ -17,6 +17,8 @@ Passing one layer does not establish a later layer. For untested or blocked laye
 
 ## Ordinary export
 
+Run `node <skill-dir>/scripts/verify_page_export.mjs page-readback.md` first, then `node <skill-dir>/scripts/verify_page_export.mjs downloaded.md --expected page-readback.md`. Install the skill's locked dependencies with `npm ci --ignore-scripts --prefix <skill-dir>`. This completeness gate inventories every native visualization and raster image, even those lacking markers. Require one-to-one v3 figure/native/HTML bindings, valid exact-byte hashes and verified image bindings. Orphan sources, missing markers/HTML, duplicates, unknown fragments and mismatched images fail. The exact internal image fragment `#display=full` is presentation-only; Base64 data exports must match their unique footer payload by MIME, length and digest. Compare complete inventories to detect older downloads or missing added figures. Do not repair a failure by deleting unmatched content or recomputing hashes over altered payloads. Continue with the separate HTML byte comparison and runtime layers below; completeness alone proves neither UI export provenance nor rendering.
+
 This is the default workflow for creating a Page or an unspecified import demo. The Page and its downloaded Markdown contain native visuals, compact v3 figure markers and complete `html` sources in the footer. Verify those bytes first. A manual import defaults to `html-source`; trusting a manual import and testing its renderer does not test the watched folder's trust setting.
 
 ## Mathematics

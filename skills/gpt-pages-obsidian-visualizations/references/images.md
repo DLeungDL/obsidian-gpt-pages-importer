@@ -18,7 +18,17 @@ Use this workflow when the user requests images that survive a single Markdown e
    python <skill-dir>/scripts/verify_image_export.py downloaded.md --expected canonical.md --out restored-images
    ```
 
-   `canonical.md` must have been compared against Page readback. The verifier accepts only a new or empty extraction directory and never overwrites files. It validates payloads, signatures, budgets and expected bytes; it does not validate Markdown image pairing, real rendering or import behavior. The importer uses a Markdown syntax tree for pairing.
+   `canonical.md` must have been compared against Page readback. The extraction verifier accepts only a new or empty directory and never overwrites files. It validates payloads, signatures, budgets and expected bytes; it does not validate Markdown image pairing, real rendering or import behavior. Also run the mandatory completeness gate on both Page readback and actual export:
+
+   ```sh
+   npm ci --ignore-scripts --prefix <skill-dir>
+   node <skill-dir>/scripts/verify_page_export.mjs page-readback.md
+   node <skill-dir>/scripts/verify_page_export.mjs downloaded.md --expected page-readback.md
+   ```
+
+   Inventory every native image and visualization, not only sources or marked figures. Every native image must bind to exactly one verified payload; every visualization must have its v3 marker and verified HTML source. Unpaired, duplicate, mismatched or orphan content fails. Compare inventories by ID/reference/hash to catch stale downloads and omitted visuals.
+
+   The importer accepts the exact `#display=full` fragment on `library-file:`/`project-file:` image destinations while matching the bare `source_ref`; keep that display setting in the Page, and keep footer references bare. Do not strip arbitrary URL fragments or query strings. Exports can replace a native image with a standalone inline or reference-style `data:image/png|jpeg|gif|webp;base64,...` image. Validate canonical Base64, MIME/signature, decoded size and SHA-256. With asset footers present, require a unique matching payload by MIME/length/hash before removing anything; a nonmatching or ambiguous source remains unresolved. Without asset footers, a valid standalone data image can be restored directly. Duplicate image occurrences and nested images remain unresolved. Definitions are removed only after successful restoration and only when no remaining image or ordinary link uses them. Do not paste giant data definitions into Page prose or claim their presence proves successful Obsidian restoration. These importer changes need an updated installed build; do not assume an older release supports them.
 6. With user-authorized Obsidian testing, verify the preview's image count, saved file bytes, relative image link, repeated import and error preservation. Keep Page/tool readback, UI export and real Obsidian results separate. Only a tiny PNG ordinary-JSON export has historical UI evidence; dedicated asset fences, larger images and other formats need fresh UI verification. Installed importer support is not established by preparing a source checkout. Preserve unresolved assets and provide a concise missing-source report.
 
 See [the full contract](../../../docs/images.md) in a repository checkout. This skill folder includes its own generator and verifier and requires no repository runtime dependencies.
